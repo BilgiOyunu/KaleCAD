@@ -22,29 +22,188 @@
       --red: #ff918c;
       --shadow: rgba(0, 0, 0, .38);
     }
+
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; height: 100%; font-family: Inter, "Segoe UI", Tahoma, sans-serif; background: radial-gradient(ellipse at 75% 0%, #1a347c 0%, var(--bg-1) 54%, #040b20 100%); color: var(--text); }
-    body { display: grid; place-items: center; padding: clamp(10px, 2.3vw, 24px); }
-    .app { width: min(100%, 980px); min-height: min(92vh, 900px); background: linear-gradient(145deg, rgba(14, 31, 78, .97), rgba(6, 18, 50, .98)); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 28px 80px var(--shadow); position: relative; overflow: hidden; isolation: isolate; }
-    .header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(20, 42, 99, .9), rgba(12, 29, 75, .68)); }
-    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .logo-mark { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 15px; background: linear-gradient(145deg, #19377e, #0b1c4d); border: 1px solid rgba(220, 228, 245, .5); box-shadow: inset 0 0 20px rgba(190, 204, 235, .14); flex-shrink: 0; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      height: 100%;
+      font-family: Inter, "Segoe UI", Tahoma, sans-serif;
+      background: radial-gradient(ellipse at 75% 0%, #1a347c 0%, var(--bg-1) 54%, #040b20 100%);
+      color: var(--text);
+    }
+    body {
+      display: grid;
+      place-items: center;
+      padding: clamp(10px, 2.3vw, 24px);
+    }
+    .app {
+      width: min(100%, 1100px);
+      min-height: min(92vh, 900px);
+      background: linear-gradient(145deg, rgba(14, 31, 78, .97), rgba(6, 18, 50, .98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 28px 80px var(--shadow);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(20, 42, 99, .9), rgba(12, 29, 75, .68));
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .logo-mark {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #19377e, #0b1c4d);
+      border: 1px solid rgba(220, 228, 245, .5);
+      box-shadow: inset 0 0 20px rgba(190, 204, 235, .14);
+      flex-shrink: 0;
+    }
     .logo-mark svg { width: 42px; height: 42px; display: block; }
-    h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.3rem, 3vw, 2rem); letter-spacing: .12em; line-height: 1; font-weight: 700; }
-    .brand-subtitle { display: block; margin-top: 5px; color: #d7dced; font: 700 .58rem/1.1 Georgia, "Times New Roman", serif; letter-spacing: .17em; }
-    .tag { padding: 7px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--muted); font-size: .76rem; white-space: nowrap; font-weight: 700; }
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      letter-spacing: .12em;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .brand-subtitle {
+      display: block;
+      margin-top: 5px;
+      color: #d7dced;
+      font: 700 .58rem/1.1 Georgia, "Times New Roman", serif;
+      letter-spacing: .17em;
+    }
+    .tag {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: .76rem;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
     .screen { display: none; padding: clamp(18px, 3vw, 32px); }
     .screen.active { display: block; }
-    .hero { text-align: center; padding: 20px 10px 6px; }
-    .eyebrow { margin: 0 0 12px; color: #dce3f2; letter-spacing: .16em; font-weight: 900; font-size: .72rem; }
-    .hero h2 { margin: 0; font-size: clamp(2rem, 5vw, 4rem); line-height: .96; letter-spacing: -.05em; }
-    .hero h2 span { color: #b7c3df; }
-    .hero p { margin: 18px auto 0; max-width: 650px; font-size: 1.02rem; line-height: 1.6; color: var(--muted); }
-    .category-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
-    .btn, .primary { appearance: none; border: 1px solid rgba(220,228,245,.2); background: rgba(255,255,255,.045); color: var(--text); border-radius: 12px; padding: 11px 14px; font: inherit; font-weight: 700; cursor: pointer; transition: 120ms ease; touch-action: manipulation; }
+
+    .hero {
+      text-align: center;
+      padding: 18px 10px 12px;
+    }
+    .hero-logo-wrap {
+      display: grid;
+      place-items: center;
+      margin: 6px auto 0;
+      width: min(72vw, 650px);
+      padding-top: 8px;
+    }
+    .hero-logo {
+      width: min(84vw, 680px);
+      aspect-ratio: 14.5 / 7.7;
+      display: grid;
+      place-items: center;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .hero-logo .castle {
+      width: 64%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 12px 20px rgba(9, 19, 45, .18));
+      opacity: 0.9;
+    }
+    .hero-logo .title {
+      position: absolute;
+      inset: 34% 0 auto;
+      font-family: "Arial Black", Impact, sans-serif;
+      font-size: clamp(3.8rem, 11vw, 11rem);
+      letter-spacing: -.06em;
+      line-height: .82;
+      font-weight: 900;
+      color: rgba(255,255,255,.97);
+      text-transform: uppercase;
+      text-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+    .hero-logo .title span {
+      display: block;
+      font-size: clamp(2.2rem, 7vw, 6.4rem);
+      letter-spacing: -.04em;
+      margin-top: 10px;
+    }
+    .eyebrow {
+      margin: 18px 0 8px;
+      color: #dce3f2;
+      letter-spacing: .16em;
+      font-weight: 900;
+      font-size: .72rem;
+    }
+    .hero p {
+      margin: 18px auto 0;
+      max-width: 650px;
+      font-size: 1.02rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .category-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 26px;
+    }
+    .btn, .primary {
+      appearance: none;
+      border: 1px solid rgba(220,228,245,.2);
+      background: rgba(255,255,255,.045);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 120ms ease;
+      touch-action: manipulation;
+    }
     .btn:hover, .primary:hover { transform: translateY(-1px); }
-    .btn.selected { background: linear-gradient(180deg, rgba(80, 111, 183, .55), rgba(48, 73, 139, .35)); border-color: rgba(205,216,240,.55); box-shadow: 0 0 0 1px rgba(190,204,235,.16); }
-    .primary { display: inline-flex; align-items: center; justify-content: center; min-width: 180px; padding: 14px 22px; border: 1px solid rgba(232,237,248,.42); border-radius: 14px; background: linear-gradient(135deg, #4665ad, #233e82); color: #fff; font-weight: 900; letter-spacing: .04em; box-shadow: 0 12px 26px rgba(5,14,43,.35); }
+    .btn.selected {
+      background: linear-gradient(180deg, rgba(80, 111, 183, .55), rgba(48, 73, 139, .35));
+      border-color: rgba(205,216,240,.55);
+      box-shadow: 0 0 0 1px rgba(190,204,235,.16);
+    }
+    .primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      padding: 14px 22px;
+      border: 1px solid rgba(232,237,248,.42);
+      border-radius: 14px;
+      background: linear-gradient(135deg, #4665ad, #233e82);
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: .04em;
+      box-shadow: 0 12px 26px rgba(5,14,43,.35);
+    }
     .center-button { display: flex; justify-content: center; margin-top: 22px; }
     .pool-note { text-align: center; margin: 18px 0 0; color: var(--muted); font-size: .82rem; }
     .stats { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; color: var(--muted); font-size: .94rem; font-weight: 700; }
@@ -71,7 +230,13 @@
     .celebration { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 40; }
     .particle { position: absolute; left: 50%; top: 50%; animation: burst 1.3s ease-out forwards; }
     @keyframes burst { 0% { transform: translate(-50%, -50%) scale(.2); opacity: 0; } 18% { opacity: 1; } 100% { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) rotate(var(--r)); opacity: 0; } }
-    @media (max-width: 700px) { .header { padding: 14px 16px; } .answers { grid-template-columns: 1fr; } .controls { flex-direction: column; align-items: stretch; } .controls .btn, .controls .primary { width: 100%; } }
+    @media (max-width: 700px) {
+      .header { padding: 14px 16px; }
+      .answers { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; align-items: stretch; }
+      .controls .btn, .controls .primary { width: 100%; }
+      .hero-logo .title { inset: 36% 0 auto; }
+    }
   </style>
 </head>
 <body>
@@ -90,15 +255,62 @@
       </div>
       <span class="tag">AutoCAD • SketchUp</span>
     </header>
+
     <section id="home" class="screen active">
-      <div class="hero"><p class="eyebrow">KALE OKULLARI • ÇİZİM BİLGİSİ</p><h2>Komutları biliyor<br><span>musun?</span></h2><p>Hızlı ve eğlenceli CAD yarışmasına hazır mısın? Karışık moddan başlayıp hızla puan topla.</p></div>
-      <div class="category-row" aria-label="Kategori seçimi"><button class="btn selected" data-cat="all" type="button">Karışık</button><button class="btn" data-cat="AutoCAD" type="button">AutoCAD</button><button class="btn" data-cat="SketchUp" type="button">SketchUp</button></div>
-      <p class="pool-note" id="poolNote"></p><div class="center-button"><button class="primary" id="start" type="button">Başla</button></div>
+      <div class="hero">
+        <div class="hero-logo-wrap">
+          <div class="hero-logo" aria-label="KALE OKULLARI logosu">
+            <svg class="castle" viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g fill="#c8d2e8" opacity="0.88">
+                <path d="M65 210V120h55v25h42v-25h55v25h42v-25h55v25h42v-25h55v25h42v-25h55v25h42v90H65Z"/>
+                <path d="M80 210h460v20H80z" fill="#dde7f6"/>
+              </g>
+            </svg>
+            <div class="title">KALE<span>OKULLARI</span></div>
+          </div>
+        </div>
+        <p class="eyebrow">KALE OKULLARI • ÇİZİM BİLGİSİ</p>
+        <p>Hızlı ve eğlenceli CAD yarışmasına hazır mısın? Karışık moddan başlayıp hızla puan topla.</p>
+      </div>
+
+      <div class="category-row" aria-label="Kategori seçimi">
+        <button class="btn selected" data-cat="all" type="button">Karışık</button>
+        <button class="btn" data-cat="AutoCAD" type="button">AutoCAD</button>
+        <button class="btn" data-cat="SketchUp" type="button">SketchUp</button>
+      </div>
+      <p class="pool-note" id="poolNote"></p>
+      <div class="center-button"><button class="primary" id="start" type="button">Başla</button></div>
     </section>
-    <section id="quiz" class="screen"><div class="stats"><span id="qCount">Soru 1 / 10</span><span id="score">Puan: 0</span></div><div class="track"><div class="bar" id="bar"></div></div><h2 class="question" id="question"></h2><div class="answers" id="answers"></div><p class="feedback" id="feedback" aria-live="polite"></p><div class="controls"><button class="primary hidden" id="next" type="button">Sonraki soru</button><button class="btn" data-home type="button">Ana menü</button></div></section>
-    <section id="result" class="screen"><h2>🏁 Tur tamamlandı!</h2><div class="level" id="levelText"></div><div class="result" id="resultText"></div><table class="scoreboard" aria-label="Skor tablosu"><thead><tr><th>Gösterge</th><th>Sonuç</th></tr></thead><tbody><tr><td>Doğru</td><td id="correctCount">0</td></tr><tr><td>Yanlış</td><td id="wrongCount">0</td></tr><tr><td>Başarı</td><td id="accuracy">0%</td></tr><tr><td>Rekor</td><td id="bestStat">0</td></tr></tbody></table><div class="center-button"><button class="primary" id="replay" type="button">Tekrar oyna</button></div><div class="center-button"><button class="btn" data-home type="button">Ana menü</button></div></section>
+
+    <section id="quiz" class="screen">
+      <div class="stats"><span id="qCount">Soru 1 / 10</span><span id="score">Puan: 0</span></div>
+      <div class="track"><div class="bar" id="bar"></div></div>
+      <h2 class="question" id="question"></h2>
+      <div class="answers" id="answers"></div>
+      <p class="feedback" id="feedback" aria-live="polite"></p>
+      <div class="controls"><button class="primary hidden" id="next" type="button">Sonraki soru</button><button class="btn" data-home type="button">Ana menü</button></div>
+    </section>
+
+    <section id="result" class="screen">
+      <h2>🏁 Tur tamamlandı!</h2>
+      <div class="level" id="levelText"></div>
+      <div class="result" id="resultText"></div>
+      <table class="scoreboard" aria-label="Skor tablosu">
+        <thead><tr><th>Gösterge</th><th>Sonuç</th></tr></thead>
+        <tbody>
+          <tr><td>Doğru</td><td id="correctCount">0</td></tr>
+          <tr><td>Yanlış</td><td id="wrongCount">0</td></tr>
+          <tr><td>Başarı</td><td id="accuracy">0%</td></tr>
+          <tr><td>Rekor</td><td id="bestStat">0</td></tr>
+        </tbody>
+      </table>
+      <div class="center-button"><button class="primary" id="replay" type="button">Tekrar oyna</button></div>
+      <div class="center-button"><button class="btn" data-home type="button">Ana menü</button></div>
+    </section>
   </main>
+
   <div class="celebration" id="celebration" aria-hidden="true"></div>
+
   <script>
     const questions = [
       {category:'AutoCAD',q:'LINE komutu ne işe yarar?',a:'İki veya daha fazla nokta arasında düz çizgi çizer.',o:['Düz çizgi çizer.','Kapalı alanı tarar.','Nesneleri döndürür.','Ölçü ekler.']},
@@ -122,17 +334,61 @@
       {category:'SketchUp',q:'Eraser aracı ne yapar?',a:'Kenarları siler veya yumuşatır.',o:['Kenarları siler veya yumuşatır.','Katı hacmi birleştirir.','Yüzeyi döndürür.','Sahne kaydeder.']},
       {category:'SketchUp',q:'Section Plane ne için kullanılır?',a:'Modeli incelemek için kesit düzlemi oluşturur.',o:['Model için kesit düzlemi oluşturur.','Görünümü yakınlaştırır.','Yüzeylere renk verir.','Geometriyi kopyalar.']}
     ];
+
     const shuffle = a => { const x=[...a]; for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; };
     let category='all', list=[], index=0, points=0, locked=false;
     const $=id=>document.getElementById(id), screens=[...document.querySelectorAll('.screen')];
-    function showScreen(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));}
-    function updatePoolNote(){ $('poolNote').textContent=`${questions.filter(x=>category==='all'||x.category===category).length} soru • ${category==='all'?'AutoCAD ve SketchUp':category}`; }
-    function setCategory(cat){category=cat;document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('selected',b.dataset.cat===cat));updatePoolNote();}
-    function startQuiz(){list=shuffle(questions.filter(x=>category==='all'||x.category===category)).slice(0,10);index=0;points=0;showScreen('quiz');renderQuestion();}
-    function renderQuestion(){locked=false;const item=list[index];$('qCount').textContent=`Soru ${index+1} / ${list.length}`;$('question').textContent=item.q;$('score').textContent=`Puan: ${points}`;$('feedback').textContent='';$('feedback').className='feedback';$('next').classList.add('hidden');$('bar').style.width=`${index/list.length*100}%`;const wrap=$('answers');wrap.innerHTML='';shuffle(item.o).forEach(option=>{const b=document.createElement('button');b.type='button';b.className='answer';b.textContent=option;b.addEventListener('click',()=>chooseAnswer(b,option,item));wrap.appendChild(b);});}
-    function chooseAnswer(button,selected,item){if(locked)return;locked=true;document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.textContent===item.a)b.classList.add('correct');if(b===button&&selected!==item.a)b.classList.add('wrong');});const f=$('feedback');if(selected===item.a){points++;f.textContent='✓ Doğru!';f.classList.add('good');}else{f.textContent=`Yanlış! Doğru cevap: ${item.a}`;f.classList.add('bad');}$('score').textContent=`Puan: ${points}`;$('next').classList.remove('hidden');}
-    function finishRound(){const total=list.length,wrong=total-points,ratio=Math.round(points/total*100),key='kalecad_best_blue',best=Math.max(Number(localStorage.getItem(key)||0),points);localStorage.setItem(key,String(best));$('correctCount').textContent=points;$('wrongCount').textContent=wrong;$('accuracy').textContent=`${ratio}%`;$('bestStat').textContent=best;$('levelText').innerHTML=ratio>=80?'<strong>Uzman</strong><br>CAD bilgin çok güçlü. Böyle devam et!':ratio>=50?'<strong>Orta Seviye</strong><br>Biraz daha pratikle uzmanlığa ulaşabilirsin.':'<strong>Pratiğe devam!</strong><br>Yeni bir turla kendini geliştirebilirsin.';$('resultText').innerHTML=`Bu turda <strong>${points} / ${total}</strong> doğru cevap verdin. Başarı oranı: <strong>${ratio}%</strong>.`;showScreen('result');}
-    document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>setCategory(b.dataset.cat)));document.querySelectorAll('[data-home]').forEach(b=>b.addEventListener('click',()=>showScreen('home')));$('start').addEventListener('click',startQuiz);$('replay').addEventListener('click',startQuiz);$('next').addEventListener('click',()=>{if(index+1<list.length){index++;renderQuestion();}else finishRound();});setCategory('all');showScreen('home');
+
+    function showScreen(id){ screens.forEach(s=>s.classList.toggle('active', s.id===id)); }
+    function updatePoolNote(){ $('poolNote').textContent = `${questions.filter(x=>category==='all'||x.category===category).length} soru • ${category==='all' ? 'AutoCAD ve SketchUp' : category}`; }
+    function setCategory(cat){ category=cat; document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('selected', b.dataset.cat===cat)); updatePoolNote(); }
+    function startQuiz(){ list = shuffle(questions.filter(x=>category==='all'||x.category===category)).slice(0,10); index=0; points=0; showScreen('quiz'); renderQuestion(); }
+    function renderQuestion(){
+      locked=false; const item=list[index];
+      $('qCount').textContent=`Soru ${index+1} / ${list.length}`;
+      $('question').textContent=item.q;
+      $('score').textContent=`Puan: ${points}`;
+      $('feedback').textContent='';
+      $('feedback').className='feedback';
+      $('next').classList.add('hidden');
+      $('bar').style.width=`${index/list.length*100}%`;
+      const wrap=$('answers'); wrap.innerHTML='';
+      shuffle(item.o).forEach(option=>{
+        const b=document.createElement('button');
+        b.type='button';
+        b.className='answer';
+        b.textContent=option;
+        b.addEventListener('click',()=>chooseAnswer(b, option, item));
+        wrap.appendChild(b);
+      });
+    }
+    function chooseAnswer(button, selected, item){
+      if(locked) return; locked=true;
+      document.querySelectorAll('.answer').forEach(b=>{
+        b.disabled=true;
+        if(b.textContent===item.a) b.classList.add('correct');
+        if(b===button && selected!==item.a) b.classList.add('wrong');
+      });
+      const f=$('feedback');
+      if(selected===item.a){ points++; f.textContent='✓ Doğru!'; f.classList.add('good'); } else { f.textContent=`Yanlış! Doğru cevap: ${item.a}`; f.classList.add('bad'); }
+      $('score').textContent=`Puan: ${points}`;
+      $('next').classList.remove('hidden');
+    }
+    function finishRound(){
+      const total=list.length, wrong=total-points, ratio=Math.round(points/total*100), key='kalecad_best_blue', best=Math.max(Number(localStorage.getItem(key)||0), points);
+      localStorage.setItem(key, String(best));
+      $('correctCount').textContent=points; $('wrongCount').textContent=wrong; $('accuracy').textContent=`${ratio}%`; $('bestStat').textContent=best;
+      $('levelText').innerHTML = ratio>=80 ? '<strong>Uzman</strong><br>CAD bilgin çok güçlü. Böyle devam et!' : ratio>=50 ? '<strong>Orta Seviye</strong><br>Biraz daha pratikle uzmanlığa ulaşabilirsin.' : '<strong>Pratiğe devam!</strong><br>Yeni bir turla kendini geliştirebilirsin.';
+      $('resultText').innerHTML=`Bu turda <strong>${points} / ${total}</strong> doğru cevap verdin. Başarı oranı: <strong>${ratio}%</strong>.`;
+      showScreen('result');
+    }
+
+    document.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>setCategory(b.dataset.cat)));
+    document.querySelectorAll('[data-home]').forEach(b=>b.addEventListener('click',()=>showScreen('home')));
+    $('start').addEventListener('click', startQuiz);
+    $('replay').addEventListener('click', startQuiz);
+    $('next').addEventListener('click',()=>{ if(index+1<list.length){ index++; renderQuestion(); } else finishRound(); });
+    setCategory('all'); updatePoolNote(); showScreen('home');
   </script>
 </body>
 </html>
