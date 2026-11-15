@@ -677,6 +677,26 @@
       updatePoolNote();
     }
 
+    function playStartupTone() {
+      if (!soundOn) return;
+      try {
+        audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === 'suspended') audioContext.resume();
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        const now = audioContext.currentTime;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(420, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.16, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      } catch (_) {}
+    }
+
     function startQuiz() {
       clearInterval(timerId);
       list = shuffle(questions.filter(item => category === 'all' || item.category === category)).slice(0, 10);
@@ -684,6 +704,7 @@
       points = 0;
       showScreen('quiz');
       renderQuestion();
+      playStartupTone();
     }
 
     function updateTimer() {
@@ -785,6 +806,21 @@
       setTimeout(() => layer.replaceChildren(), 1800);
     }
 
+    function animateScore() {
+      const scoreValue = $('scoreValue');
+      const target = Number(scoreValue.textContent || 0);
+      let current = 0;
+      const step = Math.max(1, Math.ceil(target / 20));
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        scoreValue.textContent = current;
+      }, 35);
+    }
+
     function markAnswers() {
       document.querySelectorAll('.answer').forEach(button => {
         button.disabled = true;
@@ -836,11 +872,15 @@
       const correct = points;
       const wrong = total - correct;
       const ratio = Math.round((correct / total) * 100);
+      const bestKey = 'kalecad_best_score';
+      const prevBest = Number(localStorage.getItem(bestKey) || 0);
+      const best = Math.max(prevBest, correct);
+      localStorage.setItem(bestKey, String(best));
 
       $('correctCount').textContent = correct;
       $('wrongCount').textContent = wrong;
       $('accuracy').textContent = `${ratio}%`;
-      $('scoreValue').textContent = correct;
+      $('scoreValue').textContent = '0';
       $('scoreDetail').textContent = `${total} soruda ${correct} doğru`;
 
       const levelText = $('levelText');
@@ -854,6 +894,7 @@
         levelText.innerHTML = '<strong>🛠️ Başlangıç Aşaması</strong><br>Bu turdan deneyim kazandın; tekrar denemeye devam et.';
       }
 
+      animateScore();
       showScreen('result');
     }
 
@@ -884,7 +925,7 @@
       $('soundToggle').setAttribute('aria-pressed', String(soundOn));
       $('soundToggle').textContent = soundOn ? '🔊 Ses açık' : '🔇 Ses';
       $('soundToggle').setAttribute('aria-label', soundOn ? 'Ses efektlerini kapat' : 'Ses efektlerini aç');
-      if (soundOn) playTone(true);
+      if (soundOn) playStartupTone();
     });
 
     setCategory('all');
@@ -892,7 +933,7 @@
 
     const splash = $('splash');
     window.addEventListener('load', () => {
-      window.setTimeout(() => splash.classList.add('is-hidden'), 2200);
+      window.setTimeout(() => splash.classList.add('is-hidden'), 2300);
     }, { once: true });
   </script>
 </body>
