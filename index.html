@@ -836,16 +836,12 @@
       const correct = points;
       const wrong = total - correct;
       const ratio = Math.round((correct / total) * 100);
-      const key = 'kalecad_best_blue';
-      const best = Math.max(Number(localStorage.getItem(key) || 0), correct);
-      localStorage.setItem(key, String(best));
 
       $('correctCount').textContent = correct;
       $('wrongCount').textContent = wrong;
       $('accuracy').textContent = `${ratio}%`;
       $('scoreValue').textContent = correct;
       $('scoreDetail').textContent = `${total} soruda ${correct} doğru`;
-      $('bestStat').textContent = best;
 
       const levelText = $('levelText');
       if (ratio >= 80) {
@@ -859,15 +855,6 @@
       }
 
       showScreen('result');
-    }
-
-    function nextQuestion() {
-      if (index + 1 < list.length) {
-        index += 1;
-        renderQuestion();
-      } else {
-        finishRound();
-      }
     }
 
     $('start').addEventListener('click', startQuiz);
@@ -905,7 +892,7 @@
 
     const splash = $('splash');
     window.addEventListener('load', () => {
-      window.setTimeout(() => splash.classList.add('is-hidden'), 2200, { once: true });
+      window.setTimeout(() => splash.classList.add('is-hidden'), 2200);
     }, { once: true });
   </script>
 </body>
