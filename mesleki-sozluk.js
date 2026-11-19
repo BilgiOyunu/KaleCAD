@@ -205,44 +205,43 @@ render();
 });
 
 /* OYUN MERKEZI DUGMESIYLE AYNI BOYUT VE TASARIM */
+
 function syncButton(){
-const gameBtn=document.getElementById('kaleGamesBtn');
-if(!gameBtn)return false;
+  const gameBtn=document.getElementById('kaleGamesBtn');
+  if(!gameBtn)return false;
 
-const rect=gameBtn.getBoundingClientRect();
-const style=getComputedStyle(gameBtn);
+  const rect=gameBtn.getBoundingClientRect();
+  const style=getComputedStyle(gameBtn);
 
-const copyStyles=[
-'background','backgroundColor','backgroundImage',
-'color','fontFamily','fontSize','fontWeight','fontStyle',
-'letterSpacing','textTransform','textAlign',
-'border','borderRadius','boxShadow','textShadow'
-];
+  btn.style.position='fixed';
+  btn.style.left='auto';
+  btn.style.right=(window.innerWidth-rect.right)+'px';
+  btn.style.top='auto';
+  btn.style.bottom=(window.innerHeight-rect.top+8)+'px';
 
-copyStyles.forEach(key=>{
-btn.style[key]=style[key];
-});
+  btn.style.width=rect.width+'px';
+  btn.style.height=rect.height+'px';
+  btn.style.minHeight=rect.height+'px';
+  btn.style.padding=style.padding;
+  btn.style.margin='0';
+  btn.style.boxSizing='border-box';
 
-btn.style.position='fixed';
-btn.style.left=rect.left+'px';
-btn.style.top=Math.max(4,rect.top-rect.height-8)+'px';
-btn.style.bottom='auto';
-btn.style.width=rect.width+'px';
-btn.style.height=rect.height+'px';
-btn.style.minHeight=rect.height+'px';
-btn.style.padding=style.padding;
-btn.style.margin='0';
-btn.style.display='flex';
-btn.style.alignItems='center';
-btn.style.justifyContent='center';
-btn.style.boxSizing='border-box';
-btn.style.zIndex='99990';
-btn.style.whiteSpace='nowrap';
-btn.style.overflow='hidden';
-btn.style.fontSize=style.fontSize;
-btn.style.cursor='pointer';
+  btn.style.display='flex';
+  btn.style.alignItems='center';
+  btn.style.justifyContent='center';
 
-return true;
+  btn.style.background=style.background;
+  btn.style.color=style.color;
+  btn.style.border=style.border;
+  btn.style.borderRadius=style.borderRadius;
+  btn.style.boxShadow=style.boxShadow;
+  btn.style.fontFamily=style.fontFamily;
+  btn.style.fontSize=style.fontSize;
+  btn.style.fontWeight=style.fontWeight;
+  btn.style.zIndex='99990';
+  btn.style.whiteSpace='nowrap';
+
+  return true;
 }
 
 let attempts=0;
