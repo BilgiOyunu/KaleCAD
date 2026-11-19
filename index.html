@@ -21,7 +21,7 @@ Original file line number	Diff line number	Diff line change
         const response = await fetch('https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html', { cache: 'no-store' });
         if (!response.ok) throw new Error('Oyun dosyası yüklenemedi (' + response.status + ').');
         let gameHtml = await response.text();
-        const additions = '<script src="./campus-selection.js?v=28c5627"></scr' + 'ipt><script src="./question-bank.js?v=6d387af"></scr' + 'ipt><script src="./conquest-map.js?v=9"></scr' + 'ipt><script src="./autocad-atolye.js?v=1"></scr' + 'ipt>';
+        const additions = '<script src="./campus-selection.js?v=28c5627"></scr' + 'ipt><script src="./question-bank.js?v=6d387af"></scr' + 'ipt><script src="./conquest-map.js?v=9"></scr' + 'ipt><script src="./autocad-atolye.js?v=2"></scr' + 'ipt>';
         if (!/<\/body>/i.test(gameHtml)) throw new Error('Oyun HTML dosyasında body kapanışı bulunamadı.');
         gameHtml = gameHtml.replace(/<\/body>/i, additions + '</body>');
         document.open();
