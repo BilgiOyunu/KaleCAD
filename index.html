@@ -8,265 +8,64 @@
 <meta name="description" content="KALECAD - CAD Bilgi Yarışması">
 <title>KALECAD</title>
 <style>
-/* KALECAD GENEL MOBIL TASARIM */
 @media(max-width:760px){
-  html,body{
-    width:100%;
-    min-height:100%;
-    margin:0;
-    padding:0;
-    overflow-x:hidden;
-  }
-  body{
-    display:block;
-    min-height:100vh;
-    min-height:100dvh;
-    padding:0;
-  }
-  .app{
-    width:100%;
-    max-width:none;
-    min-height:100vh;
-    min-height:100dvh;
-    margin:0;
-    border-radius:0;
-    border:0;
-    overflow:hidden;
-  }
-  .header{
-    position:sticky;
-    top:0;
-    z-index:50;
-    padding:10px 14px;
-    gap:8px;
-  }
-  .brand{
-    gap:8px;
-    font-size:14px;
-    letter-spacing:.08em;
-  }
-  .brand img{
-    width:40px;
-    height:40px;
-  }
-  .sub{
-    font-size:9px;
-  }
-  .header .btn{
-    padding:9px 10px;
-    font-size:12px;
-    min-height:40px;
-  }
-  .screen{
-    padding:18px 13px;
-    width:100%;
-    min-width:0;
-  }
-  .hero{
-    padding:8px 4px 12px;
-  }
-  .hero img{
-    width:120px;
-    max-height:110px;
-  }
-  h1{
-    font-size:clamp(23px,6vw,32px);
-    line-height:1.2;
-  }
-  .hero p,.summary{
-    font-size:14px;
-    line-height:1.5;
-  }
-  .settings{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:10px;
-    margin:14px 0;
-  }
-  .setting-card{
-    width:100%;
-    min-width:0;
-    padding:13px;
-    border-radius:14px;
-  }
-  .setting-title{
-    flex-wrap:wrap;
-    font-size:14px;
-  }
-  .setting-caption{
-    font-size:11px;
-  }
-  .option{
-    min-height:46px;
-    padding:11px;
-    font-size:13px;
-  }
-  .inline-options{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:7px;
-  }
-  .category-options{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-  }
-  .category-options .option{
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    gap:4px;
-    min-width:0;
-    text-align:center;
-    padding:10px 4px;
-    overflow-wrap:anywhere;
-  }
-  .category-options .option small{
-    white-space:normal;
-    font-size:10px;
-  }
-  .actions{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:9px;
-    margin:16px 0;
-  }
-  .actions button,.primary,.btn{
-    width:100%;
-    min-width:0;
-    min-height:48px;
-    padding:12px;
-    font-size:15px;
-  }
-  .stats{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:9px;
-    padding:10px;
-    font-size:13px;
-  }
-  .timer{
-    grid-column:1/-1;
-    justify-content:center;
-  }
-  .question{
-    min-height:0;
-    margin:20px 0 15px;
-    font-size:21px;
-    line-height:1.4;
-    overflow-wrap:anywhere;
-  }
-  .answers{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:9px;
-  }
-  .answer{
-    width:100%;
-    min-height:58px;
-    padding:13px;
-    font-size:14px;
-    line-height:1.45;
-    overflow-wrap:anywhere;
-  }
-  .feedback{
-    font-size:14px;
-    line-height:1.5;
-  }
-  .result-card{
-    width:100%;
-    padding:16px;
-    margin:10px auto;
-  }
-  .result h2{
-    font-size:24px;
-  }
-  .result-stats{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:8px;
-    font-size:12px;
-  }
-  .result-stats strong{
-    font-size:21px;
-  }
-  #conquestMap{
-    width:100%;
-    max-width:100%;
-    overflow:hidden;
-  }
-  #territoryMap{
-    display:block;
-    width:100%;
-    height:auto;
-    max-height:none;
-  }
-  #campusPicker{
-    width:100%;
-    min-width:0;
-  }
-  #campusPicker .inline-options{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-  #campusPicker .option{
-    min-height:48px;
-  }
-  #kaModal{
-    padding:0!important;
-    overflow-x:hidden!important;
-  }
-  #kaModal .kaWindow{
-    width:100%;
-    max-width:100%;
-    min-height:100dvh;
-    margin:0;
-    border-radius:0;
-    padding:12px;
-  }
-  #kaModal .kaGrid{
-    grid-template-columns:1fr;
-  }
-  #kaModal button{
-    min-height:46px;
-    max-width:100%;
-  }
-  #kaModal .kaCard{
-    min-width:0;
-    overflow-wrap:anywhere;
-  }
+html,body{width:100%;min-height:100%;margin:0;padding:0;overflow-x:hidden}
+body{display:block;min-height:100vh;min-height:100dvh;padding:0}
+.app{width:100%;max-width:none;min-height:100vh;min-height:100dvh;margin:0;border-radius:0;border:0;overflow:hidden}
+.header{position:sticky;top:0;z-index:50;padding:10px 14px;gap:8px}
+.brand{gap:8px;font-size:14px;letter-spacing:.08em}
+.brand img{width:40px;height:40px}
+.sub{font-size:9px}
+.header .btn{padding:9px 10px;font-size:12px;min-height:40px}
+.screen{padding:18px 13px;width:100%;min-width:0}
+.hero{padding:8px 4px 12px}
+.hero img{width:120px;max-height:110px}
+h1{font-size:clamp(23px,6vw,32px);line-height:1.2}
+.hero p,.summary{font-size:14px;line-height:1.5}
+.settings{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
+.setting-card{width:100%;min-width:0;padding:13px;border-radius:14px}
+.setting-title{flex-wrap:wrap;font-size:14px}
+.setting-caption{font-size:11px}
+.option{min-height:46px;padding:11px;font-size:13px}
+.inline-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.category-options{grid-template-columns:repeat(3,minmax(0,1fr))}
+.category-options .option{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;text-align:center;padding:10px 4px;overflow-wrap:anywhere}
+.category-options .option small{white-space:normal;font-size:10px}
+.actions{display:grid;grid-template-columns:1fr;gap:9px;margin:16px 0}
+.actions button,.primary,.btn{width:100%;min-width:0;min-height:48px;padding:12px;font-size:15px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:10px;font-size:13px}
+.timer{grid-column:1/-1;justify-content:center}
+.question{min-height:0;margin:20px 0 15px;font-size:21px;line-height:1.4;overflow-wrap:anywhere}
+.answers{display:grid;grid-template-columns:1fr;gap:9px}
+.answer{width:100%;min-height:58px;padding:13px;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.feedback{font-size:14px;line-height:1.5}
+.result-card{width:100%;padding:16px;margin:10px auto}
+.result h2{font-size:24px}
+.result-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:12px}
+.result-stats strong{font-size:21px}
+#conquestMap{width:100%;max-width:100%;overflow:hidden}
+#territoryMap{display:block;width:100%;height:auto;max-height:none}
+#campusPicker{width:100%;min-width:0}
+#campusPicker .inline-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+#campusPicker .option{min-height:48px}
+#kaModal{padding:0!important;overflow-x:hidden!important}
+#kaModal .kaWindow{width:100%;max-width:100%;min-height:100dvh;margin:0;border-radius:0;padding:12px}
+#kaModal .kaGrid{grid-template-columns:1fr}
+#kaModal button{min-height:46px;max-width:100%}
+#kaModal .kaCard{min-width:0;overflow-wrap:anywhere}
 }
 @media(max-width:380px){
-  .header{
-    padding:8px 10px;
-  }
-  .brand{
-    font-size:12px;
-  }
-  .brand img{
-    width:34px;
-    height:34px;
-  }
-  .screen{
-    padding:14px 10px;
-  }
-  .category-options{
-    grid-template-columns:1fr;
-  }
-  .category-options .option{
-    flex-direction:row;
-    justify-content:space-between;
-    text-align:left;
-    padding:11px;
-  }
-  .result-stats{
-    grid-template-columns:1fr;
-  }
+.header{padding:8px 10px}
+.brand{font-size:12px}
+.brand img{width:34px;height:34px}
+.screen{padding:14px 10px}
+.category-options{grid-template-columns:1fr}
+.category-options .option{flex-direction:row;justify-content:space-between;text-align:left;padding:11px}
+.result-stats{grid-template-columns:1fr}
 }
 @media(hover:none){
-  button,.option,.answer{
-    -webkit-tap-highlight-color:transparent;
-    touch-action:manipulation;
-  }
-  button:hover,.option:hover,.primary:hover{
-    transform:none;
-  }
+button,.option,.answer{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:hover,.option:hover,.primary:hover{transform:none}
 }
 </style>
 </head>
@@ -292,7 +91,8 @@ const additions=
 '<script src="./campus-selection.js?v=28c5626"><\/script>'+
 '<script src="./conquest-map.js?v=3"><\/script>'+
 '<script src="./autocad-atolye.js?v=5"><\/script>'+
-'<script src="./oyun-merkezi.js?v=14"><\/script>';
+'<script src="./oyun-merkezi.js?v=15"><\/script>'+
+'<script src="./mesleki-sozluk.js?v=1"><\/script>';
 
 if(!/<\/body>/i.test(gameHtml)){
 throw new Error('Oyun HTML dosyasında body kapanışı bulunamadı.');
