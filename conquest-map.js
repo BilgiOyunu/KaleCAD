@@ -1,19 +1,32 @@
 
 (() => {
+  "use strict";
+
   const STORAGE_KEY = "kalecad_conquest";
   const CAMPUS_KEY = "kalecad_campus";
 
   const cities = {
-    istanbul: { name: "İstanbul" },
-    kocaeli: { name: "Kocaeli" },
-    sakarya: { name: "Sakarya" },
-    mugla: { name: "Muğla" }
+    Istanbul: { name: "İstanbul" },
+    Kocaeli: { name: "Kocaeli" },
+    Sakarya: { name: "Sakarya" },
+    Mugla: { name: "Muğla" }
   };
+
+  const aliases = {
+    "İstanbul": "Istanbul",
+    "Istanbul": "Istanbul",
+    "Kocaeli": "Kocaeli",
+    "Sakarya": "Sakarya",
+    "Muğla": "Mugla",
+    "Mugla": "Mugla"
+  };
+
+  const LOGO = "https://bilgioyunu.github.io/KaleCAD/logo.svg";
 
   function readState() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    } catch {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch (_) {
       return {};
     }
   }
@@ -22,100 +35,97 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
+  function selectedKey() {
+    return aliases[localStorage.getItem(CAMPUS_KEY)] || null;
+  }
+
   function addStyles() {
-    if (document.getElementById("kalecadCastleStyles")) return;
+    if (document.getElementById("kalecad-map-styles")) return;
 
     const style = document.createElement("style");
-    style.id = "kalecadCastleStyles";
+    style.id = "kalecad-map-styles";
     style.textContent = `
       #kalecadHistoricMap {
-        margin: 22px auto;
-        padding: 20px 12px;
-        width: 100%;
-        box-sizing: border-box;
-        border-radius: 22px;
-        background: linear-gradient(145deg,#102544,#173c66);
-        border: 1px solid #31577e;
-        color: white;
-        box-shadow: 0 12px 30px #07182d55;
+        margin:20px 0;
+        padding:20px 12px;
+        border-radius:22px;
+        background:linear-gradient(145deg,#102544,#173d68);
+        border:1px solid #31577e;
+        color:#fff;
+        box-shadow:0 10px 28px #0004;
       }
-      #kalecadHistoricMap .castleTitle {
+      #kalecadHistoricMap .map-heading {
         text-align:center;
-        font-size:20px;
+        font-size:21px;
         font-weight:900;
         letter-spacing:1px;
-        margin-bottom:5px;
+        margin:4px 0;
       }
-      #kalecadHistoricMap .castleSubtitle {
+      #kalecadHistoricMap .map-subtitle {
         text-align:center;
-        color:#a9c9e8;
-        font-size:12px;
-        margin-bottom:20px;
+        color:#b5d1ed;
+        font-size:13px;
+        margin:5px 0 20px;
       }
-      #kalecadHistoricMap .castlePlatform {
+      #kalecadHistoricMap .castle-platform {
         display:grid;
         grid-template-columns:repeat(4,minmax(0,1fr));
         gap:8px;
-        padding:13px 7px 10px;
+        padding:14px 7px 11px;
         border-radius:17px;
-        background:linear-gradient(180deg,#244d78,#173657);
-        border-bottom:5px solid #0b2038;
+        background:linear-gradient(180deg,#28547e,#183957);
+        border-bottom:5px solid #0a2038;
       }
-      #kalecadHistoricMap .castleChoice {
+      #kalecadHistoricMap .castle-choice {
         min-width:0;
         padding:10px 3px;
-        border:1px solid #47729a;
+        border:1px solid #47749b;
         border-radius:13px;
-        background:linear-gradient(180deg,#315d88,#1c4168);
-        color:white;
-        cursor:pointer;
+        background:linear-gradient(180deg,#315f8c,#1b4168);
+        color:#fff;
         display:flex;
         flex-direction:column;
         align-items:center;
         justify-content:center;
         gap:9px;
-        transition:.2s;
+        cursor:pointer;
       }
-      #kalecadHistoricMap .castleChoice:active {
-        transform:scale(.96);
-      }
-      #kalecadHistoricMap .castleChoice.selected {
+      #kalecadHistoricMap .castle-choice.selected {
         border:2px solid #8bd4ff;
-        background:linear-gradient(180deg,#3975a8,#214d78);
-        box-shadow:0 0 15px #67bfff55;
+        box-shadow:0 0 14px #69bfff66;
       }
-      #kalecadHistoricMap .castleChoice.captured {
-        border-color:#e9bd57;
-        background:linear-gradient(180deg,#66552d,#3b3b35);
+      #kalecadHistoricMap .castle-choice.captured {
+        background:linear-gradient(180deg,#65532b,#3c3b35);
+        border:2px solid #e9bd57;
+        box-shadow:0 0 13px #e9bd5755;
       }
-      #kalecadHistoricMap .castleLogo {
+      #kalecadHistoricMap .castle-logo {
+        display:block;
         width:100%;
-        max-width:65px;
-        height:62px;
+        max-width:68px;
+        height:64px;
         object-fit:contain;
-        filter:brightness(0) invert(1);
+        filter:none !important;
       }
-      #kalecadHistoricMap .captured .castleLogo {
-        filter:brightness(0) saturate(100%) invert(78%) sepia(56%) saturate(520%) hue-rotate(3deg);
-      }
-      #kalecadHistoricMap .castleName {
+      #kalecadHistoricMap .castle-name {
         font-size:11px;
-        font-weight:800;
+        font-weight:900;
         text-align:center;
         overflow-wrap:anywhere;
       }
       #kalecadMapStatus {
         text-align:center;
-        color:#c5ddf4;
-        font-size:12px;
-        margin-top:15px;
-        min-height:18px;
+        color:#d0e5f8;
+        font-size:13px;
+        font-weight:700;
+        margin:15px 0 2px;
+        min-height:20px;
       }
       @media(max-width:360px) {
-        #kalecadHistoricMap { padding:15px 7px; }
-        #kalecadHistoricMap .castlePlatform { gap:5px; padding:9px 4px; }
-        #kalecadHistoricMap .castleLogo { height:48px; }
-        #kalecadHistoricMap .castleName { font-size:10px; }
+        #kalecadHistoricMap { padding:14px 6px; }
+        #kalecadHistoricMap .castle-platform { gap:5px; padding:9px 4px; }
+        #kalecadHistoricMap .castle-logo { height:49px; }
+        #kalecadHistoricMap .castle-name { font-size:10px; }
       }
     `;
     document.head.appendChild(style);
@@ -125,19 +135,21 @@
     const city = cities[key];
     if (!city) return;
 
-    const campusButton = [...document.querySelectorAll("[data-campus]")]
-      .find(button => button.dataset.campus === city.name);
+    const button = [...document.querySelectorAll("[data-campus]")]
+      .find(el => el.dataset.campus === city.name);
 
-    if (campusButton) {
-      campusButton.click();
+    if (button) {
+      button.click();
     } else {
       localStorage.setItem(CAMPUS_KEY, city.name);
-      document.dispatchEvent(new CustomEvent("kalecad:campus-selected", {
+      window.dispatchEvent(new CustomEvent("kalecad:campus-selected", {
         detail: { campus: city.name }
       }));
-
       const start = document.getElementById("start");
-      if (start) start.disabled = false;
+      if (start) {
+        start.disabled = false;
+        start.removeAttribute("aria-disabled");
+      }
     }
 
     localStorage.setItem(CAMPUS_KEY, city.name);
@@ -146,30 +158,35 @@
 
   function mapMarkup() {
     const state = readState();
-    const selected = localStorage.getItem(CAMPUS_KEY);
+    const selected = selectedKey();
 
     return `
-      <div class="castleTitle">KALELERİ FETHET</div>
-      <div class="castleSubtitle">Bir kale seç ve CADparatorluğunu kur!</div>
-      <div class="castlePlatform">
+      <div class="map-heading">KALECAD KALELERİ</div>
+      <p class="map-subtitle">Bir kale seç, 10 soruyu doğru yanıtla ve fethet!</p>
+      <div class="castle-platform">
         ${Object.entries(cities).map(([key, city]) => `
-          <button class="castleChoice
-            ${selected === city.name ? "selected" : ""}
-            ${state[key] ? "captured" : ""}"
-            data-castle="${key}" type="button"><img class="castleLogo" src="https://bilgioyunu.github.io/KaleCAD/logo.svg" alt="KaleCAD kalesi">
-            <span class="castleName">${city.name}</span>
+          <button type="button"
+            class="castle-choice
+              ${selected === key ? "selected" : ""}
+              ${state[key] ? "captured" : ""}"
+            data-castle="${key}">
+            <img class="castle-logo"
+              src="${LOGO}"
+              alt="KaleCAD logosu"
+              onerror="this.style.display='none'">
+            <span class="castle-name">${city.name}</span>
           </button>
         `).join("")}
       </div>
-      <div id="kalecadMapStatus">
-        ${selected ? selected + " seçildi." : "Devam etmek için bir kale seç."}
+      <div id="kalecadMapStatus" aria-live="polite">
+        ${selected ? cities[selected].name + " seçildi." : "Bir kale seçerek başla."}
       </div>
     `;
   }
 
   function renderMap() {
     const home = document.getElementById("home");
-    if (!home) return;
+    if (!home) return false;
 
     addStyles();
 
@@ -194,23 +211,24 @@
         chooseCity(button.dataset.castle);
       });
     });
+
+    return true;
   }
 
   function finishConquest(correctCount) {
-    const selected = localStorage.getItem(CAMPUS_KEY);
-    const entry = Object.entries(cities).find(([, city]) => city.name === selected);
+    const key = selectedKey();
+    if (Number(correctCount) !== 10 || !key) return false;
 
-    if (correctCount === 10 && entry) {
-      const [key, city] = entry;
-      const state = readState();
-      state[key] = true;
-      writeState(state);
+    const state = readState();
+    state[key] = true;
+    writeState(state);
 
-      const resultText = document.getElementById("resultText");
-      if (resultText && !resultText.textContent.includes("CADparatoru")) {
-        resultText.textContent +=
-          ` ${city.name} Kalesi fethedildi! Sen ${city.name} Kalesi'nin CADparatoru oldun!`;
-      }
+    const city = cities[key];
+    const resultText = document.getElementById("resultText");
+
+    if (resultText && !resultText.textContent.includes("CADparatoru")) {
+      resultText.textContent +=
+        ` ${city.name} Kalesi fethedildi! Sen ${city.name} Kalesi'nin CADparatoru oldun!`;
     }
 
     renderMap();
@@ -221,9 +239,8 @@
     const result = document.getElementById("result");
     const correct = document.getElementById("correctCount");
 
-    if (!result || !correct || result.dataset.kalecadWatching) return;
-
-    result.dataset.kalecadWatching = "true";
+    if (!result || !correct || result.dataset.kalecadObserver) return;
+    result.dataset.kalecadObserver = "true";
 
     const check = () => {
       if (!result.classList.contains("active")) return;
@@ -231,41 +248,28 @@
       const match = correct.textContent.match(/(\d+)\s*\/\s*10/);
       if (!match) return;
 
-      const round = result.dataset.kalecadLastRound;
-      const current = match[1] + "-" + Date.now();
+      const signature = `${localStorage.getItem(CAMPUS_KEY)}:${match[0]}`;
+      if (result.dataset.kalecadLastRound === signature) return;
 
-      if (round && result.dataset.kalecadDone === "true") return;
-
-      result.dataset.kalecadLastRound = current;
-      result.dataset.kalecadDone = "true";
+      result.dataset.kalecadLastRound = signature;
       finishConquest(Number(match[1]));
     };
 
-    new MutationObserver(() => {
-      if (!result.classList.contains("active")) {
-        result.dataset.kalecadDone = "false";
-      }
-      check();
-    }).observe(result, {
+    new MutationObserver(check).observe(result, {
       attributes: true,
-      childList: true,
-      subtree: true,
-      characterData: true
+      attributeFilter: ["class"]
     });
 
     new MutationObserver(check).observe(correct, {
       childList: true,
-      subtree: true,
-      characterData: true
+      characterData: true,
+      subtree: true
     });
   }
 
   function init() {
-    renderMap();
+    if (!renderMap()) return;
     watchResults();
-
-    const selected = localStorage.getItem(CAMPUS_KEY);
-    if (selected) renderMap();
   }
 
   window.KALECAD_CONQUEST = {
@@ -275,7 +279,7 @@
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", init, { once: true });
   } else {
     init();
   }
