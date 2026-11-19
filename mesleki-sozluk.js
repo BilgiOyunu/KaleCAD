@@ -1,9 +1,9 @@
 
-/* KALECAD MESLEKI SOZLUK V1 */
+/* KALECAD MESLEKI SOZLUK V2 */
 (() => {
 'use strict';
-if(window.KALECAD_DICTIONARY_V1)return;
-window.KALECAD_DICTIONARY_V1=true;
+if(window.KALECAD_DICTIONARY_V2)return;
+window.KALECAD_DICTIONARY_V2=true;
 
 const terms=[
 ['Kolon','Column','Düşey taşıyıcı yapı elemanı.','Yapı Elemanları'],
@@ -78,8 +78,32 @@ const terms=[
 
 const css=document.createElement('style');
 css.textContent=`
-#ksBtn{position:fixed;left:15px;bottom:18px;z-index:99990;border:0;border-radius:50px;padding:14px 18px;background:linear-gradient(135deg,#12a889,#2674d9);color:white;font-weight:900;font-size:14px;box-shadow:0 8px 25px #0005;cursor:pointer}
-#ksApp{display:none;position:fixed;inset:0;z-index:100001;background:#071326;color:#f4f7ff;font-family:Arial,sans-serif;overflow:auto}
+#ksBtn{
+position:fixed;
+z-index:99990;
+left:15px;
+bottom:18px;
+border:0;
+border-radius:50px;
+padding:14px 18px;
+background:linear-gradient(135deg,#12a889,#2674d9);
+color:white;
+font-weight:900;
+font-size:14px;
+box-shadow:0 8px 25px #0005;
+cursor:pointer;
+white-space:nowrap;
+}
+#ksApp{
+display:none;
+position:fixed;
+inset:0;
+z-index:100001;
+background:#071326;
+color:#f4f7ff;
+font-family:Arial,sans-serif;
+overflow:auto;
+}
 #ksApp *{box-sizing:border-box}
 .ks-wrap{max-width:1000px;margin:auto;padding:20px}
 .ks-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -107,7 +131,11 @@ css.textContent=`
 .ks-direction{display:flex;gap:8px;flex-wrap:wrap}
 .ks-direction button{border:1px solid #496385;background:#203959;color:white;border-radius:10px;padding:10px 13px}
 .ks-direction button.active{background:#247b9e;border-color:#67d5ff}
-@media(max-width:650px){.ks-wrap{padding:13px}.ks-list{grid-template-columns:1fr}.ks-title{font-size:19px}#ksBtn{left:10px;bottom:75px;padding:12px 14px;font-size:12px}}
+@media(max-width:650px){
+.ks-wrap{padding:13px}
+.ks-list{grid-template-columns:1fr}
+.ks-title{font-size:19px}
+}
 `;
 document.head.appendChild(css);
 
@@ -140,10 +168,13 @@ document.body.appendChild(app);
 let category='Tümü';
 let direction='both';
 let favorites=new Set();
-try{favorites=new Set(JSON.parse(localStorage.getItem('kalecad_dictionary_favorites')||'[]'))}catch(e){}
+try{
+favorites=new Set(JSON.parse(localStorage.getItem('kalecad_dictionary_favorites')||'[]'));
+}catch(e){}
 
 const categories=['Tümü',...new Set(terms.map(t=>t[3]))];
 const filters=document.getElementById('ksFilters');
+
 categories.forEach(cat=>{
 const b=document.createElement('button');
 b.className='ks-filter'+(cat==='Tümü'?' active':'');
@@ -158,7 +189,9 @@ filters.appendChild(b);
 
 btn.onclick=()=>{app.style.display='block';render()};
 document.getElementById('ksClose').onclick=()=>app.style.display='none';
-app.addEventListener('click',e=>{if(e.target===app)app.style.display='none'});
+app.addEventListener('click',e=>{
+if(e.target===app)app.style.display='none';
+});
 
 document.getElementById('ksSearch').addEventListener('input',render);
 document.getElementById('ksSort').addEventListener('change',render);
@@ -170,6 +203,63 @@ document.querySelectorAll('[data-direction]').forEach(x=>x.classList.toggle('act
 render();
 };
 });
+
+/* OYUN MERKEZI DUGMESIYLE AYNI BOYUT VE TASARIM */
+function syncButton(){
+const gameBtn=document.getElementById('kaleGamesBtn');
+if(!gameBtn)return false;
+
+const rect=gameBtn.getBoundingClientRect();
+const style=getComputedStyle(gameBtn);
+
+const copyStyles=[
+'background','backgroundColor','backgroundImage',
+'color','fontFamily','fontSize','fontWeight','fontStyle',
+'letterSpacing','textTransform','textAlign',
+'border','borderRadius','boxShadow','textShadow'
+];
+
+copyStyles.forEach(key=>{
+btn.style[key]=style[key];
+});
+
+btn.style.position='fixed';
+btn.style.left=rect.left+'px';
+btn.style.top=Math.max(4,rect.top-rect.height-8)+'px';
+btn.style.bottom='auto';
+btn.style.width=rect.width+'px';
+btn.style.height=rect.height+'px';
+btn.style.minHeight=rect.height+'px';
+btn.style.padding=style.padding;
+btn.style.margin='0';
+btn.style.display='flex';
+btn.style.alignItems='center';
+btn.style.justifyContent='center';
+btn.style.boxSizing='border-box';
+btn.style.zIndex='99990';
+btn.style.whiteSpace='nowrap';
+btn.style.overflow='hidden';
+btn.style.fontSize=style.fontSize;
+btn.style.cursor='pointer';
+
+return true;
+}
+
+let attempts=0;
+function locateGameButton(){
+if(syncButton())return;
+attempts++;
+if(attempts<30)setTimeout(locateGameButton,250);
+}
+locateGameButton();
+
+window.addEventListener('resize',syncButton);
+window.addEventListener('scroll',syncButton,true);
+
+const observer=new MutationObserver(()=>{
+if(!syncButton())locateGameButton();
+});
+observer.observe(document.body,{childList:true,subtree:true});
 
 function render(){
 const query=document.getElementById('ksSearch').value.trim().toLocaleLowerCase('tr');
@@ -206,7 +296,9 @@ star.title='Favorilere ekle';
 star.onclick=()=>{
 if(favorites.has(t[0]))favorites.delete(t[0]);
 else favorites.add(t[0]);
-try{localStorage.setItem('kalecad_dictionary_favorites',JSON.stringify([...favorites]))}catch(e){}
+try{
+localStorage.setItem('kalecad_dictionary_favorites',JSON.stringify([...favorites]));
+}catch(e){}
 render();
 };
 
