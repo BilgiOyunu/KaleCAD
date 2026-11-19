@@ -539,3 +539,206 @@ boot();
     start();
   }
 })();
+/* KALECAD - DIJITAL ATOLYE + OGRETMEN PANELINI KALDIR */
+(() => {
+  'use strict';
+
+  const tools = [
+    {
+      name: 'SketchUp Web',
+      category: '3D Modelleme',
+      icon: '🏠',
+      description: 'Konut, iç mekân, mobilya ve mimari modelleme.',
+      url: 'https://app.sketchup.com/'
+    },
+    {
+      name: 'Tinkercad',
+      category: '3D Modelleme',
+      icon: '🧊',
+      description: 'Temel üç boyutlu modelleme ve geometrik tasarım.',
+      url: 'https://www.tinkercad.com/'
+    },
+    {
+      name: 'OpenPlan3D',
+      category: 'Mimari Plan',
+      icon: '📐',
+      description: '2D kat planı çizimi, mobilya yerleşimi ve 3D görünüm.',
+      url: 'https://openplan3d.com/'
+    },
+    {
+      name: 'OpenCAD Studio',
+      category: '2D Teknik Çizim',
+      icon: '📏',
+      description: 'Tarayıcı üzerinden teknik çizim ve ölçülendirme.',
+      url: 'https://www.opencad.studio/2d-cad-online/'
+    },
+    {
+      name: 'FlatCAD',
+      category: '2D Teknik Çizim',
+      icon: '✏️',
+      description: 'Ölçülü 2D teknik çizim ve DXF çıktısı.',
+      url: 'https://flatcad.com/'
+    },
+    {
+      name: 'Cadelo',
+      category: '2D Teknik Çizim',
+      icon: '📋',
+      description: 'Tarayıcıda DWG ve DXF çizimlerini düzenleme.',
+      url: 'https://cadelo.app/'
+    }
+  ];
+
+  function install() {
+    const modal = document.getElementById('autocadWorkshopModal');
+    if (!modal) return;
+
+    const nav = modal.querySelector('#cadTabs');
+    const panel = modal.querySelector('#cadPanel');
+    if (!nav || !panel) return;
+
+    // Öğretmen panelini arayüzden kaldır.
+    nav.querySelector('[data-tab="teacher"]')?.remove();
+
+    // Eski açıklamayı güncelle.
+    const homeText = document.querySelector('#autocadWorkshopCard p');
+    if (homeText) {
+      homeText.textContent =
+        '30 komut • 50 soruluk havuz • uygulama görevleri • dijital araçlar';
+    }
+
+    // Sekme zaten eklendiyse tekrar ekleme.
+    if (nav.querySelector('[data-tab="digital"]')) return;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.tab = 'digital';
+    button.textContent = '🌐 Dijital Atölye';
+
+    nav.appendChild(button);
+
+    button.addEventListener('click', () => {
+      nav.querySelectorAll('[data-tab]').forEach(item => {
+        item.classList.toggle('active', item === button);
+      });
+
+      render(panel);
+    });
+  }
+
+  function render(panel) {
+    panel.innerHTML = `
+      <div style="margin-bottom:16px">
+        <h3 style="font-size:21px;margin:0 0 6px">Dijital Atölye</h3>
+        <p style="color:#b7c8e2;font-size:13px;margin:0">
+          Çizim ve modelleme araçlarını tarayıcında aç.
+          Program kurmana gerek yok.
+        </p>
+      </div>
+
+      <div id="digitalFilters"
+        style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px">
+      </div>
+
+      <div id="digitalTools"
+        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px">
+      </div>
+    `;
+
+    const filters = [
+      'Tümü',
+      '2D Teknik Çizim',
+      '3D Modelleme',
+      'Mimari Plan'
+    ];
+
+    const filterBox = panel.querySelector('#digitalFilters');
+    const toolBox = panel.querySelector('#digitalTools');
+
+    let selected = 'Tümü';
+
+    function draw() {
+      filterBox.innerHTML = '';
+      toolBox.innerHTML = '';
+
+      filters.forEach(category => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = category;
+        b.style.cssText =
+          'border:1px solid #45658f;border-radius:20px;padding:9px 12px;background:' +
+          (selected === category ? '#64d9ff' : '#172d52') +
+          ';color:' + (selected === category ? '#07163c' : '#fff') +
+          ';font-weight:700;font-size:12px';
+
+        b.addEventListener('click', () => {
+          selected = category;
+          draw();
+        });
+
+        filterBox.appendChild(b);
+      });
+
+      const visible = tools.filter(item =>
+        selected === 'Tümü' || item.category === selected
+      );
+
+      visible.forEach(item => {
+        const card = document.createElement('article');
+
+        card.style.cssText =
+          'background:#14294c;border:1px solid #34547d;' +
+          'border-radius:14px;padding:15px;display:flex;' +
+          'flex-direction:column;min-height:190px';
+
+        const icon = document.createElement('div');
+        icon.textContent = item.icon;
+        icon.style.fontSize = '30px';
+
+        const title = document.createElement('h3');
+        title.textContent = item.name;
+        title.style.cssText = 'margin:10px 0 5px;font-size:18px';
+
+        const category = document.createElement('div');
+        category.textContent = item.category;
+        category.style.cssText =
+          'font-size:11px;color:#64d9ff;font-weight:800';
+
+        const description = document.createElement('p');
+        description.textContent = item.description;
+        description.style.cssText =
+          'font-size:13px;color:#c2d0e5;line-height:1.5;flex:1';
+
+        const link = document.createElement('a');
+        link.href = item.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Aracı Aç ↗';
+        link.style.cssText =
+          'display:block;text-align:center;text-decoration:none;' +
+          'background:#64d9ff;color:#07163c;padding:12px;' +
+          'border-radius:9px;font-weight:800;margin-top:8px';
+
+        card.append(icon, category, title, description, link);
+        toolBox.appendChild(card);
+      });
+    }
+
+    draw();
+  }
+
+  function start() {
+    install();
+
+    const observer = new MutationObserver(() => install());
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+})();
