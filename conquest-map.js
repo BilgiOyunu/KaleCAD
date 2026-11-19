@@ -190,83 +190,126 @@
       </g>`;
   }
 
-  function mapMarkup() {
-    return `
-      <div class="map-heading">⚔ KALECAD FETİH HARİTASI</div>
+function mapMarkup() {
+  return `
+    <div class="map-heading">⚔ KALECAD FETİH HARİTASI</div>
+    <p class="map-subtitle">Dört kaleden birini seç, 10 soruyu doğru yanıtla ve fethet!</p>
 
-      <p class="map-subtitle">
-        Bir kale seç, 10 soruyu doğru yanıtla ve kaleni fethet.
-      </p>
+    <svg viewBox="0 0 420 330" role="img"
+      aria-label="İstanbul, Kocaeli, Sakarya ve Muğla kalelerinin bulunduğu Türkiye haritası">
 
-      <svg viewBox="0 0 420 330"
-        role="img"
-        aria-label="Dört kaleli tarihî Türkiye haritası">
+      <defs>
+        <linearGradient id="kalecadSea" x1="0" y1="0" x2="0.9" y2="1">
+          <stop offset="0" stop-color="#b9d5d0"/>
+          <stop offset="1" stop-color="#789fa0"/>
+        </linearGradient>
+        <linearGradient id="kalecadLand" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#f4e4bd"/>
+          <stop offset=".55" stop-color="#dfc28a"/>
+          <stop offset="1" stop-color="#b99560"/>
+        </linearGradient>
+        <pattern id="kalecadPaper" width="18" height="18" patternUnits="userSpaceOnUse">
+          <circle cx="4" cy="5" r="1" fill="#80613a" opacity=".16"/>
+          <path d="M0 17L18 0" stroke="#80613a" stroke-width=".4" opacity=".10"/>
+        </pattern>
+        <filter id="kalecadGoldGlow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
 
-        <defs>
-          <linearGradient id="kalecadLand" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#f1dfb9"/>
-            <stop offset="1" stop-color="#b9955d"/>
-          </linearGradient>
+      <!-- Deniz -->
+      <rect width="420" height="330" rx="12" fill="url(#kalecadSea)"/>
 
-          <filter id="kalecadGoldGlow" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="4" result="blur"/>
-            <feMerge>
-              <feMergeNode in="blur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
+      <!-- Deniz dalgaları -->
+      <g fill="none" stroke="#e1eee1" stroke-width="1" opacity=".45">
+        <path d="M15 45q15-8 30 0t30 0M280 55q15-8 30 0t30 0"/>
+        <path d="M15 270q15-8 30 0t30 0M290 260q15-8 30 0t30 0"/>
+        <path d="M310 150q15-8 30 0t30 0"/>
+      </g>
 
-          <pattern id="kalecadPaper"
-            width="24" height="24"
-            patternUnits="userSpaceOnUse">
-            <path d="M0 12h24M12 0v24"
-              stroke="#8b693e"
-              stroke-opacity=".12"
-              stroke-width=".6"/>
-            <circle cx="4" cy="5" r=".8"
-              fill="#79552e" opacity=".18"/>
-          </pattern>
-        </defs>
+      <!-- Türkiye silüeti -->
+      <path d="
+        M38 112 L53 98 65 104 76 91 91 96 102 84
+        116 91 130 82 144 90 157 84 171 91
+        184 85 198 91 214 84 230 91 247 83
+        264 88 282 80 299 87 316 82 334 90
+        351 87 369 98 389 103 397 117
+        385 128 390 141 377 151 381 165
+        366 174 359 188 342 190 330 205
+        311 201 298 214 281 207 267 220
+        248 212 233 225 216 216 199 227
+        182 216 166 225 150 214 136 220
+        122 205 106 211 95 194 81 196
+        72 179 59 176 62 159 48 151
+        52 137 39 128 Z"
+        fill="url(#kalecadLand)"
+        stroke="#79552e" stroke-width="3"
+        stroke-linejoin="round"/>
 
-        <rect width="420" height="330" fill="#d9c18e"/>
-        <rect width="420" height="330" fill="url(#kalecadPaper)"/>
+      <path d="
+        M38 112 L53 98 65 104 76 91 91 96 102 84
+        116 91 130 82 144 90 157 84 171 91
+        184 85 198 91 214 84 230 91 247 83
+        264 88 282 80 299 87 316 82 334 90
+        351 87 369 98 389 103 397 117
+        385 128 390 141 377 151 381 165
+        366 174 359 188 342 190 330 205
+        311 201 298 214 281 207 267 220
+        248 212 233 225 216 216 199 227
+        182 216 166 225 150 214 136 220
+        122 205 106 211 95 194 81 196
+        72 179 59 176 62 159 48 151
+        52 137 39 128 Z"
+        fill="url(#kalecadPaper)" opacity=".8"/>
 
-        <path d="M24 93l18-14 23 5 17-13 25 7 18-14 22 8 18-12 22 10 19-8 20 13 23-6 18 13 22-2 19 16 22 1 15 18 22 8-4 17-18 8-10 17-20-3-17 14-22-4-15 16-22-6-16 17-21-7-17 13-20-8-17 13-20-7-16 11-18-11-16 4-13-17-17-4 4-17-13-13 8-17-8-15z"
-          fill="url(#kalecadLand)"
-          stroke="#76552e"
-          stroke-width="2.2"
-          stroke-linejoin="round"/>
+      <!-- Dağ sıraları -->
+      <g fill="none" stroke="#9b7949" stroke-width="1.5" opacity=".48">
+        <path d="M225 145l13-17 13 17 13-19 14 19 13-16 13 16"/>
+        <path d="M155 177l12-15 12 15 12-14 12 14"/>
+        <path d="M260 188l12-16 12 16 12-13 12 13"/>
+      </g>
 
-        <path d="M33 105c55-28 94-20 130-15s82 5 123 24 71 29 94 24M51 178c63-12 110-5 151 7s87 17 147 1M91 252c34-13 68-14 100-4"
-          fill="none"
-          stroke="#8d6b3d"
-          stroke-width="1.2"
-          stroke-dasharray="4 5"
-          opacity=".55"/>
+      <!-- İç bölgeler ve eski ticaret yolları -->
+      <g fill="none" stroke="#a17b48" stroke-width="1.2"
+        stroke-dasharray="4 5" opacity=".55">
+        <path d="M95 130Q170 115 235 145T350 135"/>
+        <path d="M125 185Q190 165 260 190T345 180"/>
+        <path d="M170 105Q185 160 145 210"/>
+      </g>
 
-        <path d="M28 286q55-22 105 0t105 0 105 0 55 0"
-          fill="none"
-          stroke="#6b9ba0"
-          stroke-width="2"
-          opacity=".7"/>
+      <!-- Bölge isimleri -->
+      <g fill="#765a35" font-size="8" font-weight="700" opacity=".8">
+        <text x="215" y="165">İÇ ANADOLU</text>
+        <text x="300" y="112">KARADENİZ</text>
+        <text x="215" y="242">AKDENİZ</text>
+      </g>
 
-        <text x="316" y="299" font-size="10"
-          fill="#456b70" font-style="italic">Akdeniz</text>
+      <!-- Pusula -->
+      <g transform="translate(365 48)">
+        <circle r="19" fill="#f0dfb8" stroke="#80603a" stroke-width="1.5"/>
+        <path d="M0-14L5 0 0 14 -5 0Z" fill="#79552e"/>
+        <path d="M0-14L0 14" stroke="#f6e9c9" stroke-width="1"/>
+        <text x="0" y="-23" text-anchor="middle"
+          font-size="9" font-weight="900" fill="#684b29">K</text>
+      </g>
 
-        <text x="31" y="35" font-size="12"
-          fill="#684b29" font-weight="800 
->ANADOLU</text>
-        <text x="335" y="36" font-size="9" fill="#684b29">KUZEY</text>
-        <path d="M382 43l-5 12h10z" fill="#684b29"/>
-        ${Object.entries(cities).map(([key, city]) => castleMarkup(key, city)).join("")}
-        <text x="210" y="319" text-anchor="middle" font-size="8" fill="#725431">KALECAD • DÖRT KALE MÜCADELESİ</text>
-      </svg>
-      <div class="map-legend">
-        <span><i class="legend-dot" style="background:#73777a"></i>Fethedilmedi</span>
-        <span><i class="legend-dot" style="background:#e8b94e"></i>Fethedildi</span>
-      </div>
-      <p id="kalecadMapStatus" aria-live="polite">Haritadan bir kale seç.</p>`;
-  }
+      <!-- Kaleler -->
+      ${Object.entries(cities).map(([key, city]) => castleMarkup(key, city)).join("")}
+
+      <text x="210" y="310" text-anchor="middle"
+        font-size="9" font-weight="800" letter-spacing="2"
+        fill="#604629">KALECAD • DÖRT KALE MÜCADELESİ</text>
+    </svg>
+
+    <div class="map-legend">
+      <span><i class="legend-dot" style="background:#73777a"></i>Fethedilmedi</span>
+      <span><i class="legend-dot" style="background:#e8b94e"></i>Fethedildi</span>
+    </div>
+    <p id="kalecadMapStatus" aria-live="polite">Haritadan bir kale seç.</p>
+  `;
+}
+
 
   function chooseCity(key) {
     const city = cities[key];
