@@ -1,380 +1,176 @@
 
 (() => {
-  "use strict";
-
   const STORAGE_KEY = "kalecad_conquest";
   const CAMPUS_KEY = "kalecad_campus";
 
   const cities = {
-    Istanbul: {
-      name: "İstanbul",
-      lat: 41.0082,
-      lng: 28.9784
-    },
-    Kocaeli: {
-      name: "Kocaeli",
-      lat: 40.7654,
-      lng: 29.9408
-    },
-    Sakarya: {
-      name: "Sakarya",
-      lat: 40.7731,
-      lng: 30.3948
-    },
-    Mugla: {
-      name: "Muğla",
-      lat: 37.2153,
-      lng: 28.3636
-    }
+    istanbul: { name: "İstanbul" },
+    kocaeli: { name: "Kocaeli" },
+    sakarya: { name: "Sakarya" },
+    mugla: { name: "Muğla" }
   };
-
-  const aliases = {
-    "İstanbul": "Istanbul",
-    "Istanbul": "Istanbul",
-    "Kocaeli": "Kocaeli",
-    "Sakarya": "Sakarya",
-    "Muğla": "Mugla",
-    "Mugla": "Mugla"
-  };
-
-  let mapInstance = null;
-  let markerLayer = null;
-  let leafletPromise = null;
-
-  const cityKey = value => aliases[value] || null;
 
   function readState() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch (_) {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch {
       return {};
     }
   }
 
   function writeState(state) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (_) {}
-  }
-
-  function isCaptured(key) {
-    return !!readState()[key];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
   function addStyles() {
-    if (document.getElementById("kalecad-map-styles")) return;
+    if (document.getElementById("kalecadCastleStyles")) return;
 
     const style = document.createElement("style");
-    style.id = "kalecad-map-styles";
-
+    style.id = "kalecadCastleStyles";
     style.textContent = `
       #kalecadHistoricMap {
-        margin: 20px 0;
-        padding: 14px;
-        border: 1px solid #a98b5b;
-        border-radius: 18px;
-        color: #49351f;
-        background:
-          radial-gradient(ellipse at top left,#fff3d6,transparent 65%),
-          linear-gradient(145deg,#ead9b5,#c5a675);
-        box-shadow: 0 9px 25px #0004;
+        margin: 22px auto;
+        padding: 20px 12px;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 22px;
+        background: linear-gradient(145deg,#102544,#173c66);
+        border: 1px solid #31577e;
+        color: white;
+        box-shadow: 0 12px 30px #07182d55;
       }
-
-      #kalecadHistoricMap .map-heading {
+      #kalecadHistoricMap .castleTitle {
         text-align:center;
-        font-size:1.15rem;
+        font-size:20px;
         font-weight:900;
-        letter-spacing:.04em;
-        color:#493018;
-        margin:3px 0 5px;
+        letter-spacing:1px;
+        margin-bottom:5px;
       }
-
-      #kalecadHistoricMap .map-subtitle {
+      #kalecadHistoricMap .castleSubtitle {
         text-align:center;
-        font-size:.83rem;
-        color:#715334;
-        margin:0 0 12px;
+        color:#a9c9e8;
+        font-size:12px;
+        margin-bottom:20px;
       }
-
-      #kalecadRealMap {
-        width:100%;
-        height:420px;
-        border:2px solid #8b693e;
+      #kalecadHistoricMap .castlePlatform {
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:8px;
+        padding:13px 7px 10px;
+        border-radius:17px;
+        background:linear-gradient(180deg,#244d78,#173657);
+        border-bottom:5px solid #0b2038;
+      }
+      #kalecadHistoricMap .castleChoice {
+        min-width:0;
+        padding:10px 3px;
+        border:1px solid #47729a;
         border-radius:13px;
-        overflow:hidden;
-        background:#c2d5d1;
-        box-shadow:inset 0 0 15px #0004;
-        z-index:1;
-      }
-
-      #kalecadHistoricMap .map-legend {
+        background:linear-gradient(180deg,#315d88,#1c4168);
+        color:white;
+        cursor:pointer;
         display:flex;
-        justify-content:center;
-        flex-wrap:wrap;
-        gap:15px;
-        margin:12px 0 5px;
-        font-size:.78rem;
-        font-weight:800;
-        color:#51391f;
-      }
-
-      #kalecadHistoricMap .legend-dot {
-        display:inline-block;
-        width:11px;
-        height:11px;
-        margin-right:5px;
-        border-radius:50%;
-        vertical-align:-1px;
-      }
-
-      #kalecadMapStatus {
-        min-height:24px;
-        margin:10px 0 2px;
-        text-align:center;
-        color:#493018;
-        font-size:.88rem;
-        font-weight:800;
-      }
-
-      .kalecad-castle-icon {
-        display:flex;
+        flex-direction:column;
         align-items:center;
         justify-content:center;
-        width:38px;
-        height:38px;
-        border:2px solid #665039;
-        border-radius:50%;
-        background:#e4d1a9;
-        box-shadow:0 3px 9px #0006;
-        font-size:23px;
-        transition:transform .2s;
+        gap:9px;
+        transition:.2s;
       }
-
-      .kalecad-castle-icon.captured {
-        background:#f5d47c;
-        border-color:#a36b14;
-        box-shadow:0 0 13px 5px #f6c64b;
+      #kalecadHistoricMap .castleChoice:active {
+        transform:scale(.96);
       }
-
-      .kalecad-castle-icon:hover {
-        transform:scale(1.15);
+      #kalecadHistoricMap .castleChoice.selected {
+        border:2px solid #8bd4ff;
+        background:linear-gradient(180deg,#3975a8,#214d78);
+        box-shadow:0 0 15px #67bfff55;
       }
-
-      .kalecad-map-label {
-        background:#f4e5c5;
-        color:#493018;
-        border:1px solid #8b693e;
-        border-radius:6px;
-        padding:3px 7px;
-        font-weight:900;
+      #kalecadHistoricMap .castleChoice.captured {
+        border-color:#e9bd57;
+        background:linear-gradient(180deg,#66552d,#3b3b35);
+      }
+      #kalecadHistoricMap .castleLogo {
+        width:100%;
+        max-width:65px;
+        height:62px;
+        object-fit:contain;
+        filter:brightness(0) invert(1);
+      }
+      #kalecadHistoricMap .captured .castleLogo {
+        filter:brightness(0) saturate(100%) invert(78%) sepia(56%) saturate(520%) hue-rotate(3deg);
+      }
+      #kalecadHistoricMap .castleName {
+        font-size:11px;
+        font-weight:800;
+        text-align:center;
+        overflow-wrap:anywhere;
+      }
+      #kalecadMapStatus {
+        text-align:center;
+        color:#c5ddf4;
         font-size:12px;
-        box-shadow:0 2px 5px #0004;
+        margin-top:15px;
+        min-height:18px;
       }
-
-      .kalecad-map-label:before {
-        display:none;
-      }
-
-      @media(max-width:480px) {
-        #kalecadHistoricMap { padding:9px; }
-        #kalecadRealMap { height:360px; }
+      @media(max-width:360px) {
+        #kalecadHistoricMap { padding:15px 7px; }
+        #kalecadHistoricMap .castlePlatform { gap:5px; padding:9px 4px; }
+        #kalecadHistoricMap .castleLogo { height:48px; }
+        #kalecadHistoricMap .castleName { font-size:10px; }
       }
     `;
-
     document.head.appendChild(style);
-  }
-
-  function loadLeaflet() {
-    if (window.L) return Promise.resolve(window.L);
-    if (leafletPromise) return leafletPromise;
-
-    leafletPromise = new Promise((resolve, reject) => {
-      if (!document.getElementById("kalecad-leaflet-css")) {
-        const css = document.createElement("link");
-        css.id = "kalecad-leaflet-css";
-        css.rel = "stylesheet";
-        css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-        document.head.appendChild(css);
-      }
-
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-      script.onload = () => resolve(window.L);
-      script.onerror = () => reject(
-        new Error("Harita kütüphanesi yüklenemedi.")
-      );
-      document.head.appendChild(script);
-    });
-
-    return leafletPromise;
-  }
-
-  function castleIcon(key) {
-    const won = isCaptured(key);
-
-    return L.divIcon({
-      className: "",
-      html: `<div class="kalecad-castle-icon ${won ? "captured" : ""}">🏰</div>`,
-      iconSize: [38, 38],
-      iconAnchor: [19, 19]
-    });
   }
 
   function chooseCity(key) {
     const city = cities[key];
     if (!city) return;
 
-    const campusButton = document.querySelector(
-      `[data-campus="${city.name}"]`
-    );
+    const campusButton = [...document.querySelectorAll("[data-campus]")]
+      .find(button => button.dataset.campus === city.name);
 
     if (campusButton) {
       campusButton.click();
     } else {
-      try {
-        localStorage.setItem(CAMPUS_KEY, city.name);
-      } catch (_) {}
-
-      window.dispatchEvent(
-        new CustomEvent("kalecad:campus-selected", {
-          detail: { campus: city.name }
-        })
-      );
+      localStorage.setItem(CAMPUS_KEY, city.name);
+      document.dispatchEvent(new CustomEvent("kalecad:campus-selected", {
+        detail: { campus: city.name }
+      }));
 
       const start = document.getElementById("start");
-      if (start) {
-        start.disabled = false;
-        start.removeAttribute("aria-disabled");
-      }
+      if (start) start.disabled = false;
     }
 
-    const status = document.getElementById("kalecadMapStatus");
-
-    if (status) {
-      status.textContent = isCaptured(key)
-        ? `${city.name} Kalesi daha önce fethedildi. Yeniden mücadele edebilirsin.`
-        : `${city.name} Kalesi seçildi. 10 sorunun tamamını doğru yanıtlayarak fethet!`;
-    }
+    localStorage.setItem(CAMPUS_KEY, city.name);
+    renderMap();
   }
 
   function mapMarkup() {
+    const state = readState();
+    const selected = localStorage.getItem(CAMPUS_KEY);
+
     return `
-      <div class="map-heading">⚔ KALECAD FETİH HARİTASI</div>
-
-      <p class="map-subtitle">
-        Gerçek coğrafya üzerinde dört kaleli mücadele
-      </p>
-
-      <div id="kalecadRealMap"
-        role="application"
-        aria-label="Türkiye fetih haritası"></div>
-
-      <div class="map-legend">
-        <span>
-          <i class="legend-dot" style="background:#73777a"></i>
-          Fethedilmedi
-        </span>
-        <span>
-          <i class="legend-dot" style="background:#e8b94e"></i>
-          Fethedildi
-        </span>
+      <div class="castleTitle">KALELERİ FETHET</div>
+      <div class="castleSubtitle">Bir kale seç ve CADparatorluğunu kur!</div>
+      <div class="castlePlatform">
+        ${Object.entries(cities).map(([key, city]) => `
+          <button class="castleChoice
+            ${selected === city.name ? "selected" : ""}
+            ${state[key] ? "captured" : ""}"
+            data-castle="${key}" type="button">
+            <img class="castleLogo" src="./logo.svg" alt="KaleCAD kalesi">
+            <span class="castleName">${city.name}</span>
+          </button>
+        `).join("")}
       </div>
-
-      <p id="kalecadMapStatus" aria-live="polite">
-        Haritadan bir kale seç.
-      </p>
+      <div id="kalecadMapStatus">
+        ${selected ? selected + " seçildi." : "Devam etmek için bir kale seç."}
+      </div>
     `;
-  }
-
-  async function buildRealMap() {
-    const container = document.getElementById("kalecadRealMap");
-    if (!container) return;
-
-    try {
-      const L = await loadLeaflet();
-
-      if (!document.getElementById("kalecadRealMap")) return;
-
-      if (mapInstance) {
-        mapInstance.remove();
-        mapInstance = null;
-      }
-
-      mapInstance = L.map("kalecadRealMap", {
-        zoomControl: true,
-        scrollWheelZoom: false
-      });
-
-      L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> katkıcıları',
-          maxZoom: 19
-        }
-      ).addTo(mapInstance);
-
-      markerLayer = L.layerGroup().addTo(mapInstance);
-
-      Object.entries(cities).forEach(([key, city]) => {
-        const marker = L.marker(
-          [city.lat, city.lng],
-          { icon: castleIcon(key) }
-        ).addTo(markerLayer);
-
-        marker.bindTooltip(
-          `${city.name} Kalesi`,
-          {
-            permanent: true,
-            direction: "bottom",
-            offset: [0, 13],
-            className: "kalecad-map-label"
-          }
-        );
-
-        marker.on("click", () => chooseCity(key));
-      });
-
-      const bounds = L.latLngBounds(
-        Object.values(cities).map(city => [city.lat, city.lng])
-      );
-
-      mapInstance.fitBounds(bounds, {
-        padding: [40, 40],
-        maxZoom: 7
-      });
-
-      setTimeout(() => {
-        if (mapInstance) mapInstance.invalidateSize();
-      }, 250);
-
-      updateStatus();
-
-    } catch (error) {
-      const status = document.getElementById("kalecadMapStatus");
-      if (status) {
-        status.textContent =
-          "Harita yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.";
-      }
-    }
-  }
-
-  function updateStatus() {
-    const saved = cityKey(localStorage.getItem(CAMPUS_KEY));
-    const status = document.getElementById("kalecadMapStatus");
-
-    if (!status) return;
-
-    if (saved) {
-      const city = cities[saved];
-      status.textContent = isCaptured(saved)
-        ? `${city.name} Kalesi daha önce fethedildi.`
-        : `Seçili hedef: ${city.name} Kalesi`;
-    }
   }
 
   function renderMap() {
     const home = document.getElementById("home");
-    if (!home) return false;
+    if (!home) return;
 
     addStyles();
 
@@ -383,7 +179,6 @@
     if (!panel) {
       panel = document.createElement("section");
       panel.id = "kalecadHistoricMap";
-      panel.setAttribute("aria-label", "Gerçek Türkiye fetih haritası");
 
       const picker = document.getElementById("campusPicker");
       const hero = home.querySelector(".hero");
@@ -395,28 +190,28 @@
 
     panel.innerHTML = mapMarkup();
 
-    buildRealMap();
-    return true;
+    panel.querySelectorAll("[data-castle]").forEach(button => {
+      button.addEventListener("click", () => {
+        chooseCity(button.dataset.castle);
+      });
+    });
   }
 
   function finishConquest(correctCount) {
-    const selected = cityKey(localStorage.getItem(CAMPUS_KEY));
+    const selected = localStorage.getItem(CAMPUS_KEY);
+    const entry = Object.entries(cities).find(([, city]) => city.name === selected);
 
-    if (Number(correctCount) !== 10 || !selected) return false;
+    if (correctCount === 10 && entry) {
+      const [key, city] = entry;
+      const state = readState();
+      state[key] = true;
+      writeState(state);
 
-    const state = readState();
-    state[selected] = true;
-    writeState(state);
-
-    const city = cities[selected];
-    const resultText = document.getElementById("resultText");
-
-    if (
-      resultText &&
-      !resultText.textContent.includes("CADparatoru")
-    ) {
-      resultText.textContent +=
-        ` ${city.name} Kalesi fethedildi! Sen ${city.name} Kalesi'nin CADparatoru oldun!`;
+      const resultText = document.getElementById("resultText");
+      if (resultText && !resultText.textContent.includes("CADparatoru")) {
+        resultText.textContent +=
+          ` ${city.name} Kalesi fethedildi! Sen ${city.name} Kalesi'nin CADparatoru oldun!`;
+      }
     }
 
     renderMap();
@@ -427,41 +222,51 @@
     const result = document.getElementById("result");
     const correct = document.getElementById("correctCount");
 
-    if (!result || !correct || result.dataset.kalecadObserver) return;
+    if (!result || !correct || result.dataset.kalecadWatching) return;
 
-    result.dataset.kalecadObserver = "true";
+    result.dataset.kalecadWatching = "true";
 
-    const observer = new MutationObserver(() => {
+    const check = () => {
       if (!result.classList.contains("active")) return;
 
       const match = correct.textContent.match(/(\d+)\s*\/\s*10/);
       if (!match) return;
 
-      const signature =
-        `${localStorage.getItem(CAMPUS_KEY)}:${match[0]}`;
+      const round = result.dataset.kalecadLastRound;
+      const current = match[1] + "-" + Date.now();
 
-      if (result.dataset.kalecadLastRound === signature) return;
+      if (round && result.dataset.kalecadDone === "true") return;
 
-      result.dataset.kalecadLastRound = signature;
+      result.dataset.kalecadLastRound = current;
+      result.dataset.kalecadDone = "true";
       finishConquest(Number(match[1]));
-    });
+    };
 
-    observer.observe(result, {
+    new MutationObserver(() => {
+      if (!result.classList.contains("active")) {
+        result.dataset.kalecadDone = "false";
+      }
+      check();
+    }).observe(result, {
       attributes: true,
-      attributeFilter: ["class"]
+      childList: true,
+      subtree: true,
+      characterData: true
     });
 
-    observer.observe(correct, {
+    new MutationObserver(check).observe(correct, {
       childList: true,
-      characterData: true,
-      subtree: true
+      subtree: true,
+      characterData: true
     });
   }
 
   function init() {
-    if (!renderMap()) return;
+    renderMap();
     watchResults();
-    updateStatus();
+
+    const selected = localStorage.getItem(CAMPUS_KEY);
+    if (selected) renderMap();
   }
 
   window.KALECAD_CONQUEST = {
@@ -471,7 +276,7 @@
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, { once: true });
+    document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
