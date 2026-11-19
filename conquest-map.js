@@ -3,7 +3,8 @@
   "use strict";
 
   const STORAGE_KEY = "kalecad_conquest";
-  const CAMPUS_KEY = "kalecad_campus";
+  const HOME_CAMPUS_KEY = "kalecad_home_campus";
+  const TARGET_KEY = "kalecad_campus";
 
   const cities = {
     Istanbul: { name: "İstanbul" },
@@ -29,8 +30,12 @@
     }
   }
 
-  function selectedKey() {
-    return aliases[localStorage.getItem(CAMPUS_KEY)] || null;
+  function homeKey() {
+    return aliases[localStorage.getItem(HOME_CAMPUS_KEY)] || null;
+  }
+
+  function targetKey() {
+    return aliases[localStorage.getItem(TARGET_KEY)] || null;
   }
 
   function addStyles() {
@@ -66,7 +71,26 @@
         text-align:center;
         color:#a9d5ff;
         font-size:13px;
-        margin:0 0 22px;
+        margin:0 0 20px;
+      }
+
+      #kalecadHistoricMap .home-base {
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        padding:12px;
+        margin-bottom:17px;
+        border:1px solid #3c8ebd;
+        border-radius:15px;
+        background:linear-gradient(110deg,#123d61,#0b2745);
+        color:#d8efff;
+        font-size:13px;
+        font-weight:800;
+      }
+
+      #kalecadHistoricMap .home-base strong {
+        color:#65d2ff;
       }
 
       #kalecadHistoricMap .castle-platform {
@@ -89,11 +113,6 @@
         gap:7px;
         cursor:pointer;
         box-shadow:0 6px 15px #0005;
-        transition:transform .18s,box-shadow .18s;
-      }
-
-      #kalecadHistoricMap .castle-choice:active {
-        transform:scale(.97);
       }
 
       #kalecadHistoricMap .castle-choice.selected {
@@ -113,7 +132,6 @@
         width:100%;
         max-width:175px;
         height:auto;
-        overflow:visible;
       }
 
       #kalecadHistoricMap .castle-name {
@@ -162,8 +180,7 @@
 
       @media(min-width:560px) {
         #kalecadHistoricMap .castle-platform {
-          grid-template-columns:repeat(4,minmax(0,1fr));
-          gap:9px;
+          grid-template-columns:repeat(3,minmax(0,1fr));
         }
       }
     `;
@@ -172,7 +189,7 @@
 
   function castleSVG(key, captured) {
     const color = captured ? "#f6c65a" :
-      key === selectedKey() ? "#55caff" : "#83bce9";
+      key === targetKey() ? "#55caff" : "#83bce9";
 
     const dark = captured ? "#95631c" : "#24699e";
 
@@ -192,37 +209,24 @@
 
         <g stroke="#d9f0ff" stroke-width="2.2"
            stroke-linejoin="round" stroke-linecap="round">
-
-          <!-- Ana kale duvarı -->
           <path d="M17 125V83H29V65H53V83H65V70H115V83H127V65H151V83H163V125Z"
                 fill="url(#wall-${key})"/>
-
-          <!-- Sol kule -->
           <path d="M29 83V43H53V83Z" fill="url(#tower-${key})"/>
           <path d="M25 43L41 28L57 43Z" fill="${color}"/>
           <path d="M37 28V18H45V28" fill="none"/>
           <path d="M41 18V9L57 17L41 24Z" fill="#24c5ff"/>
-
-          <!-- Sağ kule -->
           <path d="M127 83V43H151V83Z" fill="url(#tower-${key})"/>
           <path d="M123 43L139 28L155 43Z" fill="${color}"/>
           <path d="M135 28V18H143V28" fill="none"/>
-
-          <!-- Büyük orta kule -->
           <path d="M65 70V29H115V70Z" fill="url(#tower-${key})"/>
           <path d="M60 29L90 5L120 29Z" fill="${color}"/>
           <path d="M86 5V-2H94V5" fill="none"/>
           <path d="M90 -2V-10L107 -2L90 5Z" fill="#24c5ff"/>
-
-          <!-- Pencereler -->
           <path d="M39 57V67M143 57V67M79 43V55M101 43V55"
                 stroke="#092443" stroke-width="5"/>
-
-          <!-- Giriş kapısı -->
           <path d="M76 125V105Q90 82 104 105V125Z"
                 fill="#071a32" stroke="#b9e5ff"/>
         </g>
-
         <path d="M10 129H170" stroke="${color}"
               stroke-width="3" stroke-linecap="round"/>
       </svg>
@@ -231,7 +235,7 @@
 
   function chooseCity(key) {
     const city = cities[key];
-    if (!city) return;
+    if (!city || key === homeKey()) return;
 
     const button = [...document.querySelectorAll("[data-campus]")]
       .find(el => el.dataset.campus === city.name);
@@ -239,50 +243,54 @@
     if (button) {
       button.click();
     } else {
-      localStorage.setItem(CAMPUS_KEY, city.name);
+      localStorage.setItem(TARGET_KEY, city.name);
       window.dispatchEvent(new CustomEvent("kalecad:campus-selected", {
         detail: { campus: city.name }
       }));
-
-      const start = document.getElementById("start");
-      if (start) {
-        start.disabled = false;
-        start.removeAttribute("aria-disabled");
-      }
     }
 
-    localStorage.setItem(CAMPUS_KEY, city.name);
+    localStorage.setItem(TARGET_KEY, city.name);
     renderMap();
   }
 
   function mapMarkup() {
     const state = readState();
-    const selected = selectedKey();
+    const home = homeKey();
+    const target = targetKey();
+
+    const availableCities = Object.entries(cities)
+      .filter(([key]) => key !== home);
 
     return `
-      <div class="map-heading">KALECAD KALELERİ</div>
+      <div class="map-heading">Fethedilecek Kaleler</div>
       <p class="map-subtitle">
-        Bir kale seç, 10 soruyu doğru yanıtla ve fethet!
+        Ana Kampüsün Dışındaki Şehirleri Fethet!
       </p>
 
+      <div class="home-base">
+        <span>⌂</span>
+        <span>Okulumun Şehri: <strong>
+          ${home ? cities[home].name : "Henüz Seçilmedi"}
+        </strong></span>
+      </div>
+
       <div class="castle-platform">
-        ${Object.entries(cities).map(([key, city]) => {
+        ${availableCities.map(([key, city]) => {
           const captured = !!state[key];
-          const isSelected = selected === key;
+          const isSelected = target === key;
 
           return `
             <button type="button"
               class="castle-choice ${isSelected ? "selected" : ""}
                 ${captured ? "captured" : ""}"
               data-castle="${key}">
-
               ${castleSVG(key, captured)}
-
-              <span class="castle-name">${city.name.toLocaleUpperCase("tr-TR")}</span>
-
+              <span class="castle-name">
+                ${city.name} Kalesi
+              </span>
               <span class="castle-status">
                 ${captured ? "★ Fethedildi" :
-                  isSelected ? "✓ Seçili" : "Kale Seç"}
+                  isSelected ? "✓ Hedef Seçildi" : "Kaleyi Seç"}
               </span>
             </button>
           `;
@@ -290,8 +298,10 @@
       </div>
 
       <div id="kalecadMapStatus" aria-live="polite">
-        ${selected ? "Seçili kale: " + cities[selected].name :
-          "Bir kale seçerek fethe başla."}
+        ${!home ? "Önce Okulunun Şehrini Seç." :
+          target && target !== home ?
+          "Fetih Hedefin: " + cities[target].name :
+          "Fethetmek İstediğin Kaleyi Seç."}
       </div>
     `;
   }
@@ -328,8 +338,11 @@
   }
 
   function finishConquest(correctCount) {
-    const key = selectedKey();
-    if (Number(correctCount) !== 10 || !key) return false;
+    const key = targetKey();
+
+    if (!key || key === homeKey() || Number(correctCount) !== 10) {
+      return false;
+    }
 
     const state = readState();
     state[key] = true;
@@ -340,7 +353,7 @@
 
     if (resultText && !resultText.textContent.includes("CADparatoru")) {
       resultText.textContent +=
-        ` ${city.name} Kalesi fethedildi! Sen ${city.name} Kalesi'nin CADparatoru oldun!`;
+        ` ${city.name} Kalesi Fethedildi! Sen ${city.name} Kalesi'nin CADparatoru Oldun!`;
     }
 
     renderMap();
@@ -361,7 +374,7 @@
       if (!match) return;
 
       const signature =
-        `${localStorage.getItem(CAMPUS_KEY)}:${match[0]}`;
+        `${localStorage.getItem(TARGET_KEY)}:${match[0]}`;
 
       if (result.dataset.kalecadLastRound === signature) return;
 
@@ -391,6 +404,8 @@
     cities,
     refresh: renderMap
   };
+
+  window.addEventListener("kalecad:home-campus-selected", renderMap);
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init, { once: true });
