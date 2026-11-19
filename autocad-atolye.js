@@ -1,744 +1,639 @@
 
-/* KALECAD - AUTOCAD + SKETCHUP */
-(() => {
-'use strict';
-
-const KEY='kalecad_atolye_v2';
-
-const auto=[
-['LINE','Çizgi','İki nokta arasında çizgi çizer.'],
-['PLINE','Çoklu Çizgi','Birleşik çizgi oluşturur.'],
-['CIRCLE','Daire','Daire oluşturur.'],
-['ARC','Yay','Yay çizer.'],
-['RECTANG','Dikdörtgen','Dikdörtgen oluşturur.'],
-['MOVE','Taşı','Nesneleri taşır.'],
-['COPY','Kopyala','Nesneleri çoğaltır.'],
-['ROTATE','Döndür','Nesneleri döndürür.'],
-['MIRROR','Aynala','Simetrik kopya oluşturur.'],
-['SCALE','Ölçekle','Boyutları değiştirir.'],
-['OFFSET','Ötele','Paralel çizgi oluşturur.'],
-['TRIM','Budama','Fazla çizgileri keser.'],
-['EXTEND','Uzat','Çizgileri uzatır.'],
-['HATCH','Tarama','Kapalı alanları tarar.'],
-['LAYER','Katman','Çizimleri katmanlara ayırır.'],
-['DIM','Ölçülendirme','Ölçüleri gösterir.'],
-['BLOCK','Blok','Nesneleri blok haline getirir.'],
-['ERASE','Sil','Nesneleri siler.'],
-['UNDO','Geri Al','Son işlemi geri alır.'],
-['DIST','Mesafe','İki nokta arasını ölçer.']
-];
-
-const sketch=[
-['Select','Seç','Nesneleri seçer.'],
-['Line','Çizgi','Kenar ve çizgi oluşturur.'],
-['Rectangle','Dikdörtgen','Dikdörtgen yüzey çizer.'],
-['Circle','Daire','Dairesel yüzey oluşturur.'],
-['Push/Pull','İt/Çek','Yüzeyi yükseltir.'],
-['Move','Taşı','Nesneleri taşır.'],
-['Rotate','Döndür','Nesneleri döndürür.'],
-['Scale','Ölçekle','Boyutları değiştirir.'],
-['Offset','Ötele','Paralel kenar oluşturur.'],
-['Follow Me','Beni İzle','Profili yol boyunca uzatır.'],
-['Paint Bucket','Boya Kovası','Yüzeye malzeme uygular.'],
-['Eraser','Silgi','Kenarları siler.'],
-['Orbit','Yörünge','Modelin çevresinde döner.'],
-['Pan','Kaydır','Görünümü taşır.'],
-['Zoom','Yakınlaştır','Modeli yakınlaştırır.']
-];
-
-const questions=[
-['LINE komutu ne yapar?','İki nokta arasında çizgi çizer.',['Daire oluşturur.','İki nokta arasında çizgi çizer.','Nesne siler.','Ölçü verir.']],
-['OFFSET komutu ne yapar?','Paralel çizgi oluşturur.',['Paralel çizgi oluşturur.','Daire çizer.','Nesne döndürür.','Dosya kaydeder.']],
-['TRIM komutu ne yapar?','Fazla çizgileri keser.',['Çizgiyi uzatır.','Fazla çizgileri keser.','Katman açar.','Daire çizer.']],
-['HATCH komutu ne yapar?','Kapalı alanları tarar.',['Nesne taşır.','Kapalı alanları tarar.','Ölçü verir.','Çizgiyi siler.']],
-['COPY komutu ne yapar?','Nesneleri çoğaltır.',['Nesneleri çoğaltır.','Nesneleri siler.','Döndürür.','Ölçer.']],
-['Push/Pull ne işe yarar?','Yüzeyi yükseltir.',['Yüzeyi yükseltir.','Nesne siler.','Görünümü taşır.','Çizgiyi uzatır.']],
-['Orbit aracı ne yapar?','Model çevresinde görünümü döndürür.',['Malzeme uygular.','Model çevresinde görünümü döndürür.','Çizgi siler.','Nesne boyar.']],
-['Paint Bucket ne işe yarar?','Yüzeye malzeme uygular.',['Nesne taşır.','Yüzeye malzeme uygular.','Model döndürür.','Çizgi çizer.']],
-['Rectangle aracı ne yapar?','Dikdörtgen yüzey oluşturur.',['Daire oluşturur.','Dikdörtgen yüzey oluşturur.','Nesne siler.','Görünümü döndürür.']],
-['Follow Me ne yapar?','Profili yol boyunca uzatır.',['Profili yol boyunca uzatır.','Nesne taşır.','Yüzey boyar.','Çizgi siler.']]
-];
-
-const taskData={
-auto:[
-'Oda planı çiz: 4000 × 3000 birim.',
-'OFFSET ile 200 birim duvar kalınlığı oluştur.',
-'TRIM ile kapı boşluğu aç.',
-'COPY ile pencereyi çoğalt.',
-'Duvar, kapı ve pencere katmanları oluştur.',
-'Çizimini PDF çıktısına hazırla.'
-],
-sketch:[
-'400 × 300 cm ölçülerinde oda zemini oluştur.',
-'Push/Pull ile duvarları 280 cm yükselt.',
-'Bir kapı ve iki pencere ekle.',
-'Odaya masa, sandalye ve dolap modelle.',
-'Zemin ve duvarlara malzeme uygula.',
-'Modelini farklı açılardan incele.'
-]
-};
-
-function read(){
-try{return JSON.parse(localStorage.getItem(KEY)||'{}');}
-catch(e){return {};}
-}
-function write(d){localStorage.setItem(KEY,JSON.stringify(d));}
-function esc(s){
-return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function shuffle(a){
-let b=a.slice();
-for(let i=b.length-1;i>0;i--){
-let j=Math.floor(Math.random()*(i+1));
-[b[i],b[j]]=[b[j],b[i]];
-}
-return b;
-}
-
-function mount(){
-const home=document.getElementById('home');
-if(!home||document.getElementById('kaAtolyeCard'))return false;
-const card=document.createElement('section');
-card.id='kaAtolyeCard';
-card.style.cssText='margin:18px 0;padding:18px;border-radius:16px;background:#10264d;color:white;border:1px solid #426b91';
-card.innerHTML='<h2>🏰 Mesleki Tasarım Atölyesi</h2><p>AutoCAD • SketchUp • Mimari Tasarım</p><button id="kaOpen" style="padding:12px 20px;border:0;border-radius:9px;background:#64d9ff;color:#07163c;font-weight:bold">Atölyeyi Aç</button>';
-const anchor=home.querySelector('.settings')||home.querySelector('.hero');
-if(anchor)anchor.insertAdjacentElement('afterend',card);
-else home.appendChild(card);
-card.querySelector('#kaOpen').onclick=open;
-return true;
-}
-
-function open(){
-if(document.getElementById('kaModal'))return;
-const modal=document.createElement('div');
-modal.id='kaModal';
-modal.innerHTML=`
-<div class="kaWindow">
-<header><h2>Mesleki Tasarım Atölyesi</h2><button id="kaClose">✕</button></header>
-<nav>
-<button data-tab="auto">AutoCAD</button>
-<button data-tab="sketch">SketchUp</button>
-<button data-tab="teacher">Öğretmen Paneli</button>
-</nav>
-<main id="kaContent"></main>
-</div>`;
-const style=document.createElement('style');
-style.textContent=`
-#kaModal{position:fixed;inset:0;z-index:999999;background:#050d20ee;overflow:auto;padding:12px;color:white;font-family:Arial,sans-serif}
-#kaModal *{box-sizing:border-box}
-.kaWindow{max-width:900px;margin:10px auto;padding:16px;background:#0d1d3b;border:1px solid #45658f;border-radius:16px}
-.kaWindow header{display:flex;justify-content:space-between;align-items:center}
-.kaWindow button{padding:11px;margin:4px;border:1px solid #45658f;border-radius:8px;background:#193458;color:white;cursor:pointer}
-.kaWindow button.active,.kaWindow button.primary{background:#64d9ff;color:#07163c}
-.kaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
-.kaCard{background:#14294c;border:1px solid #29486e;border-radius:12px;padding:14px;margin:10px 0}
-.kaCard h3{margin:5px 0 10px}
-.kaMuted{color:#b7c8e2;font-size:13px}
-.kaField{width:100%;padding:12px;margin:8px 0;border-radius:8px;background:#081831;color:white;border:1px solid #45658f}
-.kaOption{display:block;width:100%;text-align:left;padding:12px;margin:7px 0;border-radius:8px;background:#193458;color:white;border:1px solid #45658f}
-.kaGood{background:#15513e!important}
-.kaBad{background:#652e3a!important}
-.kaScore{font-size:28px;color:#64d9ff;font-weight:bold}
-.kaCheck{display:flex;gap:10px;margin:14px 0}
-`;
-document.head.appendChild(style);
-document.body.appendChild(modal);
-const content=modal.querySelector('#kaContent');
-modal.querySelector('#kaClose').onclick=()=>{modal.remove();style.remove();};
-
-modal.querySelectorAll('[data-tab]').forEach(b=>{
-b.onclick=()=>{
-modal.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));
-if(b.dataset.tab==='auto')render('auto');
-if(b.dataset.tab==='sketch')render('sketch');
-if(b.dataset.tab==='teacher')teacher();
-};
-});
-
-function render(type){
-const isAuto=type==='auto';
-const tools=isAuto?auto:sketch;
-const title=isAuto?'AutoCAD':'SketchUp';
-content.innerHTML=`
-<div class="kaGrid">
-<button data-page="guide" class="primary">Araç Rehberi</button>
-<button data-page="quiz">Mini Sınav</button>
-<button data-page="tasks">Uygulama Görevleri</button>
-</div>
-<div id="kaSub"></div>`;
-const sub=content.querySelector('#kaSub');
-content.querySelectorAll('[data-page]').forEach(b=>{
-b.onclick=()=>{
-content.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('primary',x===b));
-if(b.dataset.page==='guide')guide();
-if(b.dataset.page==='quiz')quiz(type);
-if(b.dataset.page==='tasks')tasks(type);
-};
-});
-function guide(){
-sub.innerHTML='<div class="kaCard"><h3>'+title+' Araç Rehberi</h3><input id="kaSearch" class="kaField" placeholder="Komut ara..."></div><div id="kaTools" class="kaGrid"></div>';
-const list=sub.querySelector('#kaTools');
-function fill(term=''){
-list.innerHTML='';
-tools.filter(t=>t.join(' ').toLocaleLowerCase('tr-TR').includes(term.toLocaleLowerCase('tr-TR'))).forEach(t=>{
-const c=document.createElement('div');
-c.className='kaCard';
-c.innerHTML='<h3>'+esc(t[0])+' / '+esc(t[1])+'</h3><p>'+esc(t[2])+'</p>';
-list.appendChild(c);
-});
-}
-fill();
-sub.querySelector('#kaSearch').oninput=e=>fill(e.target.value);
-}
-function quiz(kind){
-let qs=kind==='auto'?shuffle(auto).slice(0,10).map((t,i)=>({
-q:t[0]+' komutunun görevi nedir?',
-a:t[2],
-options:[t[2],auto[(i+3)%auto.length][2],auto[(i+8)%auto.length][2],auto[(i+13)%auto.length][2]]
-})):shuffle(questions);
-let index=0,score=0;
-function show(){
-const q=qs[index];
-sub.innerHTML='<div class="kaCard"><p class="kaMuted">'+title+' • Soru '+(index+1)+'/'+qs.length+'</p><h3>'+esc(q.q)+'</h3><div id="kaAnswers"></div><p id="kaFeedback"></p></div>';
-const answers=sub.querySelector('#kaAnswers');
-shuffle(q.options).forEach(option=>{
-const b=document.createElement('button');
-b.className='kaOption';
-b.textContent=option;
-b.onclick=()=>{
-if(answers.dataset.done)return;
-answers.dataset.done='1';
-const correct=option===q.a;
-if(correct)score++;
-answers.querySelectorAll('button').forEach(x=>{
-x.disabled=true;
-if(x.textContent===q.a)x.classList.add('kaGood');
-});
-if(!correct)b.classList.add('kaBad');
-sub.querySelector('#kaFeedback').textContent=correct?'Doğru cevap!':'Doğru cevap: '+q.a;
-const next=document.createElement('button');
-next.className='primary';
-next.textContent=index===qs.length-1?'Sonucu Gör':'Sonraki Soru';
-next.onclick=()=>{
-index++;
-if(index<qs.length)show();
-else finish();
-};
-answers.appendChild(next);
-};
-answers.appendChild(b);
-});
-}
-function finish(){
-const points=Math.round(score/qs.length*100);
-const d=read();
-d[kind+'Best']=Math.max(d[kind+'Best']||0,points);
-d[kind+'Last']=points;
-write(d);
-sub.innerHTML='<div class="kaCard"><h2>Sınav Tamamlandı</h2><div class="kaScore">'+points+'/100</div><p>'+score+' doğru cevap</p><button id="kaAgain" class="primary">Tekrar Dene</button></div>';
-sub.querySelector('#kaAgain').onclick=()=>quiz(kind);
-}
-show();
-}
-function tasks(kind){
-const items=taskData[kind];
-const d=read();
-const done=d[kind+'Tasks']||[];
-sub.innerHTML='<div class="kaCard"><h3>'+title+' Uygulama Görevleri</h3><div id="kaTaskList"></div><p id="kaProgress" class="kaScore"></p></div>';
-const list=sub.querySelector('#kaTaskList');
-items.forEach((item,i)=>{
-const label=document.createElement('label');
-label.className='kaCheck';
-label.innerHTML='<input type="checkbox" '+(done.includes(i)?'checked':'')+'><span>'+esc(item)+'</span>';
-label.querySelector('input').onchange=()=>{
-const d=read();
-let selected=d[kind+'Tasks']||[];
-selected=label.querySelector('input').checked?[...new Set([...selected,i])]:selected.filter(x=>x!==i);
-d[kind+'Tasks']=selected;
-write(d);
-update();
-};
-list.appendChild(label);
-});
-function update(){
-const count=list.querySelectorAll('input:checked').length;
-sub.querySelector('#kaProgress').textContent=count+'/'+items.length+' görev tamamlandı';
-}
-update();
-}
-guide();
-}
-
-function teacher(){
-const d=read();
-content.innerHTML=`
-<div class="kaCard">
-<h3>Öğretmen Paneli</h3>
-<p>AutoCAD en iyi sınav puanı: <b>${d.autoBest||0}/100</b></p>
-<p>SketchUp en iyi sınav puanı: <b>${d.sketchBest||0}/100</b></p>
-<p>AutoCAD tamamlanan görev: <b>${(d.autoTasks||[]).length}/6</b></p>
-<p>SketchUp tamamlanan görev: <b>${(d.sketchTasks||[]).length}/6</b></p>
-</div>
-<div class="kaCard">
-<h3>Takım Puan Tablosu</h3>
-<input id="kaTeam" class="kaField" placeholder="Takım adı">
-<button id="kaAdd" class="primary">Takım Ekle</button>
-<div id="kaTeams"></div>
-</div>`;
-const list=content.querySelector('#kaTeams');
-function redraw(){
-const data=read();
-list.innerHTML='';
-(data.teams||[]).sort((a,b)=>b.score-a.score).forEach((t,i)=>{
-const row=document.createElement('div');
-row.className='kaCard';
-row.innerHTML='<h3>'+(i+1)+'. '+esc(t.name)+'</h3><p class="kaScore">'+t.score+' puan</p>';
-const plus=document.createElement('button');
-plus.textContent='+10';
-plus.onclick=()=>change(t.id,10);
-const minus=document.createElement('button');
-minus.textContent='-5';
-minus.onclick=()=>change(t.id,-5);
-row.append(plus,minus);
-list.appendChild(row);
-});
-}
-function change(id,value){
-const data=read();
-const team=(data.teams||[]).find(t=>t.id===id);
-if(team){team.score=Math.max(0,team.score+value);write(data);redraw();}
-}
-content.querySelector('#kaAdd').onclick=()=>{
-const input=content.querySelector('#kaTeam');
-const name=input.value.trim();
-if(!name)return;
-const data=read();
-data.teams=data.teams||[];
-data.teams.push({id:Date.now(),name,score:0});
-write(data);
-input.value='';
-redraw();
-};
-redraw();
-}
-modal.querySelector('[data-tab="auto"]').click();
-}
-
-function boot(){
-if(mount())return;
-const observer=new MutationObserver(()=>{
-if(mount())observer.disconnect();
-});
-observer.observe(document.documentElement,{childList:true,subtree:true});
-setTimeout(()=>observer.disconnect(),30000);
-}
-
-if(document.readyState==='loading'){
-document.addEventListener('DOMContentLoaded',boot,{once:true});
-}else{
-boot();
-}
-
-})();
-
-/* KALECAD - DIJITAL ATOLYE EKLENTISI */
+/* KALECAD - AUTOCAD VE DIJITAL TASARIM ATOLYESI */
 (() => {
   'use strict';
 
-  const tools = [
-    {
-      name: 'SketchUp Web',
-      category: '3D Modelleme',
-      icon: '🏠',
-      description: 'Mimari modelleme, iç mekân tasarımı ve üç boyutlu yapı çalışmaları.',
-      url: 'https://app.sketchup.com/',
-      tag: '3D'
-    },
-    {
-      name: 'Tinkercad',
-      category: '3D Modelleme',
-      icon: '🧊',
-      description: 'Temel üç boyutlu modelleme ve geometrik tasarım çalışmaları.',
-      url: 'https://www.tinkercad.com/',
-      tag: '3D'
-    },
-    {
-      name: 'OpenPlan3D',
-      category: 'Mimari Plan',
-      icon: '📐',
-      description: '2D kat planı hazırlama, mobilya yerleştirme ve 3D görünüm.',
-      url: 'https://openplan3d.com/',
-      tag: 'PLAN'
-    },
-    {
-      name: 'OpenCAD Studio',
-      category: '2D Teknik Çizim',
-      icon: '📏',
-      description: 'Tarayıcı üzerinden teknik çizim, katman ve ölçülendirme araçları.',
-      url: 'https://www.opencad.studio/2d-cad-online/',
-      tag: 'CAD'
-    },
-    {
-      name: 'FlatCAD',
-      category: '2D Teknik Çizim',
-      icon: '✏️',
-      description: 'Ölçülü 2D çizimler, teknik planlar ve DXF çıktısı.',
-      url: 'https://flatcad.com/',
-      tag: 'CAD'
-    },
-    {
-      name: 'Cadelo',
-      category: '2D Teknik Çizim',
-      icon: '📋',
-      description: 'Tarayıcıda DWG ve DXF dosyalarıyla 2D çizim düzenleme.',
-      url: 'https://cadelo.app/',
-      tag: 'CAD'
-    }
+  const STORE = 'kalecad_autocad_atolye_v1';
+
+  const commands = [
+    ['LINE','Çizgi','İki nokta arasında düz çizgi çizer.','Duvar kenarı çizmek.'],
+    ['PLINE','Çoklu Çizgi','Birbirine bağlı çizgiler oluşturur.','Bir oda sınırını tek nesne olarak çizmek.'],
+    ['RECTANG','Dikdörtgen','Dikdörtgen oluşturur.','Oda planı çizmek.'],
+    ['CIRCLE','Daire','Belirlenen merkez ve yarıçapla daire çizer.','Kolon veya masa çizmek.'],
+    ['ARC','Yay','Dairesel yay oluşturur.','Kavisli duvar çizmek.'],
+    ['OFFSET','Ötele','Bir nesnenin belirli mesafede paralel kopyasını oluşturur.','Duvar kalınlığı vermek.'],
+    ['TRIM','Budama','Fazla çizgi parçalarını keser.','Kesişen çizgilerin fazlalıklarını silmek.'],
+    ['EXTEND','Uzatma','Çizgileri sınır nesnesine kadar uzatır.','Duvar çizgilerini birleştirmek.'],
+    ['FILLET','Yuvarlatma','İki nesne arasına yuvarlatılmış köşe oluşturur.','Mobilya köşelerini yumuşatmak.'],
+    ['CHAMFER','Pah','İki nesne arasına açılı köşe oluşturur.','Köşelere pah vermek.'],
+    ['MOVE','Taşı','Nesneleri başka bir konuma taşır.','Kapı konumunu değiştirmek.'],
+    ['COPY','Kopyala','Nesnelerin kopyasını oluşturur.','Pencereleri çoğaltmak.'],
+    ['ROTATE','Döndür','Nesneleri belirlenen açıyla döndürür.','Mobilyayı çevirmek.'],
+    ['MIRROR','Aynala','Nesnelerin simetrik kopyasını oluşturur.','Simetrik cephe çizmek.'],
+    ['SCALE','Ölçekle','Nesneleri büyütür veya küçültür.','Çizimi ölçeklendirmek.'],
+    ['ARRAY','Dizi','Nesneleri düzenli şekilde çoğaltır.','Kolonları veya sandalyeleri çoğaltmak.'],
+    ['ERASE','Sil','Seçilen nesneleri siler.','Gereksiz çizgileri kaldırmak.'],
+    ['STRETCH','Ger','Nesnelerin seçilen bölümünü uzatır.','Oda ölçüsünü değiştirmek.'],
+    ['HATCH','Tarama','Kapalı alanlara tarama uygular.','Kesitte malzeme göstermek.'],
+    ['MATCHPROP','Özellik Eşleştir','Bir nesnenin özelliklerini diğerine aktarır.','Çizgi özelliklerini eşitlemek.'],
+    ['DIM','Ölçülendirme','Nesnelerin ölçülerini gösterir.','Duvar uzunluğunu ölçülendirmek.'],
+    ['DIMLINEAR','Doğrusal Ölçü','Yatay ve düşey ölçülendirme yapar.','Oda genişliğini göstermek.'],
+    ['MTEXT','Çok Satırlı Yazı','Çok satırlı metin ekler.','Mahal isimlerini yazmak.'],
+    ['TEXT','Yazı','Tek satırlı yazı ekler.','Çizime not eklemek.'],
+    ['LAYER','Katman','Çizim katmanlarını yönetir.','Duvar, kapı ve mobilyayı ayırmak.'],
+    ['BLOCK','Blok','Seçilen nesneleri tek blok haline getirir.','Kapı sembolü oluşturmak.'],
+    ['INSERT','Ekle','Hazır blokları çizime ekler.','Mobilya sembolü yerleştirmek.'],
+    ['EXPLODE','Patlat','Blok veya birleşik nesneleri parçalarına ayırır.','Bloğu ayrı çizgilere dönüştürmek.'],
+    ['ZOOM','Yakınlaştır','Çizim görünümünü büyütür veya küçültür.','Detaylara yaklaşmak.'],
+    ['PAN','Kaydır','Çizim alanında görünümü kaydırır.','Çizimin başka bölümüne geçmek.']
   ];
 
-  function addDigitalWorkshop() {
-    const modal = document.getElementById('autocadWorkshopModal');
-    if (!modal) return;
+  const questions = [
+    ['LINE komutu ne işe yarar?',['Çizgi çizer','Daire çizer','Yazı yazar','Alan tarar'],0],
+    ['Dikdörtgen çizmek için hangi komut kullanılır?',['CIRCLE','RECTANG','OFFSET','TRIM'],1],
+    ['Daire çizme komutu hangisidir?',['ARC','LINE','CIRCLE','COPY'],2],
+    ['Duvar kalınlığı vermek için hangi komut kullanılır?',['OFFSET','ERASE','ZOOM','TEXT'],0],
+    ['Fazla çizgileri kesmek için hangi komut kullanılır?',['EXTEND','TRIM','MOVE','SCALE'],1],
+    ['Bir nesneyi taşımak için hangi komut kullanılır?',['COPY','ROTATE','MOVE','MIRROR'],2],
+    ['Bir nesnenin kopyasını oluşturmak için hangisi kullanılır?',['COPY','ERASE','PAN','HATCH'],0],
+    ['Simetrik kopya oluşturma komutu hangisidir?',['ARRAY','MIRROR','FILLET','BLOCK'],1],
+    ['Nesneyi döndürmek için hangi komut kullanılır?',['SCALE','MOVE','ROTATE','TRIM'],2],
+    ['Alan taraması yapmak için hangi komut kullanılır?',['HATCH','TEXT','LINE','PAN'],0],
+    ['Katmanları yönetmek için hangi komut kullanılır?',['BLOCK','LAYER','ARC','COPY'],1],
+    ['Ölçülendirme için kullanılan genel komut hangisidir?',['DIM','ERASE','ZOOM','INSERT'],0],
+    ['Yazı eklemek için hangi komut kullanılır?',['OFFSET','TEXT','TRIM','SCALE'],1],
+    ['Bir nesneyi büyütüp küçültmek için hangisi kullanılır?',['MOVE','COPY','SCALE','PAN'],2],
+    ['Çizimi yakınlaştırmak için hangi komut kullanılır?',['ZOOM','HATCH','BLOCK','ARC'],0],
+    ['Çizimi ekranda kaydırmak için hangi komut kullanılır?',['TRIM','PAN','DIM','TEXT'],1],
+    ['Blok oluşturmak için hangi komut kullanılır?',['INSERT','EXPLODE','BLOCK','ERASE'],2],
+    ['Hazır bloğu çizime eklemek için hangisi kullanılır?',['INSERT','MOVE','OFFSET','FILLET'],0],
+    ['Bir bloğu parçalarına ayırmak için hangisi kullanılır?',['BLOCK','EXPLODE','COPY','ARRAY'],1],
+    ['İki çizgiyi yuvarlak köşeyle birleştirmek için hangisi kullanılır?',['CHAMFER','FILLET','TRIM','EXTEND'],1],
+    ['İki çizgi arasına pah oluşturmak için hangisi kullanılır?',['FILLET','ARC','CHAMFER','MIRROR'],2],
+    ['Çizgiyi sınırına kadar uzatmak için hangisi kullanılır?',['EXTEND','TRIM','ERASE','SCALE'],0],
+    ['Birden fazla bağlı çizgi oluşturmak için hangisi kullanılır?',['CIRCLE','PLINE','TEXT','PAN'],1],
+    ['Düzenli çoğaltma yapmak için hangi komut kullanılır?',['ARRAY','MOVE','ARC','DIM'],0],
+    ['Nesnenin özelliklerini başka nesneye aktaran komut hangisidir?',['MATCHPROP','ERASE','ZOOM','INSERT'],0],
+    ['Kapı sembolü oluşturmak için hangi yöntem uygundur?',['BLOCK','PAN','ZOOM','HATCH'],0],
+    ['Yatay ve düşey ölçü almak için hangi komut kullanılır?',['DIMLINEAR','CIRCLE','MIRROR','ARC'],0],
+    ['Bir nesneyi silmek için hangi komut kullanılır?',['COPY','ERASE','OFFSET','BLOCK'],1],
+    ['Kavisli çizgi oluşturmak için hangi komut kullanılır?',['ARC','LINE','TEXT','LAYER'],0],
+    ['Bir çizimin farklı bölümlerini ayırmak için ne kullanılır?',['Katman','Zoom','Pan','Sil'],0],
+    ['Oda planında duvar kalınlığı genellikle hangi komutla verilir?',['OFFSET','ROTATE','ERASE','TEXT'],0],
+    ['Mimari çizimde kapı ve pencere sembolleri ne sağlar?',['Çizimi anlaşılır kılar','Dosyayı siler','Ölçeği değiştirir','Rengi kaldırır'],0],
+    ['Çizim ölçeği neyi ifade eder?',['Gerçek ölçü ile çizim ölçüsü ilişkisini','Çizgi rengini','Dosya adını','Katman sayısını'],0],
+    ['AutoCAD dosyasının temel çalışma uzantısı hangisidir?',['.DOCX','.DWG','.MP3','.JPG'],1],
+    ['Çizimi PDF olarak paylaşmanın amacı nedir?',['Kolay görüntüleme ve çıktı','Çizimi silme','Katmanları kapatma','Ölçüleri bozma'],0],
+    ['Kesit çizimi neyi gösterir?',['Yapının düşey düzlemde kesilmiş görünüşünü','Sadece çatıyı','Sadece vaziyeti','Mobilya rengini'],0],
+    ['Plan çizimi hangi görünüşü ifade eder?',['Üstten görünüş','Alttan görünüş','Perspektif','Arka görünüş'],0],
+    ['Cephe çizimi neyi gösterir?',['Yapının dış görünüşünü','Temel detayını','Sadece oda planını','Elektrik tesisatını'],0],
+    ['Rölöve nedir?',['Mevcut yapının ölçülerek belgelenmesi','Yeni yapı ruhsatı','Mobilya kataloğu','Peyzaj sulaması'],0],
+    ['Ölçü alırken hangi araç kullanılabilir?',['Şerit metre','Fırça','Makas','Zımpara'],0],
+    ['SketchUp temel olarak hangi amaçla kullanılır?',['3B modelleme','Video montajı','Müzik düzenleme','Tablo hazırlama'],0],
+    ['3B modellemede yükseklik hangi eksendir?',['X','Y','Z','Hiçbiri'],2],
+    ['Bir yüzeyi yükselterek hacim oluşturma aracı hangisidir?',['Push/Pull','Eraser','Orbit','Paint'],0],
+    ['Modeli farklı açılardan incelemek için hangi araç kullanılır?',['Orbit','Text','Line','Bucket'],0],
+    ['SketchUp modelinde yüzey boyamak için hangi araç kullanılır?',['Paint Bucket','Move','Push/Pull','Tape Measure'],0],
+    ['Bir modeli gruplamak neden faydalıdır?',['Geometriyi düzenli tutmak','Dosyayı silmek','Ekranı kapatmak','Ölçüyü küçültmek'],0],
+    ['Mimari modellemede önce ne yapılması uygundur?',['Temel ölçü ve planı oluşturmak','Rastgele renk vermek','Dosyayı kapatmak','Gölge açmak'],0],
+    ['Bir odanın uzunluğu ve genişliği hangi tür ölçülerdir?',['Yatay ölçüler','Düşey ölçüler','Açı ölçüleri','Renk değerleri'],0],
+    ['Maket yapımında ölçek neden önemlidir?',['Gerçek boyutları orantılı küçültmek için','Renk seçmek için','Yapıştırıcı seçmek için','Işık ayarlamak için'],0],
+    ['Teknik çizimde çizgi kalınlıkları neden farklıdır?',['Çizgi türlerini ve önemlerini ayırt etmek için','Dosyayı küçültmek için','Renkleri kaldırmak için','Ölçüleri silmek için'],0]
+  ];
 
-    const nav = modal.querySelector('#cadTabs');
-    if (!nav || nav.querySelector('[data-tab="digital"]')) return;
+  const tasks = [
+    ['Oda Planı','4 m × 5 m ölçülerinde dikdörtgen bir oda planı oluştur.','RECTANG, OFFSET, DIM'],
+    ['Kapı ve Pencere','Oda planına bir kapı ve iki pencere yerleştir.','LINE, TRIM, ARC'],
+    ['Mobilya Yerleşimi','Odaya yatak, dolap ve çalışma masası yerleştir.','RECTANG, COPY, MOVE'],
+    ['Mutfak Planı','Mutfak tezgâhını ve temel ekipmanları çiz.','LINE, OFFSET, RECTANG'],
+    ['Ölçülendirme','Hazırladığın planın duvar ölçülerini göster.','DIM, DIMLINEAR, TEXT'],
+    ['Katman Düzeni','Duvar, kapı, pencere ve mobilyaları ayrı katmanlara ayır.','LAYER, MATCHPROP']
+  ];
 
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.dataset.tab = 'digital';
-    button.textContent = '🌐 Dijital Atölye';
-    nav.appendChild(button);
-
-    button.addEventListener('click', () => {
-      nav.querySelectorAll('[data-tab]').forEach(b => {
-        b.classList.toggle('active', b === button);
-      });
-      renderDigital(modal.querySelector('#cadPanel'));
-    });
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(STORE) || '{}');
+  } catch (e) {
+    saved = {};
   }
 
-  function renderDigital(panel) {
-    if (!panel) return;
+  function save() {
+    try {
+      localStorage.setItem(STORE, JSON.stringify(saved));
+    } catch (e) {}
+  }
 
-    panel.innerHTML = `
-      <div style="margin-bottom:18px">
-        <div style="color:#64d9ff;font-size:12px;font-weight:800;letter-spacing:1px">
-          KALECAD / ONLINE ARAÇLAR
+  function addStyles() {
+    if (document.getElementById('kale-cad-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'kale-cad-style';
+    style.textContent = `
+      #kale-cad-card{background:linear-gradient(135deg,#172d4d,#244c70);border:1px solid #426487;border-radius:16px;padding:20px;color:#fff;margin:16px 0;cursor:pointer}
+      #kale-cad-card h3{font-size:21px;margin:0 0 8px}
+      #kale-cad-card p{margin:0;color:#cbd8e8;font-size:13px}
+      #kale-cad-modal{position:fixed;inset:0;background:#07111eee;z-index:999999;display:none;align-items:center;justify-content:center;padding:12px;font-family:Arial,sans-serif;color:#eef4ff}
+      #kale-cad-modal .kcm-window{width:min(100%,1000px);height:min(92vh,850px);background:#101f34;border:1px solid #36516e;border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
+      #kale-cad-modal .kcm-head{padding:16px 18px;background:#172d49;display:flex;justify-content:space-between;align-items:center;gap:10px}
+      #kale-cad-modal .kcm-head h2{font-size:20px;margin:0}
+      #kale-cad-modal button{cursor:pointer}
+      #kale-cad-modal .kcm-close{border:0;background:#304963;color:white;border-radius:9px;padding:9px 13px;font-size:18px}
+      #kale-cad-modal .kcm-tabs{display:flex;gap:7px;padding:10px;overflow-x:auto;background:#12243a}
+      #kale-cad-modal .kcm-tab{border:1px solid #36516e;background:#1b3049;color:#dce8f7;padding:10px 13px;border-radius:9px;white-space:nowrap}
+      #kale-cad-modal .kcm-tab.active{background:#3977ad;border-color:#68a9e2;color:white}
+      #kale-cad-modal .kcm-content{padding:17px;overflow:auto;flex:1}
+      #kale-cad-modal .kcm-card{background:#192d45;border:1px solid #304a67;border-radius:12px;padding:14px;margin-bottom:10px}
+      #kale-cad-modal .kcm-card h3{margin:0 0 7px;font-size:16px;color:#fff}
+      #kale-cad-modal .kcm-card p{margin:5px 0;color:#c8d5e5;line-height:1.5;font-size:13px}
+      #kale-cad-modal .kcm-muted{color:#aebed0;font-size:13px}
+      #kale-cad-modal .kcm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+      #kale-cad-modal input,#kale-cad-modal select{background:#0d1b2c;color:white;border:1px solid #405a77;padding:10px;border-radius:8px;max-width:100%}
+      #kale-cad-modal .kcm-action{background:#3977ad;color:white;border:0;padding:10px 14px;border-radius:8px;margin:4px 3px 4px 0}
+      #kale-cad-modal .kcm-secondary{background:#304963;color:white;border:0;padding:10px 14px;border-radius:8px;margin:4px 3px 4px 0}
+      #kale-cad-modal .kcm-answer{display:block;width:100%;text-align:left;background:#203750;border:1px solid #3d5874;color:#fff;border-radius:9px;padding:12px;margin:7px 0}
+      #kale-cad-modal .kcm-answer:disabled{opacity:.8}
+      #kale-cad-modal .kcm-answer.correct{background:#176344;border-color:#38b887}
+      #kale-cad-modal .kcm-answer.wrong{background:#71343c;border-color:#d86b75}
+      #kale-cad-modal #kcm-canvas{width:100%;height:360px;background:#f4f6f8;border-radius:10px;touch-action:none;display:block}
+      #kale-cad-modal .kcm-tool{background:#203750;color:white;border:1px solid #46617c;padding:9px 12px;border-radius:8px;margin:3px}
+      #kale-cad-modal .kcm-tool.active{background:#3977ad}
+      #kale-cad-modal .kcm-link{display:inline-block;color:#9dd0ff;margin-top:10px;text-decoration:none;font-weight:bold}
+      @media(max-width:600px){#kale-cad-modal{padding:0}#kale-cad-modal .kcm-window{height:100dvh;width:100%;border-radius:0}#kale-cad-modal .kcm-content{padding:12px}#kale-cad-modal #kcm-canvas{height:300px}#kale-cad-modal .kcm-head h2{font-size:17px}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function mountCard() {
+    if (document.getElementById('kale-cad-card')) return;
+
+    const home = document.getElementById('home');
+    if (!home) return;
+
+    const card = document.createElement('div');
+    card.id = 'kale-cad-card';
+    card.innerHTML = `
+      <h3>AutoCAD ve Dijital Tasarım Atölyesi</h3>
+      <p>Komut rehberi • Bilgi yarışması • Uygulama görevleri • Dijital tasarım araçları</p>
+    `;
+    card.addEventListener('click', openWorkshop);
+
+    const target = home.querySelector('.menu-grid,.games-grid,.home-grid,.game-grid');
+    if (target) target.appendChild(card);
+    else home.appendChild(card);
+  }
+
+  function openWorkshop() {
+    addStyles();
+
+    let modal = document.getElementById('kale-cad-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'kale-cad-modal';
+      modal.innerHTML = `
+        <div class="kcm-window">
+          <div class="kcm-head">
+            <h2>AutoCAD ve Dijital Tasarım Atölyesi</h2>
+            <button class="kcm-close" id="kcm-close" aria-label="Kapat">✕</button>
+          </div>
+          <div class="kcm-tabs">
+            <button class="kcm-tab active" data-tab="learn">Komut Rehberi</button>
+            <button class="kcm-tab" data-tab="quiz">Bilgi Yarışması</button>
+            <button class="kcm-tab" data-tab="tasks">Uygulama Görevleri</button>
+            <button class="kcm-tab" data-tab="draw">Çizim Alanı</button>
+            <button class="kcm-tab" data-tab="digital">Dijital Atölye</button>
+          </div>
+          <div class="kcm-content" id="kcm-content"></div>
         </div>
-        <h3 style="font-size:22px;margin:6px 0">Dijital Atölye</h3>
-        <p class="cad-muted">
-          Bilgisayarına program kurmadan, internet tarayıcısından
-          çizim ve modelleme araçlarını kullan.
-        </p>
-      </div>
+      `;
+      document.body.appendChild(modal);
 
-      <div id="digitalFilters" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">
-        <button class="cad-btn cad-primary" data-filter="Tümü">Tümü</button>
-        <button class="cad-btn" data-filter="2D Teknik Çizim">2D Çizim</button>
-        <button class="cad-btn" data-filter="3D Modelleme">3D Modelleme</button>
-        <button class="cad-btn" data-filter="Mimari Plan">Mimari Plan</button>
-      </div>
-
-      <div id="digitalToolGrid" class="cad-grid"></div>
-
-      <div class="cad-item" style="margin-top:16px">
-        <h3>💡 Öğrenci çalışma önerisi</h3>
-        <p class="cad-muted">
-          Önce 2D ortamda bir oda planı çiz.
-          Ardından SketchUp Web veya Tinkercad ile
-          üç boyutlu modelleme denemesi yap.
-        </p>
-      </div>
-
-      <p class="cad-muted" style="font-size:12px;margin-top:12px">
-        Bu araçlar KALECAD dışında, kendi internet sitelerinde açılır.
-        Bazıları hesap oluşturmanı isteyebilir. Kullanım ve kayıt koşulları
-        ilgili platforma aittir.
-      </p>
-    `;
-
-    const grid = panel.querySelector('#digitalToolGrid');
-    const filters = panel.querySelector('#digitalFilters');
-
-    function draw(filter) {
-      grid.innerHTML = '';
-
-      tools
-        .filter(tool => filter === 'Tümü' || tool.category === filter)
-        .forEach(tool => {
-          const card = document.createElement('article');
-          card.className = 'cad-item';
-          card.style.cssText = 'display:flex;flex-direction:column;min-height:190px';
-
-          const icon = document.createElement('div');
-          icon.textContent = tool.icon;
-          icon.style.fontSize = '30px';
-
-          const title = document.createElement('h3');
-          title.textContent = tool.name;
-          title.style.margin = '8px 0 4px';
-
-          const category = document.createElement('div');
-          category.textContent = tool.category;
-          category.style.cssText = 'font-size:11px;color:#64d9ff;font-weight:800';
-
-          const description = document.createElement('p');
-          description.className = 'cad-muted';
-          description.textContent = tool.description;
-
-          const link = document.createElement('a');
-          link.href = tool.url;
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          link.textContent = 'Aracı Aç ↗';
-          link.style.cssText = `
-            display:block;
-            margin-top:auto;
-            padding:12px;
-            text-align:center;
-            border-radius:9px;
-            background:#64d9ff;
-            color:#07163c;
-            font-weight:800;
-            text-decoration:none;
-          `;
-
-          card.append(icon, category, title, description, link);
-          grid.appendChild(card);
-        });
-    }
-
-    filters.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        filters.querySelectorAll('button').forEach(b => {
-          b.classList.toggle('cad-primary', b === btn);
-        });
-        draw(btn.dataset.filter);
+      modal.addEventListener('click', e => {
+        if (e.target === modal) closeWorkshop();
       });
-    });
 
-    draw('Tümü');
-  }
+      modal.querySelector('#kcm-close').addEventListener('click', closeWorkshop);
 
-  const observer = new MutationObserver(() => {
-    addDigitalWorkshop();
-  });
+      modal.querySelectorAll('.kcm-tab').forEach(btn => {
+        btn.addEventListener('click', () => showTab(btn.dataset.tab));
+      });
 
-  function start() {
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-    addDigitalWorkshop();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start, { once: true });
-  } else {
-    start();
-  }
-})();
-/* KALECAD - DIJITAL ATOLYE + OGRETMEN PANELINI KALDIR */
-(() => {
-  'use strict';
-
-  const tools = [
-    {
-      name: 'SketchUp Web',
-      category: '3D Modelleme',
-      icon: '🏠',
-      description: 'Konut, iç mekân, mobilya ve mimari modelleme.',
-      url: 'https://app.sketchup.com/'
-    },
-    {
-      name: 'Tinkercad',
-      category: '3D Modelleme',
-      icon: '🧊',
-      description: 'Temel üç boyutlu modelleme ve geometrik tasarım.',
-      url: 'https://www.tinkercad.com/'
-    },
-    {
-      name: 'OpenPlan3D',
-      category: 'Mimari Plan',
-      icon: '📐',
-      description: '2D kat planı çizimi, mobilya yerleşimi ve 3D görünüm.',
-      url: 'https://openplan3d.com/'
-    },
-    {
-      name: 'OpenCAD Studio',
-      category: '2D Teknik Çizim',
-      icon: '📏',
-      description: 'Tarayıcı üzerinden teknik çizim ve ölçülendirme.',
-      url: 'https://www.opencad.studio/2d-cad-online/'
-    },
-    {
-      name: 'FlatCAD',
-      category: '2D Teknik Çizim',
-      icon: '✏️',
-      description: 'Ölçülü 2D teknik çizim ve DXF çıktısı.',
-      url: 'https://flatcad.com/'
-    },
-    {
-      name: 'Cadelo',
-      category: '2D Teknik Çizim',
-      icon: '📋',
-      description: 'Tarayıcıda DWG ve DXF çizimlerini düzenleme.',
-      url: 'https://cadelo.app/'
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeWorkshop();
+      });
     }
-  ];
 
-  function install() {
-    const modal = document.getElementById('autocadWorkshopModal');
+    modal.style.display = 'flex';
+    showTab('learn');
+  }
+
+  function closeWorkshop() {
+    const modal = document.getElementById('kale-cad-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function showTab(tab) {
+    const modal = document.getElementById('kale-cad-modal');
     if (!modal) return;
 
-    const nav = modal.querySelector('#cadTabs');
-    const panel = modal.querySelector('#cadPanel');
-    if (!nav || !panel) return;
-
-    // Öğretmen panelini arayüzden kaldır.
-    nav.querySelector('[data-tab="teacher"]')?.remove();
-
-    // Eski açıklamayı güncelle.
-    const homeText = document.querySelector('#autocadWorkshopCard p');
-    if (homeText) {
-      homeText.textContent =
-        '30 komut • 50 soruluk havuz • uygulama görevleri • dijital araçlar';
-    }
-
-    // Sekme zaten eklendiyse tekrar ekleme.
-    if (nav.querySelector('[data-tab="digital"]')) return;
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.dataset.tab = 'digital';
-    button.textContent = '🌐 Dijital Atölye';
-
-    nav.appendChild(button);
-
-    button.addEventListener('click', () => {
-      nav.querySelectorAll('[data-tab]').forEach(item => {
-        item.classList.toggle('active', item === button);
-      });
-
-      render(panel);
+    modal.querySelectorAll('.kcm-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
     });
+
+    const panel = modal.querySelector('#kcm-content');
+
+    if (tab === 'learn') renderLearn(panel);
+    if (tab === 'quiz') renderQuiz(panel);
+    if (tab === 'tasks') renderTasks(panel);
+    if (tab === 'draw') renderDraw(panel);
+    if (tab === 'digital') renderDigital(panel);
   }
 
-  function render(panel) {
+  function renderLearn(panel) {
     panel.innerHTML = `
-      <div style="margin-bottom:16px">
-        <h3 style="font-size:21px;margin:0 0 6px">Dijital Atölye</h3>
-        <p style="color:#b7c8e2;font-size:13px;margin:0">
-          Çizim ve modelleme araçlarını tarayıcında aç.
-          Program kurmana gerek yok.
-        </p>
-      </div>
-
-      <div id="digitalFilters"
-        style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px">
-      </div>
-
-      <div id="digitalTools"
-        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px">
-      </div>
+      <h2>AutoCAD Komut Rehberi</h2>
+      <p class="kcm-muted">Temel komutları incele, ne işe yaradıklarını ve mimari çizimde nerelerde kullanıldıklarını öğren.</p>
+      <input id="kcm-search" placeholder="Komut veya açıklama ara..." style="width:100%;box-sizing:border-box;margin:12px 0">
+      <div id="kcm-command-list" class="kcm-grid"></div>
     `;
 
-    const filters = [
-      'Tümü',
-      '2D Teknik Çizim',
-      '3D Modelleme',
-      'Mimari Plan'
-    ];
+    const list = panel.querySelector('#kcm-command-list');
 
-    const filterBox = panel.querySelector('#digitalFilters');
-    const toolBox = panel.querySelector('#digitalTools');
+    function draw(filter = '') {
+      const q = filter.toLocaleLowerCase('tr');
+      list.innerHTML = '';
 
-    let selected = 'Tümü';
+      commands.filter(c => c.join(' ').toLocaleLowerCase('tr').includes(q)).forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'kcm-card';
+        item.innerHTML = `
+          <h3>${c[0]} – ${c[1]}</h3>
+          <p>${c[2]}</p>
+          <p><strong>Kullanım örneği:</strong> ${c[3]}</p>
+        `;
+        list.appendChild(item);
+      });
+
+      if (!list.children.length) {
+        list.innerHTML = '<p class="kcm-muted">Aradığın komut bulunamadı.</p>';
+      }
+    }
+
+    panel.querySelector('#kcm-search').addEventListener('input', e => draw(e.target.value));
+    draw();
+  }
+
+  function renderQuiz(panel) {
+    let current = 0;
+    let score = 0;
+    let order = [...questions].sort(() => Math.random() - .5).slice(0, 10);
+    let answered = false;
+
+    panel.innerHTML = `
+      <h2>AutoCAD Bilgi Yarışması</h2>
+      <p class="kcm-muted">Her turda 10 soru bulunur. Her doğru cevap 10 puandır.</p>
+      <div id="kcm-quiz-area"></div>
+    `;
+
+    const area = panel.querySelector('#kcm-quiz-area');
+
+    function drawQuestion() {
+      answered = false;
+
+      if (current >= order.length) {
+        area.innerHTML = `
+          <div class="kcm-card">
+            <h3>Tur Tamamlandı</h3>
+            <p>Doğru cevap sayın: <strong>${score / 10} / 10</strong></p>
+            <p>Toplam puanın: <strong>${score}</strong></p>
+            <button class="kcm-action" id="kcm-restart">Yeni Tur Başlat</button>
+          </div>
+        `;
+        area.querySelector('#kcm-restart').addEventListener('click', () => {
+          current = 0;
+          score = 0;
+          order = [...questions].sort(() => Math.random() - .5).slice(0, 10);
+          drawQuestion();
+        });
+        return;
+      }
+
+      const q = order[current];
+      area.innerHTML = `
+        <div class="kcm-card">
+          <p class="kcm-muted">Soru ${current + 1} / ${order.length} · Puan: ${score}</p>
+          <h3>${q[0]}</h3>
+          <div id="kcm-options"></div>
+          <p id="kcm-feedback" class="kcm-muted"></p>
+          <button class="kcm-action" id="kcm-next" style="display:none">Sonraki Soru</button>
+        </div>
+      `;
+
+      const options = area.querySelector('#kcm-options');
+
+      q[1].forEach((answer, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'kcm-answer';
+        btn.textContent = `${String.fromCharCode(65 + index)}. ${answer}`;
+        btn.addEventListener('click', () => {
+          if (answered) return;
+          answered = true;
+
+          const correct = index === q[2];
+          if (correct) score += 10;
+
+          options.querySelectorAll('button').forEach((b, i) => {
+            b.disabled = true;
+            if (i === q[2]) b.classList.add('correct');
+            else if (i === index) b.classList.add('wrong');
+          });
+
+          area.querySelector('#kcm-feedback').textContent = correct
+            ? 'Doğru cevap! 10 puan kazandın.'
+            : `Yanlış cevap. Doğru cevap: ${q[1][q[2]]}`;
+
+          area.querySelector('#kcm-next').style.display = 'inline-block';
+        });
+        options.appendChild(btn);
+      });
+
+      area.querySelector('#kcm-next').addEventListener('click', () => {
+        current++;
+        drawQuestion();
+      });
+    }
+
+    drawQuestion();
+  }
+
+  function renderTasks(panel) {
+    panel.innerHTML = `
+      <h2>Uygulama Görevleri</h2>
+      <p class="kcm-muted">Görevleri sırayla tamamla. Tamamladığın görevleri işaretleyebilirsin.</p>
+      <div id="kcm-task-list"></div>
+      <p id="kcm-task-progress" class="kcm-muted"></p>
+    `;
+
+    const list = panel.querySelector('#kcm-task-list');
 
     function draw() {
-      filterBox.innerHTML = '';
-      toolBox.innerHTML = '';
+      list.innerHTML = '';
 
-      filters.forEach(category => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.textContent = category;
-        b.style.cssText =
-          'border:1px solid #45658f;border-radius:20px;padding:9px 12px;background:' +
-          (selected === category ? '#64d9ff' : '#172d52') +
-          ';color:' + (selected === category ? '#07163c' : '#fff') +
-          ';font-weight:700;font-size:12px';
+      tasks.forEach((task, i) => {
+        const done = !!(saved.tasks && saved.tasks[i]);
+        const card = document.createElement('div');
+        card.className = 'kcm-card';
 
-        b.addEventListener('click', () => {
-          selected = category;
+        const title = document.createElement('h3');
+        title.textContent = `${i + 1}. ${task[0]}`;
+
+        const desc = document.createElement('p');
+        desc.textContent = task[1];
+
+        const tools = document.createElement('p');
+        tools.innerHTML = `<strong>Kullanılabilecek komutlar:</strong> ${task[2]}`;
+
+        const label = document.createElement('label');
+        label.style.display = 'block';
+        label.style.marginTop = '12px';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = done;
+        checkbox.style.marginRight = '8px';
+        checkbox.addEventListener('change', () => {
+          if (!saved.tasks) saved.tasks = {};
+          saved.tasks[i] = checkbox.checked;
+          save();
           draw();
         });
 
-        filterBox.appendChild(b);
+        label.append(checkbox, document.createTextNode('Görevi tamamladım'));
+
+        card.append(title, desc, tools, label);
+        list.appendChild(card);
       });
 
-      const visible = tools.filter(item =>
-        selected === 'Tümü' || item.category === selected
-      );
-
-      visible.forEach(item => {
-        const card = document.createElement('article');
-
-        card.style.cssText =
-          'background:#14294c;border:1px solid #34547d;' +
-          'border-radius:14px;padding:15px;display:flex;' +
-          'flex-direction:column;min-height:190px';
-
-        const icon = document.createElement('div');
-        icon.textContent = item.icon;
-        icon.style.fontSize = '30px';
-
-        const title = document.createElement('h3');
-        title.textContent = item.name;
-        title.style.cssText = 'margin:10px 0 5px;font-size:18px';
-
-        const category = document.createElement('div');
-        category.textContent = item.category;
-        category.style.cssText =
-          'font-size:11px;color:#64d9ff;font-weight:800';
-
-        const description = document.createElement('p');
-        description.textContent = item.description;
-        description.style.cssText =
-          'font-size:13px;color:#c2d0e5;line-height:1.5;flex:1';
-
-        const link = document.createElement('a');
-        link.href = item.url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.textContent = 'Aracı Aç ↗';
-        link.style.cssText =
-          'display:block;text-align:center;text-decoration:none;' +
-          'background:#64d9ff;color:#07163c;padding:12px;' +
-          'border-radius:9px;font-weight:800;margin-top:8px';
-
-        card.append(icon, category, title, description, link);
-        toolBox.appendChild(card);
-      });
+      const count = tasks.filter((_, i) => saved.tasks && saved.tasks[i]).length;
+      panel.querySelector('#kcm-task-progress').textContent =
+        `Tamamlanan görev: ${count} / ${tasks.length}`;
     }
 
     draw();
   }
 
-  function start() {
-    install();
+  function renderDraw(panel) {
+    panel.innerHTML = `
+      <h2>Basit Çizim Alanı</h2>
+      <p class="kcm-muted">Bu alan temel çizim alıştırmaları içindir. Gerçek AutoCAD yerine geçmez ve DWG dosyası oluşturmaz.</p>
+      <div style="margin:10px 0">
+        <button class="kcm-tool active" data-tool="line">Çizgi</button>
+        <button class="kcm-tool" data-tool="rect">Dikdörtgen</button>
+        <button class="kcm-tool" data-tool="circle">Daire</button>
+        <button class="kcm-secondary" id="kcm-undo">Geri Al</button>
+        <button class="kcm-secondary" id="kcm-clear">Temizle</button>
+        <button class="kcm-action" id="kcm-export">PNG İndir</button>
+      </div>
+      <canvas id="kcm-canvas" width="1000" height="600"></canvas>
+      <p class="kcm-muted">Seçtiğin aracı kullanarak çizim alanına dokun veya tıkla. Şekli tamamlamak için ikinci noktayı belirle.</p>
+    `;
 
-    const observer = new MutationObserver(() => install());
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
+    const canvas = panel.querySelector('#kcm-canvas');
+    const ctx = canvas.getContext('2d');
+    let tool = 'line';
+    let start = null;
+    let preview = null;
+    let shapes = [];
+
+    function point(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * canvas.width / rect.width,
+        y: (e.clientY - rect.top) * canvas.height / rect.height
+      };
+    }
+
+    function paint() {
+      ctx.fillStyle = '#f4f6f8';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = '#dce3ea';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 25) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 25) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      [...shapes, ...(preview ? [preview] : [])].forEach(s => {
+        ctx.strokeStyle = '#183b5b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        if (s.type === 'line') {
+          ctx.moveTo(s.x1, s.y1);
+          ctx.lineTo(s.x2, s.y2);
+        } else if (s.type === 'rect') {
+          ctx.rect(s.x1, s.y1, s.x2 - s.x1, s.y2 - s.y1);
+        } else if (s.type === 'circle') {
+          const r = Math.hypot(s.x2 - s.x1, s.y2 - s.y1);
+          ctx.arc(s.x1, s.y1, r, 0, Math.PI * 2);
+        }
+
+        ctx.stroke();
+      });
+    }
+
+    panel.querySelectorAll('[data-tool]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        tool = btn.dataset.tool;
+        start = null;
+        panel.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+
+    canvas.addEventListener('pointerdown', e => {
+      start = point(e);
+      preview = null;
+      canvas.setPointerCapture(e.pointerId);
+    });
+
+    canvas.addEventListener('pointermove', e => {
+      if (!start) return;
+      const p = point(e);
+      preview = { type: tool, x1: start.x, y1: start.y, x2: p.x, y2: p.y };
+      paint();
+    });
+
+    canvas.addEventListener('pointerup', e => {
+      if (!start) return;
+      const p = point(e);
+      shapes.push({ type: tool, x1: start.x, y1: start.y, x2: p.x, y2: p.y });
+      start = null;
+      preview = null;
+      paint();
+    });
+
+    panel.querySelector('#kcm-undo').addEventListener('click', () => {
+      shapes.pop();
+      paint();
+    });
+
+    panel.querySelector('#kcm-clear').addEventListener('click', () => {
+      shapes = [];
+      preview = null;
+      start = null;
+      paint();
+    });
+
+    panel.querySelector('#kcm-export').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'kalecad-cizim.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+
+    paint();
+  }
+
+  function renderDigital(panel) {
+    const tools = [
+      {
+        name: 'SketchUp Free',
+        type: '3B Modelleme',
+        desc: 'Konut, oda, mobilya ve iç mekân modelleri oluşturmak için tarayıcı üzerinden 3B modelleme.',
+        url: 'https://app.sketchup.com/',
+        button: 'SketchUp Web’i Aç'
+      },
+      {
+        name: 'Tinkercad',
+        type: '3B Tasarım',
+        desc: 'Temel geometrik şekillerle 3B tasarıma başlamak ve modelleme mantığını öğrenmek için.',
+        url: 'https://www.tinkercad.com/',
+        button: 'Tinkercad’i Aç'
+      },
+      {
+        name: 'OpenPlan3D',
+        type: 'Mimari Plan',
+        desc: 'Kat planı hazırlamak, oda yerleşimi yapmak ve mekânı 3B olarak incelemek için.',
+        url: 'https://openplan3d.com/',
+        button: 'OpenPlan3D’yi Aç'
+      },
+      {
+        name: 'OpenCAD Studio',
+        type: '2B CAD Çizim',
+        desc: 'Tarayıcı üzerinden 2B teknik çizim ve CAD araçlarıyla çalışmak için.',
+        url: 'https://www.opencad.studio/2d-cad-online/',
+        button: 'OpenCAD’i Aç'
+      },
+      {
+        name: 'FlatCAD',
+        type: '2B Teknik Çizim',
+        desc: 'Ölçülü çizim, temel CAD düzenlemeleri ve teknik çizim alıştırmaları için.',
+        url: 'https://flatcad.com/',
+        button: 'FlatCAD’i Aç'
+      },
+      {
+        name: 'Cadelo',
+        type: 'DWG / DXF Çizim',
+        desc: 'Tarayıcı üzerinden 2B CAD çizimleri açmak ve düzenlemek için çevrim içi araç.',
+        url: 'https://cadelo.app/',
+        button: 'Cadelo’yu Aç'
+      }
+    ];
+
+    panel.innerHTML = `
+      <h2>Dijital Atölye</h2>
+      <p class="kcm-muted">Bilgisayara program kurmadan, internet tarayıcısı üzerinden kullanabileceğin tasarım ve çizim araçları.</p>
+      <div class="kcm-grid" id="kcm-digital-list"></div>
+      <div class="kcm-card" style="margin-top:12px">
+        <h3>Kullanım Bilgisi</h3>
+        <p>Bu bağlantılar KALECAD dışındaki çevrim içi hizmetlere yönlendirir. Bazı araçlar hesap açmanı isteyebilir. Ücretsiz kullanım koşulları ve özellikleri zaman içinde değişebilir.</p>
+        <p>Öğretmeninin yönlendirmesiyle uygun aracı seçerek çalışmalarına başlayabilirsin.</p>
+      </div>
+    `;
+
+    const list = panel.querySelector('#kcm-digital-list');
+
+    tools.forEach(tool => {
+      const card = document.createElement('div');
+      card.className = 'kcm-card';
+
+      const heading = document.createElement('h3');
+      heading.textContent = tool.name;
+
+      const type = document.createElement('p');
+      type.innerHTML = `<strong>${tool.type}</strong>`;
+
+      const desc = document.createElement('p');
+      desc.textContent = tool.desc;
+
+      const link = document.createElement('a');
+      link.className = 'kcm-link';
+      link.href = tool.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = tool.button;
+
+      card.append(heading, type, desc, link);
+      list.appendChild(card);
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start, { once: true });
-  } else {
-    start();
+  function boot() {
+    addStyles();
+    mountCard();
   }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById('kale-cad-card')) mountCard();
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
 })();
