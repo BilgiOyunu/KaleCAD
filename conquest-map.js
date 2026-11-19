@@ -157,7 +157,7 @@
             ${selected === city.name ? "selected" : ""}
             ${state[key] ? "captured" : ""}"
             data-castle="${key}" type="button">
-            <img class="castleLogo" src="./logo.svg" alt="KaleCAD kalesi">
+            <img class="castleLogo" src="https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/main/logo.svg" alt="KaleCAD kalesi">
             <span class="castleName">${city.name}</span>
           </button>
         `).join("")}
