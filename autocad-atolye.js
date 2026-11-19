@@ -341,3 +341,201 @@ boot();
 }
 
 })();
+
+/* KALECAD - DIJITAL ATOLYE EKLENTISI */
+(() => {
+  'use strict';
+
+  const tools = [
+    {
+      name: 'SketchUp Web',
+      category: '3D Modelleme',
+      icon: '🏠',
+      description: 'Mimari modelleme, iç mekân tasarımı ve üç boyutlu yapı çalışmaları.',
+      url: 'https://app.sketchup.com/',
+      tag: '3D'
+    },
+    {
+      name: 'Tinkercad',
+      category: '3D Modelleme',
+      icon: '🧊',
+      description: 'Temel üç boyutlu modelleme ve geometrik tasarım çalışmaları.',
+      url: 'https://www.tinkercad.com/',
+      tag: '3D'
+    },
+    {
+      name: 'OpenPlan3D',
+      category: 'Mimari Plan',
+      icon: '📐',
+      description: '2D kat planı hazırlama, mobilya yerleştirme ve 3D görünüm.',
+      url: 'https://openplan3d.com/',
+      tag: 'PLAN'
+    },
+    {
+      name: 'OpenCAD Studio',
+      category: '2D Teknik Çizim',
+      icon: '📏',
+      description: 'Tarayıcı üzerinden teknik çizim, katman ve ölçülendirme araçları.',
+      url: 'https://www.opencad.studio/2d-cad-online/',
+      tag: 'CAD'
+    },
+    {
+      name: 'FlatCAD',
+      category: '2D Teknik Çizim',
+      icon: '✏️',
+      description: 'Ölçülü 2D çizimler, teknik planlar ve DXF çıktısı.',
+      url: 'https://flatcad.com/',
+      tag: 'CAD'
+    },
+    {
+      name: 'Cadelo',
+      category: '2D Teknik Çizim',
+      icon: '📋',
+      description: 'Tarayıcıda DWG ve DXF dosyalarıyla 2D çizim düzenleme.',
+      url: 'https://cadelo.app/',
+      tag: 'CAD'
+    }
+  ];
+
+  function addDigitalWorkshop() {
+    const modal = document.getElementById('autocadWorkshopModal');
+    if (!modal) return;
+
+    const nav = modal.querySelector('#cadTabs');
+    if (!nav || nav.querySelector('[data-tab="digital"]')) return;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.tab = 'digital';
+    button.textContent = '🌐 Dijital Atölye';
+    nav.appendChild(button);
+
+    button.addEventListener('click', () => {
+      nav.querySelectorAll('[data-tab]').forEach(b => {
+        b.classList.toggle('active', b === button);
+      });
+      renderDigital(modal.querySelector('#cadPanel'));
+    });
+  }
+
+  function renderDigital(panel) {
+    if (!panel) return;
+
+    panel.innerHTML = `
+      <div style="margin-bottom:18px">
+        <div style="color:#64d9ff;font-size:12px;font-weight:800;letter-spacing:1px">
+          KALECAD / ONLINE ARAÇLAR
+        </div>
+        <h3 style="font-size:22px;margin:6px 0">Dijital Atölye</h3>
+        <p class="cad-muted">
+          Bilgisayarına program kurmadan, internet tarayıcısından
+          çizim ve modelleme araçlarını kullan.
+        </p>
+      </div>
+
+      <div id="digitalFilters" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="cad-btn cad-primary" data-filter="Tümü">Tümü</button>
+        <button class="cad-btn" data-filter="2D Teknik Çizim">2D Çizim</button>
+        <button class="cad-btn" data-filter="3D Modelleme">3D Modelleme</button>
+        <button class="cad-btn" data-filter="Mimari Plan">Mimari Plan</button>
+      </div>
+
+      <div id="digitalToolGrid" class="cad-grid"></div>
+
+      <div class="cad-item" style="margin-top:16px">
+        <h3>💡 Öğrenci çalışma önerisi</h3>
+        <p class="cad-muted">
+          Önce 2D ortamda bir oda planı çiz.
+          Ardından SketchUp Web veya Tinkercad ile
+          üç boyutlu modelleme denemesi yap.
+        </p>
+      </div>
+
+      <p class="cad-muted" style="font-size:12px;margin-top:12px">
+        Bu araçlar KALECAD dışında, kendi internet sitelerinde açılır.
+        Bazıları hesap oluşturmanı isteyebilir. Kullanım ve kayıt koşulları
+        ilgili platforma aittir.
+      </p>
+    `;
+
+    const grid = panel.querySelector('#digitalToolGrid');
+    const filters = panel.querySelector('#digitalFilters');
+
+    function draw(filter) {
+      grid.innerHTML = '';
+
+      tools
+        .filter(tool => filter === 'Tümü' || tool.category === filter)
+        .forEach(tool => {
+          const card = document.createElement('article');
+          card.className = 'cad-item';
+          card.style.cssText = 'display:flex;flex-direction:column;min-height:190px';
+
+          const icon = document.createElement('div');
+          icon.textContent = tool.icon;
+          icon.style.fontSize = '30px';
+
+          const title = document.createElement('h3');
+          title.textContent = tool.name;
+          title.style.margin = '8px 0 4px';
+
+          const category = document.createElement('div');
+          category.textContent = tool.category;
+          category.style.cssText = 'font-size:11px;color:#64d9ff;font-weight:800';
+
+          const description = document.createElement('p');
+          description.className = 'cad-muted';
+          description.textContent = tool.description;
+
+          const link = document.createElement('a');
+          link.href = tool.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = 'Aracı Aç ↗';
+          link.style.cssText = `
+            display:block;
+            margin-top:auto;
+            padding:12px;
+            text-align:center;
+            border-radius:9px;
+            background:#64d9ff;
+            color:#07163c;
+            font-weight:800;
+            text-decoration:none;
+          `;
+
+          card.append(icon, category, title, description, link);
+          grid.appendChild(card);
+        });
+    }
+
+    filters.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        filters.querySelectorAll('button').forEach(b => {
+          b.classList.toggle('cad-primary', b === btn);
+        });
+        draw(btn.dataset.filter);
+      });
+    });
+
+    draw('Tümü');
+  }
+
+  const observer = new MutationObserver(() => {
+    addDigitalWorkshop();
+  });
+
+  function start() {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    addDigitalWorkshop();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+})();
