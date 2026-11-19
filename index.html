@@ -8,24 +8,18 @@
   <title>KALECAD | CAD Bilgi Yarışması</title>
 </head>
 <body>
-  <p id="loadingNotice" style="font-family:sans-serif;text-align:center;padding:2rem">KALECAD yükleniyor…</p>
+  <p style="font-family:sans-serif;text-align:center;padding:2rem">KALECAD yükleniyor…</p>
   <script>
     (async function () {
       try {
-        const [gameResponse, campusResponse] = await Promise.all([
-          fetch('https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html', { cache: 'no-store' }),
-          fetch('https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/main/campus-selection.js', { cache: 'no-store' })
-        ]);
-        if (!gameResponse.ok) throw new Error('Oyun dosyası yüklenemedi (' + gameResponse.status + ').');
-        if (!campusResponse.ok) throw new Error('Kampüs seçimi yüklenemedi (' + campusResponse.status + ').');
-
-        const gameHtml = await gameResponse.text();
-        const campusCode = await campusResponse.text();
-        const safeCampusCode = campusCode.replace(/<\/script/gi, '<\\/script');
-        const inlineCampusScript = '<script>' + safeCampusCode + '<\/script>';
-
+        const response = await fetch('https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Oyun dosyası yüklenemedi (' + response.status + ').');
+        let gameHtml = await response.text();
+        const additions = '<script src="./campus-selection.js?v=28c5626"></scr' + 'ipt><script src="./question-bank.js?v=6d387af"></scr' + 'ipt>';
+        if (!/<\/body>/i.test(gameHtml)) throw new Error('Oyun HTML dosyasında body kapanışı bulunamadı.');
+        gameHtml = gameHtml.replace(/<\/body>/i, additions + '</body>');
         document.open();
-        document.write(gameHtml.replace(/<\/body>/i, inlineCampusScript + '<\/body>'));
+        document.write(gameHtml);
         document.close();
       } catch (error) {
         document.body.innerHTML = '<main style="font-family:sans-serif;padding:2rem;text-align:center"><h1>KALECAD yüklenemedi</h1><p>' + error.message + '</p><button onclick="location.reload()">Tekrar dene</button></main>';
