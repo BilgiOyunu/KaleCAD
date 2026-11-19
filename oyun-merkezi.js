@@ -1,9 +1,9 @@
 
-/* KALECAD OYUN MERKEZI V6 */
+/* KALECAD OYUN MERKEZI V7 */
 (() => {
 'use strict';
-if(window.KALECAD_GAME_V6)return;
-window.KALECAD_GAME_V6=true;
+if(window.KALECAD_GAME_V7)return;
+window.KALECAD_GAME_V7=true;
 
 document.getElementById('kaleGames')?.remove();
 document.getElementById('kaleGamesBtn')?.remove();
@@ -30,7 +30,15 @@ const rescueQuestions=[
 const style=document.createElement('style');
 style.id='kaleGamesStyle';
 style.textContent=`
-#kaleGamesBtn{position:fixed;right:15px;bottom:18px;z-index:99990;border:0;border-radius:50px;padding:14px 19px;color:white;background:linear-gradient(135deg,#ff8a00,#ed3c65);font-size:14px;font-weight:900;box-shadow:0 8px 25px #0005;cursor:pointer}
+#kaleGamesBtn{
+position:fixed;right:15px;bottom:18px;z-index:99990;
+width:190px;height:46px;box-sizing:border-box;
+display:flex;align-items:center;justify-content:center;
+padding:0;border:0;border-radius:50px;
+color:white;background:linear-gradient(135deg,#ff8a00,#ed3c65);
+font-size:14px;font-weight:900;
+box-shadow:0 8px 25px #0005;cursor:pointer;
+}
 #kaleGames{position:fixed;inset:0;z-index:99999;background:#071326;color:#f7f9ff;font-family:Arial,sans-serif;display:none;overflow:auto}
 #kaleGames *{box-sizing:border-box}
 .kg-wrap{max-width:1100px;margin:auto;padding:18px}
@@ -67,7 +75,14 @@ style.textContent=`
 .kg-result{text-align:center;padding:30px 10px}
 .kg-result .big{font-size:65px}
 .kg-result h2{font-size:26px}
-@media(max-width:700px){.kg-games{grid-template-columns:1fr}.kg-card{min-height:145px;display:grid;grid-template-columns:65px 1fr;column-gap:13px;align-items:center}.kg-card .emoji{grid-row:span 3;font-size:43px;margin:0}.kg-card h2{align-self:end}.kg-card p{margin:4px 0}.kg-wrap{padding:12px}}
+@media(max-width:700px){
+.kg-games{grid-template-columns:1fr}
+.kg-card{min-height:145px;display:grid;grid-template-columns:65px 1fr;column-gap:13px;align-items:center}
+.kg-card .emoji{grid-row:span 3;font-size:43px;margin:0}
+.kg-card h2{align-self:end}
+.kg-card p{margin:4px 0}
+.kg-wrap{padding:12px}
+}
 `;
 document.head.appendChild(style);
 
@@ -98,7 +113,7 @@ btn.onclick=()=>app.style.display='block';
 $('kgClose').onclick=()=>app.style.display='none';
 app.addEventListener('click',e=>{if(e.target===app)app.style.display='none'});
 
-document.querySelectorAll('.kg-card').forEach(card=>{
+app.querySelectorAll('.kg-card').forEach(card=>{
 card.onclick=()=>{
 home.style.display='none';
 startQuiz(card.dataset.game);
