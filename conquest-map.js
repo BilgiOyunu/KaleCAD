@@ -254,4 +254,134 @@
           fill="#456b70" font-style="italic">Akdeniz</text>
 
         <text x="31" y="35" font-size="12"
-          fill="#684b29" font-weight="800
+          fill="#684b29" font-weight="800 
+>ANADOLU</text>
+        <text x="335" y="36" font-size="9" fill="#684b29">KUZEY</text>
+        <path d="M382 43l-5 12h10z" fill="#684b29"/>
+        ${Object.entries(cities).map(([key, city]) => castleMarkup(key, city)).join("")}
+        <text x="210" y="319" text-anchor="middle" font-size="8" fill="#725431">KALECAD • DÖRT KALE MÜCADELESİ</text>
+      </svg>
+      <div class="map-legend">
+        <span><i class="legend-dot" style="background:#73777a"></i>Fethedilmedi</span>
+        <span><i class="legend-dot" style="background:#e8b94e"></i>Fethedildi</span>
+      </div>
+      <p id="kalecadMapStatus" aria-live="polite">Haritadan bir kale seç.</p>`;
+  }
+
+  function chooseCity(key) {
+    const city = cities[key];
+    if (!city) return;
+    const campusButton = document.querySelector(`[data-campus="${city.name}"]`);
+    if (campusButton) campusButton.click();
+    else {
+      try { localStorage.setItem(CAMPUS_KEY, city.name); } catch (_) {}
+      window.dispatchEvent(new CustomEvent("kalecad:campus-selected", {
+        detail: { campus: city.name }
+      }));
+      const start = document.getElementById("start");
+      if (start) {
+        start.disabled = false;
+        start.removeAttribute("aria-disabled");
+      }
+    }
+    const status = document.getElementById("kalecadMapStatus");
+    if (status) {
+      status.textContent = isCaptured(key)
+        ? `${city.name} Kalesi daha önce fethedildi. Yeniden mücadele edebilirsin.`
+        : `${city.name} Kalesi seçildi. 10 sorunun tamamını doğru yanıtlayarak fethet!`;
+    }
+  }
+
+  function renderMap() {
+    const home = document.getElementById("home");
+    if (!home) return false;
+    addStyles();
+    let panel = document.getElementById("kalecadHistoricMap");
+    if (!panel) {
+      panel = document.createElement("section");
+      panel.id = "kalecadHistoricMap";
+      panel.setAttribute("aria-label", "Fetih haritası");
+      const picker = document.getElementById("campusPicker");
+      const hero = home.querySelector(".hero");
+      if (picker) picker.after(panel);
+      else if (hero) hero.after(panel);
+      else home.prepend(panel);
+    }
+    panel.innerHTML = mapMarkup();
+    panel.querySelectorAll(".castle-marker").forEach(marker => {
+      const activate = () => chooseCity(marker.dataset.city);
+      marker.addEventListener("click", activate);
+      marker.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          activate();
+        }
+      });
+    });
+    return true;
+  }
+
+  function finishConquest(correctCount) {
+    const selected = cityKey(localStorage.getItem(CAMPUS_KEY));
+    if (Number(correctCount) !== 10 || !selected) return false;
+
+    const state = readState();
+    state[selected] = true;
+    writeState(state);
+
+    const city = cities[selected];
+    const resultText = document.getElementById("resultText");
+    if (resultText && !resultText.textContent.includes("CADparatoru")) {
+      resultText.textContent += ` ${city.name} Kalesi fethedildi! Sen ${city.name} Kalesi'nin CADparatoru oldun!`;
+    }
+    renderMap();
+    return true;
+  }
+
+  function watchResults() {
+    const result = document.getElementById("result");
+    const correct = document.getElementById("correctCount");
+    if (!result || !correct || result.dataset.kalecadObserver) return;
+    result.dataset.kalecadObserver = "true";
+
+    const observer = new MutationObserver(() => {
+      if (!result.classList.contains("active")) return;
+      const match = correct.textContent.match(/(\d+)\s*\/\s*10/);
+      if (!match) return;
+      const signature = `${localStorage.getItem(CAMPUS_KEY)}:${match[0]}`;
+      if (result.dataset.kalecadLastRound === signature) return;
+      result.dataset.kalecadLastRound = signature;
+      finishConquest(Number(match[1]));
+    });
+    observer.observe(result, { attributes: true, attributeFilter: ["class"] });
+    observer.observe(correct, { childList: true, characterData: true, subtree: true });
+  }
+
+  function init() {
+    if (!renderMap()) return;
+    watchResults();
+    const saved = cityKey(localStorage.getItem(CAMPUS_KEY));
+    if (saved) {
+      const status = document.getElementById("kalecadMapStatus");
+      if (status) {
+        const city = cities[saved];
+        status.textContent = isCaptured(saved)
+          ? `${city.name} Kalesi fethedildi.`
+          : `Seçili hedef: ${city.name} Kalesi`;
+      }
+    }
+  }
+
+  window.KALECAD_CONQUEST = {
+    finish: finishConquest,
+    cities,
+    refresh: renderMap
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+})();
+
