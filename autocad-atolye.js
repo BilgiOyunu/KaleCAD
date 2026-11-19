@@ -91,7 +91,7 @@
     ['Kenarları silmek için hangi araç kullanılır?','Eraser',['Move','Eraser','Zoom','Orbit']],
     ['Görünümü yakınlaştırmak için hangisi kullanılır?','Zoom',['Pan','Select','Zoom','Line']],
     ['Dairesel yüzey oluşturmak için hangisi kullanılır?','Circle',['Rectangle','Circle','Scale','Move']]
-  ];
+  ].map(([q, a, options]) => ({ q, a, options }));
 
   const read = () => {
     try { return JSON.parse(localStorage.getItem(STORE) || '{}'); }
