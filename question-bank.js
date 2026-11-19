@@ -78,7 +78,7 @@ Object.entries(questionData).forEach(([category, entries]) => {
         name,
         answer,
         q: makeQuestion(name),
-        difficulty: 'medium'
+        difficulty: ['easy', 'medium', 'hard', 'easy'][phrasingIndex]
       });
     });
   });
