@@ -285,3 +285,159 @@
   observer.observe(document.documentElement, {childList:true,subtree:true});
   mount();
 })();
+
+(() => {
+  'use strict';
+
+  const tools = [
+    ['Select','Seç','Modeldeki nesneleri seçer.'],
+    ['Line','Çizgi','Kenar ve profil oluşturur.'],
+    ['Rectangle','Dikdörtgen','Dikdörtgen yüzey çizer.'],
+    ['Circle','Daire','Dairesel yüzey oluşturur.'],
+    ['Push/Pull','İt/Çek','2B yüzeyi 3B hacme dönüştürür.'],
+    ['Move','Taşı','Nesneleri konumlandırır.'],
+    ['Rotate','Döndür','Nesneleri eksen etrafında döndürür.'],
+    ['Scale','Ölçekle','Modelin boyutunu değiştirir.'],
+    ['Offset','Ofset','Paralel kenarlar oluşturur.'],
+    ['Follow Me','Beni İzle','Bir profili yol boyunca uzatır.'],
+    ['Paint Bucket','Boya Kovası','Yüzeylere malzeme uygular.'],
+    ['Eraser','Silgi','Kenarları siler.']
+  ];
+
+  const questions = [
+    ['Bir yüzeyi 3B hacme dönüştüren araç hangisidir?','Push/Pull',['Move','Push/Pull','Scale']],
+    ['Nesneleri seçmek için hangi araç kullanılır?','Select',['Select','Eraser','Orbit']],
+    ['Yüzeye malzeme uygulamak için hangisi kullanılır?','Paint Bucket',['Line','Offset','Paint Bucket']],
+    ['Modeli büyütüp küçültmek için hangisi kullanılır?','Scale',['Scale','Move','Circle']],
+    ['Model çevresinde görünümü döndürmek için hangisi kullanılır?','Orbit',['Eraser','Orbit','Rectangle']]
+  ];
+
+  const tasks = [
+    '400 × 300 cm ölçülerinde bir oda tabanı oluştur.',
+    'Push/Pull ile duvarları 280 cm yükselt.',
+    'Bir kapı ve iki pencere boşluğu oluştur.',
+    'Odaya bir masa ve iki sandalye modelle.',
+    'Duvarlara ve zemine farklı malzemeler uygula.'
+  ];
+
+  let mounted = false;
+
+  function mount() {
+    const modal = document.getElementById('autocadWorkshopModal');
+    if (!modal || mounted) return;
+
+    const nav = modal.querySelector('#cadTabs');
+    const panel = modal.querySelector('#cadPanel');
+    if (!nav || !panel) return;
+
+    mounted = true;
+
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.dataset.tab = 'sketchup';
+    tab.textContent = 'SketchUp Atölyesi';
+    nav.appendChild(tab);
+
+    function show() {
+      nav.querySelectorAll('[data-tab]').forEach(b =>
+        b.classList.toggle('active', b === tab)
+      );
+
+      panel.innerHTML = `
+        <div class="cad-item">
+          <h3>SketchUp 3D Atölyesi</h3>
+          <p class="cad-muted">Mimari modelleme araçlarını öğren, sınavı çöz ve uygulama görevlerini tamamla.</p>
+          <div class="cad-grid">
+            <div class="cad-item">
+              <h3>🧰 Araç Rehberi</h3>
+              <div id="skTools"></div>
+            </div>
+            <div class="cad-item">
+              <h3>🧠 Mini Sınav</h3>
+              <div id="skQuiz"></div>
+            </div>
+            <div class="cad-item">
+              <h3>🏗️ 3B Modelleme Görevleri</h3>
+              <div id="skTasks"></div>
+            </div>
+          </div>
+        </div>`;
+
+      const guide = panel.querySelector('#skTools');
+      tools.forEach(t => {
+        const item = document.createElement('p');
+        item.innerHTML = `<b>${t[0]} – ${t[1]}</b><br><span class="cad-muted">${t[2]}</span>`;
+        guide.appendChild(item);
+      });
+
+      const quiz = panel.querySelector('#skQuiz');
+      let index = 0;
+      let score = 0;
+
+      function ask() {
+        if (index >= questions.length) {
+          quiz.innerHTML = `<h3>${score * 20} / 100 puan</h3>
+            <button class="cad-btn cad-primary" id="skAgain">Yeniden Dene</button>`;
+          quiz.querySelector('#skAgain').onclick = () => {
+            index = 0;
+            score = 0;
+            ask();
+          };
+          return;
+        }
+
+        const q = questions[index];
+        quiz.innerHTML = `<p><b>${index + 1}/${questions.length}</b> — ${q[0]}</p>`;
+
+        q[2].forEach(option => {
+          const b = document.createElement('button');
+          b.className = 'cad-option';
+          b.textContent = option;
+          b.onclick = () => {
+            if (option === q[1]) {
+              score++;
+              b.classList.add('correct');
+            } else {
+              b.classList.add('wrong');
+            }
+            quiz.querySelectorAll('button').forEach(x => x.disabled = true);
+            const next = document.createElement('button');
+            next.className = 'cad-btn cad-primary';
+            next.textContent = 'Sonraki Soru';
+            next.onclick = () => {
+              index++;
+              ask();
+            };
+            quiz.appendChild(next);
+          };
+          quiz.appendChild(b);
+        });
+      }
+      ask();
+
+      const taskArea = panel.querySelector('#skTasks');
+      tasks.forEach((task, i) => {
+        const label = document.createElement('label');
+        label.style.cssText = 'display:block;margin:12px 0';
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.style.width = 'auto';
+        check.checked = localStorage.getItem('kale_sk_task_' + i) === '1';
+        check.onchange = () =>
+          localStorage.setItem('kale_sk_task_' + i, check.checked ? '1' : '0');
+        label.append(check, document.createTextNode(' ' + (i + 1) + '. ' + task));
+        taskArea.appendChild(label);
+      });
+    }
+
+    tab.addEventListener('click', show);
+  }
+
+  const observer = new MutationObserver(mount);
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+  mount();
+})();
+
