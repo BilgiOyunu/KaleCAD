@@ -113,23 +113,21 @@ gameHtml=gameHtml.replace(
 '>Platforma Başla</button>'
 );
 
-/* SES DÜĞMESİNİ SADELEŞTİR */
+/* SES DÜĞMESİ */
 const speakerOn='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
 
-const speakerOff='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l8 4V5Z"/><path d="m17 9 5 6"/><path d="m22 9-5 6"/></svg>';
+const speakerOff='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m17 9 5 6"/><path d="m22 9-5 6"/></svg>';
 
 gameHtml=gameHtml.replace(
 /<button id="soundToggle"[^>]*>[\s\S]*?<\/button>/i,
 '<button id="soundToggle" class="btn" type="button" aria-label="Sesi kapat" aria-pressed="true">'+speakerOn+'</button>'
 );
 
-/* SES KONTROLÜNÜN ÇALIŞMASINI KORU */
 gameHtml=gameHtml.replace(
 "$('soundToggle').onclick=()=>{soundOn=!soundOn;$('soundToggle').textContent=soundOn?'🔊 Ses açık':'🔇 Ses kapalı';$('soundToggle').setAttribute('aria-pressed',String(soundOn));if(soundOn)playTone(660,.12)};",
 "$('soundToggle').onclick=()=>{soundOn=!soundOn;$('soundToggle').innerHTML=soundOn?"+JSON.stringify(speakerOn)+":"+JSON.stringify(speakerOff)+";$('soundToggle').setAttribute('aria-label',soundOn?'Sesi kapat':'Sesi aç');$('soundToggle').setAttribute('aria-pressed',String(soundOn));if(soundOn)playTone(660,.12)};"
 );
 
-/* SES BUTONU BOYUTLARI */
 const soundCss=`
 #soundToggle{
 width:48px!important;
@@ -153,19 +151,21 @@ gameHtml=gameHtml.replace(
 '<style id="kalecad-mobile">'+mobileCss+'</style></head>'
 );
 
+/* EK DOSYALAR */
 const additions=
 '<script src="./campus-selection.js?v=28c5626"><\/script>'+
 '<script src="./conquest-map.js?v=3"><\/script>'+
 '<script src="./autocad-atolye.js?v=5"><\/script>'+
-'<script src="./oyun-merkezi.js?v=16"><\/script>'+
+'<script src="./oyun-merkezi.js?v=17"><\/script>'+
 '<script src="./mesleki-sozluk.js?v=3"><\/script>'+
 '<script src="./kitaplik.js?v=1"><\/script>';
 
+/* DİJİTAL TASARIM ATÖLYESİ */
 const menuCode=`
 (function(){
 'use strict';
-if(window.KALECAD_HOME_DESIGN_V5)return;
-window.KALECAD_HOME_DESIGN_V5=true;
+if(window.KALECAD_HOME_DESIGN_V6)return;
+window.KALECAD_HOME_DESIGN_V6=true;
 
 const css=document.createElement('style');
 css.textContent=
@@ -226,8 +226,6 @@ if(tab)tab.click();
 },180);
 }
 
-let observer=null;
-
 function build(){
 const map=document.getElementById('kalecadHistoricMap');
 const oldCard=document.getElementById('kale-cad-card');
@@ -240,7 +238,7 @@ panel.id='ka-home-panel';
 panel.innerHTML=
 '<div class="ka-banner">'+
 '<div class="ka-overline">KALECAD / DIGITAL WORKSHOP</div>'+
-'<h2>Dijital Tasarım Atölyesi</h2>'+
+'<h2>DİJİTAL TASARIM ATÖLYESİ</h2>'+
 '<p class="ka-intro">Mimarlık, iç mimarlık ve inşaat teknolojileri için çizim, modelleme ve mesleki öğrenme alanı.</p>'+
 '</div>'+
 '<div class="ka-heading">ATÖLYE BÖLÜMLERİ <span>08 MODÜL</span></div>'+
@@ -265,11 +263,6 @@ grid.appendChild(button);
 });
 
 map.insertAdjacentElement('afterend',panel);
-
-const game=document.getElementById('kaleGamesBtn');
-if(game)game.textContent='OYUN MERKEZİ';
-
-if(observer)observer.disconnect();
 }
 
 function boot(){build();}
@@ -280,7 +273,7 @@ document.addEventListener('DOMContentLoaded',boot,{once:true});
 boot();
 }
 
-observer=new MutationObserver(function(){
+const observer=new MutationObserver(function(){
 if(!document.getElementById('ka-home-panel'))build();
 });
 
@@ -292,9 +285,77 @@ subtree:true
 })();
 `;
 
+/* SON YERLEŞİM DÜZENİ */
+const finalLayoutCode=`
+(function(){
+'use strict';
+
+if(window.KALECAD_FINAL_LAYOUT_V1)return;
+window.KALECAD_FINAL_LAYOUT_V1=true;
+
+const style=document.createElement('style');
+style.textContent=
+'#kaleGamesBtn{position:relative!important;right:auto!important;bottom:auto!important;left:auto!important;top:auto!important;z-index:5!important;width:min(100%,360px)!important;height:52px!important;min-height:52px!important;margin:16px auto 20px!important;padding:0 18px!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;border:1px solid #f7b35b!important;border-radius:14px!important;background:linear-gradient(120deg,#f0a12e,#d97821)!important;color:#102844!important;font-size:15px!important;font-weight:900!important;letter-spacing:.3px!important;box-shadow:0 7px 20px #0004!important}'+
+'#campusPicker .campus-title .setting-title{font-size:clamp(21px,5vw,28px)!important;font-weight:1000!important;letter-spacing:1px!important}'+
+'#kalecad-credit{display:block;width:100%;padding:12px 8px 18px;text-align:center;color:#b8c8d8;font-family:Arial,sans-serif;font-size:9px;line-height:1.5;opacity:.32;letter-spacing:.2px;box-sizing:border-box}';
+
+document.head.appendChild(style);
+
+function arrange(){
+const picker=document.querySelector('#campusPicker .campus-title .setting-title');
+if(picker&&picker.textContent.trim()!=='SAVUNULACAK KALE'){
+picker.textContent='SAVUNULACAK KALE';
+}
+
+const map=document.getElementById('kalecadHistoricMap');
+const game=document.getElementById('kaleGamesBtn');
+const panel=document.getElementById('ka-home-panel');
+
+if(!map)return;
+
+if(game){
+game.textContent='CAD Oyununa Giriş Yap';
+if(map.nextElementSibling!==game){
+map.insertAdjacentElement('afterend',game);
+}
+}
+
+if(panel&&game&&game.nextElementSibling!==panel){
+game.insertAdjacentElement('afterend',panel);
+}
+
+let credit=document.getElementById('kalecad-credit');
+if(!credit){
+credit=document.createElement('footer');
+credit.id='kalecad-credit';
+credit.textContent='Bu uygulama Alperen Furkan Arpaç tarafından GitHub ve ChatGPT ile geliştirilmiştir.';
+}
+
+if(panel&&panel.nextElementSibling!==credit){
+panel.insertAdjacentElement('afterend',credit);
+}
+}
+
+const observer=new MutationObserver(arrange);
+observer.observe(document.documentElement,{
+childList:true,
+subtree:true,
+characterData:true
+});
+
+if(document.readyState==='loading'){
+document.addEventListener('DOMContentLoaded',arrange,{once:true});
+}else{
+arrange();
+}
+
+})();
+`;
+
 const additionsFinal=
 additions+
-'<script>'+menuCode+'<\/script>';
+'<script>'+menuCode+'<\/script>'+
+'<script>'+finalLayoutCode+'<\/script>';
 
 if(!/<\/body>/i.test(gameHtml)){
 throw new Error('Oyun HTML dosyasında body kapanışı bulunamadı.');
