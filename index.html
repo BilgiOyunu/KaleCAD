@@ -1,248 +1,682 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#102844">
 <meta name="description" content="KALECAD - Mimarlık, iç mimarlık ve inşaat teknolojileri eğitim platformu">
 <title>KALECAD | Eğitim Platformu</title>
 
 <style>
+:root {
+  --navy:#102844;
+  --blue:#1d4770;
+  --gold:#e8b84d;
+  --light:#f3f6fa;
+  --white:#ffffff;
+  --text:#24364a;
+  --muted:#718096;
+  --green:#27845d;
+  --radius:18px;
+  --shadow:0 8px 25px rgba(16,40,68,.09);
+}
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#102844;color:#fff}
-body{padding:0}
-#ka-loader{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.ka-loading{width:min(420px,100%);padding:28px;border:1px solid #31516d;border-radius:18px;background:#153653;text-align:center}
-.ka-loading h1{margin:0 0 12px;font-size:28px;letter-spacing:1px}
-.ka-loading p{color:#d1deea;line-height:1.5}
-.ka-progress{height:7px;background:#294761;border-radius:20px;overflow:hidden;margin-top:20px}
-.ka-progress span{display:block;width:35%;height:100%;background:#65bde8;border-radius:20px;animation:ka-progress 1.2s infinite ease-in-out alternate}
-@keyframes ka-progress{from{transform:translateX(-20%)}to{transform:translateX(210%)}}
-#ka-error{display:none;color:#ffd3d3;line-height:1.5;margin-top:16px}
-#ka-controls{position:fixed;z-index:99999;top:10px;right:12px;display:flex;gap:8px;align-items:center}
-#ka-controls button{font:inherit;font-weight:750;color:#fff;border:1px solid #46637c;border-radius:12px;padding:11px 15px;background:#ffffff0b;cursor:pointer;min-height:42px}
-#ka-controls button:active{transform:scale(.98)}
-@media(max-width:760px){
- #ka-controls{top:8px;right:8px;gap:6px}
- #ka-controls button{padding:9px 11px;font-size:12px;min-height:38px}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--light);
+  color:var(--text);
+}
+button{font:inherit;cursor:pointer}
+header{
+  background:linear-gradient(135deg,#102844,#1d4770);
+  color:white;
+  padding:20px 5%;
+}
+.topbar{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+}
+.logo{
+  font-size:29px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+.logo span{color:var(--gold)}
+.header-actions{
+  display:flex;
+  gap:9px;
+  align-items:center;
+}
+.small-action{
+  min-width:112px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:11px;
+  background:rgba(255,255,255,.12);
+  color:white;
+  padding:0 13px;
+  font-weight:700;
+}
+.small-action:hover{background:rgba(255,255,255,.23)}
+.hero{
+  max-width:1200px;
+  margin:35px auto 15px;
+  padding:35px 0;
+}
+.hero h1{
+  font-size:clamp(30px,5vw,48px);
+  margin:0 0 15px;
+  line-height:1.15;
+}
+.hero h1 span{color:var(--gold)}
+.hero p{
+  max-width:700px;
+  line-height:1.7;
+  color:#dce7f2;
+  font-size:16px;
+}
+.hero-label{
+  display:inline-block;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:2px;
+  margin-bottom:12px;
+}
+.container{
+  width:min(1200px,92%);
+  margin:30px auto;
+}
+.section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:35px 0 18px;
+  flex-wrap:wrap;
+}
+.section-title h2{
+  color:var(--navy);
+  margin:0;
+  font-size:24px;
+}
+.section-title p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+.card{
+  background:white;
+  border-radius:var(--radius);
+  padding:21px;
+  box-shadow:var(--shadow);
+  border:1px solid #e9eef4;
+  transition:.2s;
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 30px rgba(16,40,68,.13);
+}
+.card-icon{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  background:#edf3f9;
+  display:grid;
+  place-items:center;
+  font-size:25px;
+  margin-bottom:14px;
+}
+.card h3{margin:0 0 9px;color:var(--navy);font-size:17px}
+.card p{font-size:13px;line-height:1.6;color:var(--muted);min-height:40px}
+.primary-btn,.secondary-btn{
+  border:0;
+  border-radius:10px;
+  padding:12px 16px;
+  font-weight:700;
+  margin-top:8px;
+}
+.primary-btn{background:var(--navy);color:white}
+.primary-btn:hover{background:var(--blue)}
+.secondary-btn{background:#eaf0f6;color:var(--navy)}
+.gold-btn{background:var(--gold);color:#172c42}
+.wide-card{
+  background:linear-gradient(135deg,#102844,#244f78);
+  color:white;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:var(--shadow);
+}
+.wide-card h2{margin-top:0}
+.wide-card p{color:#d7e3ef;line-height:1.6}
+.castle-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+}
+.castle{
+  padding:20px 12px;
+  border-radius:15px;
+  text-align:center;
+  background:white;
+  border:1px solid #e3eaf1;
+  cursor:pointer;
+  transition:.2s;
+}
+.castle:hover{border-color:var(--gold);transform:translateY(-3px)}
+.castle .emoji{font-size:34px}
+.castle strong{display:block;margin:8px 0;color:var(--navy)}
+.castle small{color:var(--muted)}
+.news-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:15px;
+}
+.news-card{
+  background:white;
+  border-radius:15px;
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.news-card small{color:var(--green);font-weight:bold}
+.news-card h3{font-size:17px;color:var(--navy)}
+.news-card p{font-size:13px;color:var(--muted);line-height:1.6}
+.news-card a{color:var(--blue);font-weight:bold;text-decoration:none}
+footer{
+  margin-top:50px;
+  background:#0b1e32;
+  color:#dce5ef;
+  text-align:center;
+  padding:30px 15px;
+  font-size:13px;
+  line-height:1.8;
+}
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(5,17,30,.72);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:1000;
+}
+.modal.show{display:flex}
+.modal-box{
+  width:min(650px,100%);
+  max-height:85vh;
+  overflow:auto;
+  background:white;
+  border-radius:20px;
+  padding:25px;
+  position:relative;
+}
+.modal-box h2{color:var(--navy);margin-top:0}
+.close{
+  position:absolute;
+  right:15px;
+  top:12px;
+  border:0;
+  background:#edf2f7;
+  width:35px;
+  height:35px;
+  border-radius:50%;
+  font-size:20px;
+}
+.modal-content{line-height:1.7;color:#4b5d70}
+.module-list{display:grid;gap:10px;margin-top:15px}
+.module-item{
+  padding:14px;
+  border:1px solid #e4eaf1;
+  border-radius:12px;
+  background:#f8fafc;
+}
+.module-item strong{color:var(--navy)}
+.question{
+  background:#f1f5f9;
+  border-radius:12px;
+  padding:16px;
+  margin:15px 0;
+  font-weight:bold;
+}
+.answer{
+  display:block;
+  width:100%;
+  text-align:left;
+  padding:12px;
+  border:1px solid #dce4ed;
+  background:white;
+  border-radius:10px;
+  margin:8px 0;
+}
+.answer:hover{background:#edf3f9}
+.answer.correct{background:#d9f3e5;border-color:#27845d}
+.answer.wrong{background:#ffe2e2;border-color:#c54b4b}
+#feedback{font-weight:bold;margin-top:12px}
+@media(max-width:600px){
+  header{padding:17px 4%}
+  .hero{padding:22px 0;margin-top:15px}
+  .logo{font-size:25px}
+  .small-action{min-width:94px;font-size:12px;padding:0 9px}
+  .container{width:92%}
+  .section-title h2{font-size:21px}
 }
 </style>
 </head>
 
 <body>
-<div id="ka-loader">
- <div class="ka-loading">
-  <h1>KALECAD</h1>
-  <p>Eğitim platformu yükleniyor...</p>
-  <div class="ka-progress"><span></span></div>
-  <div id="ka-error"></div>
- </div>
-</div>
 
-<div id="ka-controls">
- <button id="ka-sound" type="button">Ses</button>
- <button id="ka-about" type="button">Hakkımızda</button>
+<header>
+  <div class="topbar">
+    <div class="logo">KALE<span>CAD</span></div>
+    <div class="header-actions">
+      <button class="small-action" id="soundBtn" onclick="toggleSound()">🔊 Ses: Açık</button>
+      <button class="small-action" onclick="openAbout()">ℹ Hakkımızda</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <span class="hero-label">MESLEKİ EĞİTİM PLATFORMU</span>
+    <h1>Mimarlık ve inşaat dünyasını<br><span>keşfetmeye hazır mısın?</span></h1>
+    <p>
+      KALECAD; mimarlık, iç mimarlık ve inşaat teknolojileri alanlarında
+      öğrenmeyi, üretmeyi ve mesleki becerileri geliştirmeyi destekleyen
+      dijital eğitim platformudur.
+    </p>
+    <button class="primary-btn gold-btn" onclick="goTo('atolye')">Dijital Atölyeyi Keşfet</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <section id="atolye">
+    <div class="section-title">
+      <div>
+        <h2>🛠 Dijital Atölye</h2>
+        <p>Mesleki bilgi ve uygulama alanları</p>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <article class="card">
+        <div class="card-icon">📐</div>
+        <h3>AutoCAD Akademi</h3>
+        <p>Teknik çizim, komutlar, katmanlar ve iki boyutlu proje çizimi.</p>
+        <button class="primary-btn" onclick="openModule('AutoCAD Akademi','AutoCAD öğrenme alanı: temel çizim komutları, koordinat sistemi, katman yönetimi, ölçülendirme ve teknik proje hazırlama konularını çalışabilirsin.')">Atölyeye Gir</button>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">🏠</div>
+        <h3>SketchUp Akademi</h3>
+        <p>Üç boyutlu modelleme, mekan tasarımı ve görselleştirme.</p>
+        <button class="primary-btn" onclick="openModule('SketchUp Akademi','SketchUp çalışma alanı: temel araçlar, Push/Pull, Move, Offset, gruplar, bileşenler ve iç mekan modelleme.')">Atölyeye Gir</button>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">📖</div>
+        <h3>Mesleki Sözlük</h3>
+        <p>Mimarlık, iç mimarlık ve inşaat teknolojileri terimleri.</p>
+        <button class="primary-btn" onclick="openDictionary()">Sözlüğü Aç</button>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">📚</div>
+        <h3>Kitaplık</h3>
+        <p>Mesleki kaynaklar, eğitim dokümanları ve çalışma materyalleri.</p>
+        <button class="primary-btn" onclick="openModule('Kitaplık','Bu bölümde mesleki eğitim kaynakları, çizim dokümanları, teknik bilgiler ve ders materyalleri yer alır.')">Kitaplığa Gir</button>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">🧠</div>
+        <h3>Bilgi Yarışması</h3>
+        <p>Mesleki bilgilerini sorularla test et ve kendini geliştir.</p>
+        <button class="primary-btn" onclick="startQuiz()">Yarışmaya Başla</button>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">📋</div>
+        <h3>Proje Görevleri</h3>
+        <p>Uygulamalı çizim ve tasarım görevlerini keşfet.</p>
+        <button class="primary-btn" onclick="openModule('Proje Görevleri','Proje fikirleri: konut planı çizimi, mutfak rölövesi, cephe tasarımı, merdiven detayı ve üç boyutlu iç mekan modelleme.')">Görevleri Gör</button>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">✏️</div>
+        <h3>Çizim Masası</h3>
+        <p>Teknik çizim ve tasarım çalışmalarını planla.</p>
+        <button class="primary-btn" onclick="openDrawing()">Çizim Masasını Aç</button>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">🧰</div>
+        <h3>Dijital Araçlar</h3>
+        <p>Mesleki hesaplamalar ve yardımcı araçlar.</p>
+        <button class="primary-btn" onclick="openModule('Dijital Araçlar','Alan hesaplama, ölçek hesaplama ve temel ölçü dönüştürme araçları bu bölümde kullanılabilir.')">Araçları Aç</button>
+      </article>
+    </div>
+  </section>
+
+  <section id="kaleler">
+    <div class="section-title">
+      <div>
+        <h2>🏰 Fethedilecek Kaleler</h2>
+        <p>Öğrenme yolculuğunda yeni durakları keşfet</p>
+      </div>
+    </div>
+
+    <div class="wide-card">
+      <h2>Bilgini geliştir, kaleleri fethet!</h2>
+      <p>
+        Her kale farklı bir mesleki öğrenme alanını temsil eder.
+        Konuları keşfet, soruları yanıtla ve yeni aşamalara ilerle.
+      </p>
+      <div class="castle-grid">
+        <div class="castle" onclick="openModule('Çizim Kalesi','Teknik çizim, ölçek, çizgi tipleri ve ölçülendirme konularını keşfet.')">
+          <div class="emoji">📐</div><strong>Çizim Kalesi</strong><small>Teknik çizim</small>
+        </div>
+        <div class="castle" onclick="openModule('Tasarım Kalesi','Mimari tasarım, mekan organizasyonu ve tasarım ilkeleri.')">
+          <div class="emoji">🏛️</div><strong>Tasarım Kalesi</strong><small>Mimari tasarım</small>
+        </div>
+        <div class="castle" onclick="openModule('Yapı Kalesi','Yapı elemanları, malzemeler ve yapı sistemleri.')">
+          <div class="emoji">🧱</div><strong>Yapı Kalesi</strong><small>Yapı bilgisi</small>
+        </div>
+        <div class="castle" onclick="openModule('Modelleme Kalesi','Üç boyutlu modelleme ve dijital sunum teknikleri.')">
+          <div class="emoji">🏠</div><strong>Modelleme Kalesi</strong><small>3B modelleme</small>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:22px">
+        <button class="primary-btn gold-btn" onclick="startQuiz()">CAD Oyununa Giriş Yap</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="haberler">
+    <div class="section-title">
+      <div>
+        <h2>📰 Mimarlık ve İnşaat Haberleri</h2>
+        <p>Sektördeki gelişmeleri takip edebileceğin bağlantılar</p>
+      </div>
+    </div>
+
+    <div class="news-grid">
+      <article class="news-card">
+        <small>MİMARLIK</small>
+        <h3>Güncel Mimarlık Projeleri</h3>
+        <p>Türkiye ve dünyadan mimarlık projeleri, tasarım yaklaşımları ve mimari gelişmeler.</p>
+        <a href="https://www.arkitera.com/" target="_blank" rel="noopener">Arkitera'yı ziyaret et →</a>
+      </article>
+      <article class="news-card">
+        <small>MİMARLIK</small>
+        <h3>Mimari Tasarım ve Kültür</h3>
+        <p>Mimarlık gündemi, etkinlikler, söyleşiler ve yeni tasarım örnekleri.</p>
+        <a href="https://www.mimarizm.com/" target="_blank" rel="noopener">Mimarizm'i ziyaret et →</a>
+      </article>
+      <article class="news-card">
+        <small>MİMARLIK</small>
+        <h3>Uluslararası Mimarlık</h3>
+        <p>Dünyadaki mimari uygulamalar ve yenilikçi tasarım örnekleri.</p>
+        <a href="https://www.dezeen.com/architecture/" target="_blank" rel="noopener">Dezeen'i ziyaret et →</a>
+      </article>
+      <article class="news-card">
+        <small>İNŞAAT</small>
+        <h3>İnşaat Sektörü Gündemi</h3>
+        <p>İnşaat teknolojileri, yapı sektörü ve uygulama haberleri.</p>
+        <a href="https://www.insaatdunyasi.com.tr/" target="_blank" rel="noopener">İnşaat Dünyası'nı ziyaret et →</a>
+      </article>
+      <article class="news-card">
+        <small>İNŞAAT</small>
+        <h3>Yapı ve Malzeme Teknolojileri</h3>
+        <p>Yeni yapı malzemeleri, sürdürülebilirlik ve yapı teknolojileri.</p>
+        <a href="https://www.yapidergisi.com/" target="_blank" rel="noopener">Yapı Dergisi'ni ziyaret et →</a>
+      </article>
+      <article class="news-card">
+        <small>İNŞAAT</small>
+        <h3>Yapı Sektöründe Yenilikler</h3>
+        <p>Yapı uygulamaları, sektörel gelişmeler ve teknik içerikler.</p>
+        <a href="https://www.constructionweekonline.com/" target="_blank" rel="noopener">Construction Week'i ziyaret et →</a>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      <div>
+        <h2>🎓 KALECAD Eğitim Yaklaşımı</h2>
+        <p>Bilgiyi uygulamayla birleştiren öğrenme deneyimi</p>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">💡</div>
+        <h3>Keşfet</h3>
+        <p>Mesleki kavramları ve teknik bilgileri öğren.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">✍️</div>
+        <h3>Uygula</h3>
+        <p>Çizim ve modelleme çalışmalarıyla bilgini pekiştir.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏆</div>
+        <h3>Geliştir</h3>
+        <p>Görevler ve yarışmalarla kendini değerlendir.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <strong>KALECAD</strong><br>
+  Mimarlık • İç Mimarlık • İnşaat Teknolojileri<br>
+  Mesleki eğitim için dijital öğrenme platformu
+  <br><br>
+  © 2026 KALECAD
+</footer>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="close" onclick="closeModal()">×</button>
+    <div id="modalBody"></div>
+  </div>
 </div>
 
 <script>
-(function(){
-'use strict';
+let soundEnabled=true;
+let quizIndex=0;
+let score=0;
 
-const BASE='https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html';
-
-const loader=document.getElementById('ka-loader');
-const error=document.getElementById('ka-error');
-
-function showError(message){
- error.style.display='block';
- error.textContent=message;
+function openModal(title,content){
+  document.getElementById("modalBody").innerHTML=
+    `<h2>${title}</h2><div class="modal-content">${content}</div>`;
+  document.getElementById("modal").classList.add("show");
 }
-
-function removeQuestionCounts(){
- const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
- const matches=[];
- let node;
-
- while((node=walker.nextNode())){
-  if(/\b\d+\s+(?:yeni\s+)?soru\b/i.test(node.nodeValue||'')){
-   const parent=node.parentElement;
-   if(!parent)continue;
-   if(parent.closest('#ka-loader,#ka-controls,#ka-about-panel'))continue;
-   matches.push({node,parent});
+function closeModal(){
+  document.getElementById("modal").classList.remove("show");
+}
+function openAbout(){
+  openModal("KALECAD Hakkında",`
+    <p><strong>KALECAD</strong>, mimarlık, iç mimarlık ve inşaat teknolojileri
+    alanlarında mesleki öğrenmeyi desteklemek amacıyla hazırlanmış
+    dijital bir eğitim platformudur.</p>
+    <p>Platform; teknik çizim, üç boyutlu modelleme, mesleki sözlük,
+    proje görevleri, bilgi yarışmaları ve dijital öğrenme araçlarını
+    bir araya getirir.</p>
+    <p>KALECAD, eğitim içeriğinin hazırlanması ve platformun geliştirilmesi
+    sürecinde <strong>ChatGPT</strong> ve <strong>GitHub Copilot</strong>
+    gibi yapay zekâ destekli araçlardan yararlanılarak geliştirilmiştir.</p>
+    <p>KALECAD, Kale Okulları'nın mesleki eğitim yaklaşımını destekleyen
+    bir eğitim platformu olarak tasarlanmıştır. Kale Okulları hakkında
+    genel bilgiye <a href="https://www.kaleokullari.com/" target="_blank">resmî web sitesinden</a> ulaşabilirsin.</p>
+  `);
+}
+function openModule(title,description){
+  openModal(title,`<p>${description}</p>
+  <p>Bu alan mesleki öğrenme ve uygulama çalışmalarını desteklemek için hazırlanmıştır.</p>`);
+}
+function toggleSound(){
+  soundEnabled=!soundEnabled;
+  document.getElementById("soundBtn").textContent=
+    soundEnabled?"🔊 Ses: Açık":"🔇 Ses: Kapalı";
+  if(soundEnabled)playTone(550);
+}
+function playTone(freq){
+  if(!soundEnabled)return;
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.frequency.value=freq;
+    gain.gain.value=.06;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+.12);
+  }catch(e){}
+}
+function goTo(id){
+  document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+const terms=[
+  ["Aks","Bir yapının veya elemanın taşıyıcı ya da geometrik düzenini belirleyen referans çizgisi."],
+  ["Rölöve","Mevcut bir yapının ölçülerinin alınarak çizimlerle belgelenmesi."],
+  ["Kesit","Bir yapının düşey düzlemle kesilmesiyle elde edilen görünüş."],
+  ["Görünüş","Yapının dış yüzeyinin belirli bir yönden görünümünü gösteren çizim."],
+  ["Plan","Yapının yatay düzlemde kesilmesiyle elde edilen üstten görünüş."],
+  ["Metraj","Bir projedeki imalatların miktarlarının ölçülerek hesaplanması."],
+  ["KAKS","Kat alanı kat sayısı; emsale esas toplam kat alanının parsel alanına oranı."],
+  ["TAKS","Taban alanı kat sayısı; binanın taban alanının parsel alanına oranı."],
+  ["Vaziyet Planı","Yapının parsel ve çevresi içindeki konumunu gösteren plan."],
+  ["Cephe","Yapının dışarıdan görülen yüzeylerinden her biri."]
+];
+function openDictionary(){
+  const html=terms.map(t=>`<div class="module-item"><strong>${t[0]}</strong><br>${t[1]}</div>`).join("");
+  openModal("Mesleki Sözlük",`<div class="module-list">${html}</div>`);
+}
+function openDrawing(){
+  openModal("Çizim Masası",`
+    <p>Basit çizim alanı: Farenle veya parmağınla çizim yapabilirsin.</p>
+    <canvas id="drawCanvas" width="560" height="330"
+      style="width:100%;border:1px solid #cbd5e1;border-radius:10px;touch-action:none;background:white"></canvas>
+    <button class="secondary-btn" onclick="clearDrawing()">Temizle</button>
+  `);
+  setTimeout(setupCanvas,100);
+}
+let drawingCanvas=null, drawingCtx=null, drawing=false;
+function setupCanvas(){
+  drawingCanvas=document.getElementById("drawCanvas");
+  if(!drawingCanvas)return;
+  drawingCtx=drawingCanvas.getContext("2d");
+  drawingCtx.lineWidth=3;
+  drawingCtx.lineCap="round";
+  drawingCanvas.onpointerdown=e=>{
+    drawing=true;
+    drawingCanvas.setPointerCapture(e.pointerId);
+    const r=drawingCanvas.getBoundingClientRect();
+    drawingCtx.beginPath();
+    drawingCtx.moveTo((e.clientX-r.left)*drawingCanvas.width/r.width,
+      (e.clientY-r.top)*drawingCanvas.height/r.height);
+  };
+  drawingCanvas.onpointermove=e=>{
+    if(!drawing)return;
+    const r=drawingCanvas.getBoundingClientRect();
+    drawingCtx.lineTo((e.clientX-r.left)*drawingCanvas.width/r.width,
+      (e.clientY-r.top)*drawingCanvas.height/r.height);
+    drawingCtx.stroke();
+  };
+  drawingCanvas.onpointerup=()=>drawing=false;
+  drawingCanvas.onpointercancel=()=>drawing=false;
+}
+function clearDrawing(){
+  if(drawingCanvas&&drawingCtx){
+    drawingCtx.clearRect(0,0,drawingCanvas.width,drawingCanvas.height);
   }
- }
-
- matches.forEach(function(item){
-  const parent=item.parent;
-  if(!parent.isConnected)return;
-  if(parent.children.length===0 && parent.textContent.trim().length<160){
-   parent.remove();
-  }else{
-   item.node.nodeValue=item.node.nodeValue.replace(
-    /\b\d+\s+(?:yeni\s+)?soru(?:\s+mevcut)?/gi,''
-   );
+}
+const questions=[
+  {
+    q:"AutoCAD'de çizgi çizmek için kullanılan temel komut hangisidir?",
+    a:["LINE","CIRCLE","TRIM","OFFSET"],c:0
+  },
+  {
+    q:"Bir yapının yatay düzlemde kesilmesiyle elde edilen çizim hangisidir?",
+    a:["Kesit","Plan","Görünüş","Perspektif"],c:1
+  },
+  {
+    q:"SketchUp'ta yüzeyleri üç boyutlu hale getirmeye yarayan araç hangisidir?",
+    a:["Eraser","Orbit","Push/Pull","Paint Bucket"],c:2
+  },
+  {
+    q:"TAKS hangi alanların oranını ifade eder?",
+    a:["Toplam kat alanı / parsel alanı","Taban alanı / parsel alanı","Bina yüksekliği / yol genişliği","Oda alanı / kat alanı"],c:1
+  },
+  {
+    q:"Mevcut bir yapının ölçülerinin alınarak belgelenmesine ne denir?",
+    a:["Perspektif","Vaziyet","Rölöve","Detay"],c:2
+  },
+  {
+    q:"Bir yapının düşey düzlemle kesilmesiyle elde edilen çizim hangisidir?",
+    a:["Kesit","Plan","Vaziyet planı","Kroki"],c:0
   }
- });
+];
+function startQuiz(){
+  quizIndex=0;
+  score=0;
+  showQuestion();
 }
-
-function installCleaner(){
- removeQuestionCounts();
- if(window.kaQuestionObserver)return;
-
- window.kaQuestionObserver=new MutationObserver(function(){
-  removeQuestionCounts();
- });
-
- window.kaQuestionObserver.observe(document.body,{
-  childList:true,
-  subtree:true,
-  characterData:true
- });
-}
-
-function installAbout(){
- if(document.getElementById('ka-about-panel'))return;
-
- const panel=document.createElement('div');
- panel.id='ka-about-panel';
- panel.style.cssText=[
-  'display:none',
-  'position:fixed',
-  'inset:0',
-  'z-index:100000',
-  'background:rgba(0,0,0,.72)',
-  'align-items:center',
-  'justify-content:center',
-  'padding:18px'
- ].join(';');
-
- panel.innerHTML=`
-  <section style="width:min(620px,100%);max-height:85vh;overflow:auto;background:#153653;color:#fff;border:1px solid #46637c;border-radius:18px;padding:24px;line-height:1.65">
-   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-    <h2 style="margin:0;color:#fff">KALECAD Hakkında</h2>
-    <button id="ka-about-close" type="button" style="border:1px solid #46637c;background:#ffffff0b;color:#fff;border-radius:9px;padding:8px 12px;font-weight:700">Kapat</button>
-   </div>
-   <p>KALECAD; mimarlık, iç mimarlık ve inşaat teknolojileri alanlarında mesleki öğrenmeyi desteklemek amacıyla hazırlanmış dijital bir eğitim platformudur.</p>
-   <h3>Kale Okulları</h3>
-   <p>Kale Okulları, öğrencilerin akademik gelişimlerinin yanında mesleki becerilerini, üretkenliklerini ve uygulama deneyimlerini geliştirmeyi hedefleyen eğitim yaklaşımıyla çalışmalarını sürdürür.</p>
-   <h3>Platformun amacı</h3>
-   <p>Öğrencilerin AutoCAD, SketchUp, yapı bilgisi, mimarlık ve iç mimarlık alanlarında öğrendiklerini pekiştirmelerine yardımcı olmak; dijital etkinlikler, uygulamalar ve oyunlaştırılmış öğrenme deneyimleri sunmaktır.</p>
-   <p>KALECAD geliştirme sürecinde GitHub, GitHub Copilot ve ChatGPT gibi dijital araçlardan yararlanılmıştır.</p>
-  </section>
- `;
-
- document.body.appendChild(panel);
-
- document.getElementById('ka-about').addEventListener('click',function(){
-  panel.style.display='flex';
- });
-
- document.getElementById('ka-about-close').addEventListener('click',function(){
-  panel.style.display='none';
- });
-
- panel.addEventListener('click',function(event){
-  if(event.target===panel)panel.style.display='none';
- });
-}
-
-async function start(){
- try{
-  const response=await fetch(BASE,{cache:'no-store'});
-  if(!response.ok)throw new Error('Ana platform dosyası alınamadı. HTTP '+response.status);
-
-  const html=await response.text();
-  const parser=new DOMParser();
-  const doc=parser.parseFromString(html,'text/html');
-
-  document.title=doc.title||'KALECAD | Eğitim Platformu';
-
-  const base=document.createElement('base');
-  base.href='https://bilgioyunu.github.io/KaleCAD/';
-  document.head.prepend(base);
-
-  doc.querySelectorAll('link[rel="stylesheet"]').forEach(function(oldLink){
-   const link=document.createElement('link');
-   link.rel='stylesheet';
-   link.href=oldLink.href;
-   document.head.appendChild(link);
-  });
-
-  doc.querySelectorAll('style').forEach(function(oldStyle){
-   const style=document.createElement('style');
-   style.textContent=oldStyle.textContent;
-   document.head.appendChild(style);
-  });
-
-  const root=document.createElement('div');
-  root.id='ka-platform-root';
-  root.innerHTML=doc.body.innerHTML;
-  document.body.insertBefore(root,loader);
-  loader.remove();
-
-  doc.querySelectorAll('script').forEach(function(oldScript){
-   const script=document.createElement('script');
-   if(oldScript.src){
-    script.src=oldScript.src;
-   }else{
-    script.textContent=oldScript.textContent;
-   }
-   if(oldScript.type)script.type=oldScript.type;
-   document.body.appendChild(script);
-  });
-
-  installAbout();
-  installCleaner();
-
-  const sound=document.getElementById('soundToggle');
-  const about=document.getElementById('ka-about');
-
-  if(sound){
-   const style=getComputedStyle(sound);
-   about.style.cssText=[
-    'font:'+style.font,
-    'color:'+style.color,
-    'font-weight:'+style.fontWeight,
-    'border:'+style.border,
-    'border-radius:'+style.borderRadius,
-    'padding:'+style.padding,
-    'background:'+style.background,
-    'min-height:'+style.minHeight,
-    'cursor:pointer'
-   ].join(';');
+function showQuestion(){
+  if(quizIndex>=questions.length){
+    openModal("Yarışma Tamamlandı",`
+      <h3>🏆 Tebrikler!</h3>
+      <p>${questions.length} soruda ${score} doğru cevap verdin.</p>
+      <button class="primary-btn" onclick="startQuiz()">Yeniden Oyna</button>
+    `);
+    return;
   }
-
-  const observer=new MutationObserver(function(){
-   installCleaner();
-   const soundButton=document.getElementById('soundToggle');
-   if(soundButton){
-    const style=getComputedStyle(soundButton);
-    about.style.font=style.font;
-    about.style.color=style.color;
-    about.style.fontWeight=style.fontWeight;
-    about.style.border=style.border;
-    about.style.borderRadius=style.borderRadius;
-    about.style.padding=style.padding;
-    about.style.background=style.background;
-    about.style.minHeight=style.minHeight;
-   }
-  });
-
-  observer.observe(document.body,{childList:true,subtree:true});
-
- }catch(err){
-  showError('Platform yüklenemedi: '+err.message+' Sayfayı yenileyin veya internet bağlantınızı kontrol edin.');
- }
+  const q=questions[quizIndex];
+  const answers=q.a.map((a,i)=>
+    `<button class="answer" onclick="answerQuestion(${i})">${String.fromCharCode(65+i)}) ${a}</button>`
+  ).join("");
+  openModal("CAD Bilgi Yarışması",`
+    <p><strong>Soru ${quizIndex+1} / ${questions.length}</strong></p>
+    <div class="question">${q.q}</div>
+    <div id="answers">${answers}</div>
+    <div id="feedback"></div>
+  `);
 }
-
-document.getElementById('ka-sound').addEventListener('click',function(){
- const original=document.getElementById('soundToggle');
- if(original)original.click();
-});
-
-start();
-})();
+function answerQuestion(choice){
+  const q=questions[quizIndex];
+  const buttons=document.querySelectorAll("#answers .answer");
+  buttons.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.c)b.classList.add("correct");
+    if(i===choice&&choice!==q.c)b.classList.add("wrong");
+  });
+  const correct=choice===q.c;
+  if(correct)score++;
+  document.getElementById("feedback").innerHTML=
+    correct?"<span style='color:#27845d'>Doğru cevap!</span>":
+    "<span style='color:#c54b4b'>Yanlış cevap. Doğru seçeneği incele.</span>";
+  const next=document.createElement("button");
+  next.className="primary-btn";
+  next.textContent="Sonraki Soru";
+  next.style.display="block";
+  next.onclick=()=>{quizIndex++;showQuestion()};
+  document.getElementById("feedback").appendChild(next);
+  playTone(correct?700:250);
+}
 </script>
 </body>
 </html>
