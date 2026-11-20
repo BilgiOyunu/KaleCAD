@@ -71,6 +71,7 @@ button:hover,.option:hover,.primary:hover{transform:none}
 </head>
 <body>
 <p style="font-family:sans-serif;text-align:center;padding:2rem">KALECAD yükleniyor...</p>
+
 <script>
 (async function(){
 try{
@@ -82,6 +83,7 @@ if(!response.ok)throw new Error('Oyun yüklenemedi: '+response.status);
 
 let gameHtml=await response.text();
 const mobileCss=document.querySelector('style').textContent;
+
 gameHtml=gameHtml.replace(
 /<\/head>/i,
 '<style id="kalecad-mobile">'+mobileCss+'</style></head>'
@@ -98,8 +100,8 @@ const additions=
 const menuCode = `
 (function(){
 'use strict';
-if(window.KALECAD_HOME_DESIGN_V2)return;
-window.KALECAD_HOME_DESIGN_V2=true;
+if(window.KALECAD_HOME_DESIGN_V3)return;
+window.KALECAD_HOME_DESIGN_V3=true;
 
 const css=document.createElement('style');
 css.textContent=
@@ -107,7 +109,7 @@ css.textContent=
 '#ksBtn,#kaleKitapBtn{display:none!important}'+
 '#ka-home-panel{width:100%;grid-column:1/-1;margin:18px 0 24px;font-family:Arial,sans-serif;color:#17334e}'+
 '#ka-home-panel *{box-sizing:border-box}'+
-'#ka-home-panel .ka-banner{position:relative;overflow:hidden;padding:25px 22px;border-radius:20px 20px 0 0;background:linear-gradient(125deg,#102844,#1b587b);color:#fff}'+
+'#ka-home-panel .ka-banner{padding:25px 22px;border-radius:20px 20px 0 0;background:linear-gradient(125deg,#102844,#1b587b);color:#fff}'+
 '#ka-home-panel .ka-overline{font-size:10px;font-weight:800;letter-spacing:2.5px;color:#a8cce3;margin-bottom:18px}'+
 '#ka-home-panel h2{font-size:25px;line-height:1.2;margin:0 0 9px;color:#fff}'+
 '#ka-home-panel .ka-intro{font-size:13px;line-height:1.6;color:#d3e3ef;margin:0;max-width:490px}'+
@@ -115,14 +117,11 @@ css.textContent=
 '#ka-home-panel .ka-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;font-size:12px;font-weight:900;letter-spacing:1px;color:#294761}'+
 '#ka-home-panel .ka-heading span{font-size:10px;color:#8294a5;letter-spacing:.5px}'+
 '#ka-home-panel .ka-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}'+
-'#ka-home-panel .ka-item{min-width:0;min-height:116px;padding:15px;border:1px solid #dce5ed;border-radius:14px;background:#fff;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:12px;cursor:pointer;transition:border-color .15s,transform .15s;box-shadow:0 3px 10px #17334e08}'+
+'#ka-home-panel .ka-item{min-width:0;min-height:116px;padding:15px;border:1px solid #dce5ed;border-radius:14px;background:#fff;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:12px;cursor:pointer;box-shadow:0 3px 10px #17334e08}'+
 '#ka-home-panel .ka-item:active{transform:scale(.98);border-color:#3987b5}'+
 '#ka-home-panel .ka-num{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#2482b2}'+
 '#ka-home-panel .ka-name{display:block;font-size:14px;line-height:1.3;font-weight:800;color:#183650}'+
 '#ka-home-panel .ka-desc{display:block;margin-top:5px;font-size:11px;line-height:1.4;color:#718397}'+
-'#ka-home-panel .ka-game{margin-top:16px;width:100%;padding:17px 18px;border:0;border-radius:14px;background:linear-gradient(110deg,#102844,#1b6388);color:#fff;text-align:left;cursor:pointer}'+
-'#ka-home-panel .ka-game strong{display:block;font-size:16px;letter-spacing:.7px}'+
-'#ka-home-panel .ka-game small{display:block;margin-top:5px;color:#d0e2ef;font-size:11px}'+
 '@media(max-width:420px){#ka-home-panel .ka-banner{padding:21px 17px}#ka-home-panel .ka-main{padding:14px}#ka-home-panel .ka-item{padding:12px;min-height:108px}#ka-home-panel .ka-name{font-size:13px}#ka-home-panel h2{font-size:22px}}';
 document.head.appendChild(css);
 
@@ -150,8 +149,10 @@ oldCard.click();
 setTimeout(function(){
 const tab=document.querySelector('#kcv2 [data-tab="'+key+'"]');
 if(tab)tab.click();
-},100);
+},150);
 }
+
+let observer=null;
 
 function build(){
 const oldCard=document.getElementById('kale-cad-card');
@@ -169,49 +170,70 @@ panel.innerHTML=
 '<div class="ka-main">'+
 '<div class="ka-heading">ATÖLYE BÖLÜMLERİ <span>08 MODÜL</span></div>'+
 '<div class="ka-grid" id="ka-home-grid"></div>'+
-'<button class="ka-game" id="ka-home-game"><strong>OYUN MERKEZİ</strong><small>Mesleki oyunlar ve uygulamalı simülasyonlar</small></button>'+
 '</div>';
 
 const grid=panel.querySelector('#ka-home-grid');
+
 modules.forEach(function(item){
 const button=document.createElement('button');
+button.type='button';
 button.className='ka-item';
 button.innerHTML=
 '<span class="ka-num">'+item[0]+'</span>'+
 '<span><strong class="ka-name">'+item[1]+'</strong>'+
 '<small class="ka-desc">'+item[2]+'</small></span>';
+
 button.addEventListener('click',function(){
 openModule(item[3],oldCard);
 });
+
 grid.appendChild(button);
 });
 
-panel.querySelector('#ka-home-game').addEventListener('click',function(){
-const game=document.getElementById('kaleGamesBtn');
-if(game)game.click();
-});
-
 oldCard.insertAdjacentElement('afterend',panel);
+
+const game=document.getElementById('kaleGamesBtn');
+if(game)game.textContent='OYUN MERKEZİ';
+
+if(observer)observer.disconnect();
 }
 
-function boot(){build();}
-if(document.readyState==='loading'){
-document.addEventListener('DOMContentLoaded',boot);
-}else{boot();}
+function boot(){
+build();
+}
 
-const observer=new MutationObserver(boot);
-observer.observe(document.documentElement,{childList:true,subtree:true});
+if(document.readyState==='loading'){
+document.addEventListener('DOMContentLoaded',boot,{once:true});
+}else{
+boot();
+}
+
+observer=new MutationObserver(function(){
+if(!document.getElementById('ka-home-panel'))build();
+});
+
+observer.observe(document.documentElement,{
+childList:true,
+subtree:true
+});
+
 })();
 `;
 
-const additionsFinal=additions+
+const additionsFinal=
+additions+
 '<script>'+menuCode+'<\/script>';
 
 if(!/<\/body>/i.test(gameHtml)){
 throw new Error('Oyun HTML dosyasında body kapanışı bulunamadı.');
 }
 
-gameHtml=gameHtml.replace(/<\/body>/i,additionsFinal+'</body>');
+/* ÖNEMLİ: Menü kodu da dahil edilmiş tam script dizisi yükleniyor. */
+gameHtml=gameHtml.replace(
+/<\/body>/i,
+additionsFinal+'</body>'
+);
+
 document.open();
 document.write(gameHtml);
 document.close();
