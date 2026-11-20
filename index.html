@@ -53,6 +53,8 @@ h1{font-size:clamp(23px,6vw,32px);line-height:1.2}
 #kaModal .kaGrid{grid-template-columns:1fr}
 #kaModal button{min-height:46px;max-width:100%}
 #kaModal .kaCard{min-width:0;overflow-wrap:anywhere}
+#soundToggle{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;padding:0!important;flex:0 0 40px!important}
+#soundToggle svg{width:19px;height:19px}
 }
 @media(max-width:380px){
 .header{padding:8px 10px}
@@ -62,6 +64,8 @@ h1{font-size:clamp(23px,6vw,32px);line-height:1.2}
 .category-options{grid-template-columns:1fr}
 .category-options .option{flex-direction:row;justify-content:space-between;text-align:left;padding:11px}
 .result-stats{grid-template-columns:1fr}
+#soundToggle{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;flex-basis:34px!important}
+#soundToggle svg{width:17px;height:17px}
 }
 @media(hover:none){
 button,.option,.answer{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -79,14 +83,63 @@ const response=await fetch(
 'https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html',
 {cache:'no-store'}
 );
-if(!response.ok)throw new Error('Oyun yüklenemedi: '+response.status);
+if(!response.ok)throw new Error('Platform yüklenemedi: '+response.status);
 
 let gameHtml=await response.text();
+
+/* Giriş ve ana ekran metinlerini platform kimliğine göre güncelle */
+gameHtml=gameHtml.replace(
+'<meta name="description" content="KALECAD — CAD bilgi yarışması">',
+'<meta name="description" content="KALECAD - Mimarlık, iç mimarlık ve inşaat teknolojileri eğitim platformu">'
+);
+
+gameHtml=gameHtml.replace(
+'<title>KALECAD | CAD Bilgi Yarışması</title>',
+'<title>KALECAD | Tasarım ve Yapı Eğitim Platformu</title>'
+);
+
+gameHtml=gameHtml.replaceAll(
+'CAD BİLGİ YARIŞMASI',
+'MİMARLIK VE TASARIM EĞİTİM PLATFORMU'
+);
+
+gameHtml=gameHtml.replace(
+'CAD bilgini test et!',
+'Tasarım ve Yapı Teknolojilerini Keşfet'
+);
+
+gameHtml=gameHtml.replace(
+'AutoCAD ve SketchUp sorularıyla her tur yeni bir meydan okuma.',
+'Teknik çizim, üç boyutlu modelleme ve mesleki öğrenme tek platformda.'
+);
+
+gameHtml=gameHtml.replace(
+'>Oyuna geç</button>',
+'>Platforma Gir</button>'
+);
+
+gameHtml=gameHtml.replace(
+'>Oyuna başla</button>',
+'>Platforma Başla</button>'
+);
+
+/* Ses düğmesini logo ile aynı ölçüde sadeleştir */
+gameHtml=gameHtml.replace(
+/<button id="soundToggle"[^>]*>[\s\S]*?<\/button>/i,
+'<button id="soundToggle" class="btn" type="button" aria-label="Sesi kapat" aria-pressed="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>'
+);
+
+/* Ses düğmesinin görünüm ve durumunu koru */
+gameHtml=gameHtml.replace(
+"$('soundToggle').textContent=soundOn?'🔊 Ses açık':'🔇 Ses kapalı';$('soundToggle').setAttribute('aria-pressed',String(soundOn));",
+"$('soundToggle').setAttribute('aria-pressed',String(soundOn));$('soundToggle').setAttribute('aria-label',soundOn?'Sesi kapat':'Sesi aç');$('soundToggle').innerHTML=soundOn?'<svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5 6 9H3v6h3l5 4V5Z\"/><path d=\"M15.5 8.5a5 5 0 0 1 0 7\"/><path d=\"M18.5 5.5a9 9 0 0 1 0 13\"/></svg>':'<svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5 6 9H3v6h3l5 4V5Z\"/><path d=\"m17 9 5 6m0-6-5 6\"/></svg>';"
+);
+
 const mobileCss=document.querySelector('style').textContent;
 
 gameHtml=gameHtml.replace(
 /<\/head>/i,
-'<style id="kalecad-mobile">'+mobileCss+'</style></head>'
+'<style id="kalecad-mobile">'+mobileCss+'</style><style id="kalecad-sound-style">#soundToggle{width:48px;height:48px;min-width:48px;min-height:48px;padding:0;flex:0 0 48px;display:grid;place-items:center;font-size:0;border-radius:12px}#soundToggle svg{display:block;width:22px;height:22px}</style></head>'
 );
 
 const additions=
@@ -107,37 +160,21 @@ const css=document.createElement('style');
 css.textContent=
 '#kale-cad-card{display:none!important}'+
 '#ksBtn,#kaleKitapBtn{display:none!important}'+
-
-/* Fethetme Oyunu ile aynı dış panel tasarımı */
 '#ka-home-panel{display:block;width:100%;max-width:100%;margin:20px 0;padding:22px 14px;border-radius:24px;color:#fff;overflow:hidden;background:radial-gradient(ellipse at 50% 100%,#174c7d 0%,transparent 60%),linear-gradient(160deg,#06152e,#0b2850 65%,#10365e);border:1px solid #245582;box-shadow:0 12px 30px #0005;font-family:Arial,sans-serif}'+
 '#ka-home-panel *{box-sizing:border-box}'+
-
 '#ka-home-panel .ka-banner{padding:4px 4px 18px;text-align:center;background:transparent;color:#fff}'+
 '#ka-home-panel .ka-overline{font-size:10px;font-weight:800;letter-spacing:2.5px;color:#65caff;margin-bottom:13px}'+
 '#ka-home-panel h2{font-size:clamp(21px,5vw,30px);line-height:1.2;margin:4px 0 7px;color:#f4f8ff;font-weight:1000;letter-spacing:1px;text-shadow:0 3px 12px #56baff66}'+
 '#ka-home-panel .ka-intro{font-size:13px;line-height:1.6;color:#a9d5ff;margin:0 auto 18px;max-width:490px}'+
-
-/* Fethetme Oyunu içindeki seçim alanıyla aynı */
 '#ka-home-panel .ka-heading{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;margin:0 0 17px;border:1px solid #3c8ebd;border-radius:15px;background:linear-gradient(110deg,#123d61,#0b2745);color:#d8efff;font-size:13px;font-weight:800}'+
 '#ka-home-panel .ka-heading span{color:#65d2ff;font-size:11px}'+
-
 '#ka-home-panel .ka-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'+
 '#ka-home-panel .ka-item{min-width:0;min-height:116px;padding:14px 10px;border:1px solid #285b89;border-radius:19px;background:linear-gradient(160deg,#102f53,#071b35);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;cursor:pointer;box-shadow:0 6px 15px #0005;transition:border-color .18s,background .18s,box-shadow .18s}'+
 '#ka-home-panel .ka-item:active{transform:scale(.98);border-color:#26c5ff;background:linear-gradient(160deg,#104675,#082342);box-shadow:0 0 18px #00aaff77,inset 0 0 18px #008cff22}'+
 '#ka-home-panel .ka-num{font-size:11px;font-weight:900;letter-spacing:1.5px;color:#55caff}'+
 '#ka-home-panel .ka-name{display:block;font-size:14px;line-height:1.3;font-weight:1000;color:#f4f8ff}'+
 '#ka-home-panel .ka-desc{display:block;margin-top:5px;font-size:11px;line-height:1.4;color:#a9c9e5}'+
-
-'@media(max-width:420px){'+
-'#ka-home-panel{padding:19px 11px;margin:20px 0;border-radius:20px}'+
-'#ka-home-panel .ka-banner{padding:4px 3px 16px}'+
-'#ka-home-panel .ka-heading{padding:11px 9px;font-size:12px}'+
-'#ka-home-panel .ka-grid{gap:9px}'+
-'#ka-home-panel .ka-item{padding:12px 8px;min-height:108px;border-radius:16px}'+
-'#ka-home-panel .ka-name{font-size:13px}'+
-'#ka-home-panel .ka-desc{font-size:10px}'+
-'#ka-home-panel h2{font-size:22px}'+
-'}';
+'@media(max-width:420px){#ka-home-panel{padding:19px 11px;margin:20px 0;border-radius:20px}#ka-home-panel .ka-banner{padding:4px 3px 16px}#ka-home-panel .ka-heading{padding:11px 9px;font-size:12px}#ka-home-panel .ka-grid{gap:9px}#ka-home-panel .ka-item{padding:12px 8px;min-height:108px;border-radius:16px}#ka-home-panel .ka-name{font-size:13px}#ka-home-panel .ka-desc{font-size:10px}#ka-home-panel h2{font-size:22px}}';
 
 document.head.appendChild(css);
 
@@ -207,7 +244,6 @@ openModule(item[3],oldCard);
 grid.appendChild(button);
 });
 
-/* Kritik değişiklik: Panel doğrudan Fethetme Oyunu'nun altına eklenir. */
 map.insertAdjacentElement('afterend',panel);
 
 const game=document.getElementById('kaleGamesBtn');
@@ -216,9 +252,7 @@ if(game)game.textContent='OYUN MERKEZİ';
 if(observer)observer.disconnect();
 }
 
-function boot(){
-build();
-}
+function boot(){build();}
 
 if(document.readyState==='loading'){
 document.addEventListener('DOMContentLoaded',boot,{once:true});
@@ -243,7 +277,7 @@ additions+
 '<script>'+menuCode+'<\/script>';
 
 if(!/<\/body>/i.test(gameHtml)){
-throw new Error('Oyun HTML dosyasında body kapanışı bulunamadı.');
+throw new Error('Platform HTML dosyasında body kapanışı bulunamadı.');
 }
 
 gameHtml=gameHtml.replace(
