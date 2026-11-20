@@ -97,42 +97,43 @@ const additions=
 '<script src="./mesleki-sozluk.js?v=3"><\/script>'+
 '<script src="./kitaplik.js?v=1"><\/script>';
 
-const menuCode = `
+const menuCode=`
 (function(){
 'use strict';
-if(window.KALECAD_HOME_DESIGN_V4)return;
-window.KALECAD_HOME_DESIGN_V4=true;
+if(window.KALECAD_HOME_DESIGN_V5)return;
+window.KALECAD_HOME_DESIGN_V5=true;
 
 const css=document.createElement('style');
 css.textContent=
 '#kale-cad-card{display:none!important}'+
 '#ksBtn,#kaleKitapBtn{display:none!important}'+
 
-'#ka-home-panel{width:100%;grid-column:1/-1;margin:20px 0 24px;padding:22px 14px;border-radius:24px;color:#fff;overflow:hidden;background:radial-gradient(ellipse at 50% 100%,#174c7d 0%,transparent 60%),linear-gradient(160deg,#06152e,#0b2850 65%,#10365e);border:1px solid #245582;box-shadow:0 12px 30px #0005;font-family:Arial,sans-serif}'+
+/* Fethetme Oyunu ile aynı dış panel tasarımı */
+'#ka-home-panel{display:block;width:100%;max-width:100%;margin:20px 0;padding:22px 14px;border-radius:24px;color:#fff;overflow:hidden;background:radial-gradient(ellipse at 50% 100%,#174c7d 0%,transparent 60%),linear-gradient(160deg,#06152e,#0b2850 65%,#10365e);border:1px solid #245582;box-shadow:0 12px 30px #0005;font-family:Arial,sans-serif}'+
 '#ka-home-panel *{box-sizing:border-box}'+
 
-'#ka-home-panel .ka-banner{padding:5px 4px 20px;text-align:center;background:transparent;color:#fff}'+
+'#ka-home-panel .ka-banner{padding:4px 4px 18px;text-align:center;background:transparent;color:#fff}'+
 '#ka-home-panel .ka-overline{font-size:10px;font-weight:800;letter-spacing:2.5px;color:#65caff;margin-bottom:13px}'+
 '#ka-home-panel h2{font-size:clamp(21px,5vw,30px);line-height:1.2;margin:4px 0 7px;color:#f4f8ff;font-weight:1000;letter-spacing:1px;text-shadow:0 3px 12px #56baff66}'+
-'#ka-home-panel .ka-intro{font-size:13px;line-height:1.6;color:#a9d5ff;margin:0 auto;max-width:490px}'+
+'#ka-home-panel .ka-intro{font-size:13px;line-height:1.6;color:#a9d5ff;margin:0 auto 18px;max-width:490px}'+
 
-'#ka-home-panel .ka-main{padding:0;background:transparent;border:0;border-radius:0}'+
-'#ka-home-panel .ka-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;padding:12px 13px;font-size:12px;font-weight:900;letter-spacing:1px;color:#d8efff;border:1px solid #3c8ebd;border-radius:15px;background:linear-gradient(110deg,#123d61,#0b2745)}'+
-'#ka-home-panel .ka-heading span{font-size:10px;color:#65d2ff;letter-spacing:.5px}'+
+/* Fethetme Oyunu içindeki seçim alanıyla aynı */
+'#ka-home-panel .ka-heading{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;margin:0 0 17px;border:1px solid #3c8ebd;border-radius:15px;background:linear-gradient(110deg,#123d61,#0b2745);color:#d8efff;font-size:13px;font-weight:800}'+
+'#ka-home-panel .ka-heading span{color:#65d2ff;font-size:11px}'+
 
 '#ka-home-panel .ka-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'+
-'#ka-home-panel .ka-item{min-width:0;min-height:116px;padding:13px 10px;border:1px solid #285b89;border-radius:19px;background:linear-gradient(160deg,#102f53,#071b35);color:#fff;text-align:left;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer;box-shadow:0 6px 15px #0005;transition:border-color .18s,background .18s,box-shadow .18s}'+
-'#ka-home-panel .ka-item:active{transform:scale(.98);border-color:#26c5ff;background:linear-gradient(160deg,#104675,#082342);box-shadow:0 0 18px #00aaff55,inset 0 0 18px #008cff22}'+
-'#ka-home-panel .ka-num{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#55caff}'+
-'#ka-home-panel .ka-name{display:block;font-size:14px;line-height:1.3;font-weight:900;color:#f4f8ff}'+
+'#ka-home-panel .ka-item{min-width:0;min-height:116px;padding:14px 10px;border:1px solid #285b89;border-radius:19px;background:linear-gradient(160deg,#102f53,#071b35);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;cursor:pointer;box-shadow:0 6px 15px #0005;transition:border-color .18s,background .18s,box-shadow .18s}'+
+'#ka-home-panel .ka-item:active{transform:scale(.98);border-color:#26c5ff;background:linear-gradient(160deg,#104675,#082342);box-shadow:0 0 18px #00aaff77,inset 0 0 18px #008cff22}'+
+'#ka-home-panel .ka-num{font-size:11px;font-weight:900;letter-spacing:1.5px;color:#55caff}'+
+'#ka-home-panel .ka-name{display:block;font-size:14px;line-height:1.3;font-weight:1000;color:#f4f8ff}'+
 '#ka-home-panel .ka-desc{display:block;margin-top:5px;font-size:11px;line-height:1.4;color:#a9c9e5}'+
 
 '@media(max-width:420px){'+
 '#ka-home-panel{padding:19px 11px;margin:20px 0;border-radius:20px}'+
-'#ka-home-panel .ka-banner{padding:4px 3px 17px}'+
-'#ka-home-panel .ka-heading{padding:11px 10px;font-size:11px}'+
+'#ka-home-panel .ka-banner{padding:4px 3px 16px}'+
+'#ka-home-panel .ka-heading{padding:11px 9px;font-size:12px}'+
 '#ka-home-panel .ka-grid{gap:9px}'+
-'#ka-home-panel .ka-item{padding:12px 9px;min-height:108px;border-radius:16px}'+
+'#ka-home-panel .ka-item{padding:12px 8px;min-height:108px;border-radius:16px}'+
 '#ka-home-panel .ka-name{font-size:13px}'+
 '#ka-home-panel .ka-desc{font-size:10px}'+
 '#ka-home-panel h2{font-size:22px}'+
@@ -160,32 +161,33 @@ if(key==='library'){
 const b=document.getElementById('kaleKitapBtn');
 if(b){b.click();return;}
 }
+if(!oldCard)return;
 oldCard.click();
 setTimeout(function(){
 const tab=document.querySelector('#kcv2 [data-tab="'+key+'"]');
 if(tab)tab.click();
-},150);
+},180);
 }
 
 let observer=null;
 
 function build(){
+const map=document.getElementById('kalecadHistoricMap');
 const oldCard=document.getElementById('kale-cad-card');
-if(!oldCard||document.getElementById('ka-home-panel'))return;
+
+if(!map||!oldCard||document.getElementById('ka-home-panel'))return;
 
 const panel=document.createElement('section');
 panel.id='ka-home-panel';
 
 panel.innerHTML=
 '<div class="ka-banner">'+
-'<div class="ka-overline">KALECAD / LEARNING PLATFORM</div>'+
+'<div class="ka-overline">KALECAD / DIGITAL WORKSHOP</div>'+
 '<h2>Dijital Tasarım Atölyesi</h2>'+
 '<p class="ka-intro">Mimarlık, iç mimarlık ve inşaat teknolojileri için çizim, modelleme ve mesleki öğrenme alanı.</p>'+
 '</div>'+
-'<div class="ka-main">'+
 '<div class="ka-heading">ATÖLYE BÖLÜMLERİ <span>08 MODÜL</span></div>'+
-'<div class="ka-grid" id="ka-home-grid"></div>'+
-'</div>';
+'<div class="ka-grid" id="ka-home-grid"></div>';
 
 const grid=panel.querySelector('#ka-home-grid');
 
@@ -205,7 +207,8 @@ openModule(item[3],oldCard);
 grid.appendChild(button);
 });
 
-oldCard.insertAdjacentElement('afterend',panel);
+/* Kritik değişiklik: Panel doğrudan Fethetme Oyunu'nun altına eklenir. */
+map.insertAdjacentElement('afterend',panel);
 
 const game=document.getElementById('kaleGamesBtn');
 if(game)game.textContent='OYUN MERKEZİ';
