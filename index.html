@@ -118,7 +118,6 @@ body{background:#102844;color:#fff}
  pointer-events:none!important
 }
 
-/* Katman sıralaması */
 #ka-platform-root{
  position:relative!important;
  z-index:20!important;
@@ -126,6 +125,7 @@ body{background:#102844;color:#fff}
  min-height:100vh
 }
 #ka-loader{z-index:10!important}
+
 #ka-platform-root .splash{
  z-index:99998!important;
  position:fixed!important;
@@ -142,8 +142,30 @@ body{background:#102844;color:#fff}
  z-index:100000!important;
  pointer-events:auto!important;
  cursor:pointer!important;
- opacity:1!important;
- animation:none!important
+ opacity:1!important
+}
+
+/* Hareketli açılış animasyonları */
+html body #ka-platform-root .splash-grid{
+ animation:gridMove 12s linear infinite!important;
+}
+html body #ka-platform-root .splash-orbit{
+ animation:orbit 24s linear infinite!important;
+}
+html body #ka-platform-root .splash-inner{
+ animation:splashRise .9s cubic-bezier(.2,.8,.2,1) both!important;
+}
+html body #ka-platform-root .splash-logo{
+ animation:logoPulse 2.4s ease-in-out infinite!important;
+}
+html body #ka-platform-root .splash-progress span{
+ animation:loadBar 1.35s ease .1s forwards!important;
+}
+html body #ka-platform-root .app{
+ animation:appEnter .75s cubic-bezier(.2,.8,.2,1) both!important;
+}
+html body #ka-platform-root .screen.active{
+ animation:screenIn .4s ease both!important;
 }
 
 #start.ka-conquest-start{
@@ -214,7 +236,7 @@ body{background:#102844;color:#fff}
 
 const BASE='https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html';
 const ROOT='https://bilgioyunu.github.io/KaleCAD/';
-const VERSION='20261121-v15-fix-6';
+const VERSION='20261121-v15-fix-7';
 
 const loader=document.getElementById('ka-loader');
 const errorBox=document.getElementById('ka-error');
@@ -237,52 +259,41 @@ function showError(message){
  errorBox.textContent=message;
 }
 
-/* Açılış ekranını kapatma */
+/* Açılış ekranını kapat */
 function closeLaunchScreen(){
  const splash=document.querySelector('#ka-platform-root #splash');
  if(!splash)return;
 
  splash.classList.add('hidden');
+
  splash.style.setProperty('opacity','0','important');
  splash.style.setProperty('visibility','hidden','important');
  splash.style.setProperty('pointer-events','none','important');
  splash.style.setProperty('display','none','important');
 
- const launch=document.querySelector('#ka-platform-root #launchBtn');
- if(launch){
-  launch.disabled=true;
- }
+ setTimeout(()=>{
+  if(splash.isConnected)splash.remove();
+ },800);
 }
 
-/* Tıklama olayını yakala */
-document.addEventListener('click',function(event){
- const target=event.target;
- if(!target)return;
-
- const button=target.closest
-  ? target.closest('#ka-platform-root #launchBtn')
-  : null;
-
- if(button){
-  event.preventDefault();
-  event.stopPropagation();
-  closeLaunchScreen();
- }
-},true);
-
-/* Düğmeye doğrudan olay bağla */
+/*
+ Ana oyunun launchBtn onclick koduna müdahale etmiyoruz.
+ Böylece ses başlatma ve ana açılış kodu da çalışabiliyor.
+*/
 function bindLaunchButton(){
  const button=document.querySelector('#ka-platform-root #launchBtn');
  if(!button)return;
+
+ if(button.dataset.kaBound==='true')return;
+ button.dataset.kaBound='true';
 
  button.disabled=false;
  button.style.setProperty('pointer-events','auto','important');
  button.style.setProperty('z-index','100000','important');
 
- button.addEventListener('click',function(event){
-  event.preventDefault();
+ button.addEventListener('click',function(){
   closeLaunchScreen();
- },true);
+ },false);
 }
 
 function loadScript(src){
@@ -353,6 +364,7 @@ async function loadBasePlatform(){
  setStatus('Ana oyun dosyası alınıyor...');
 
  const response=await fetch(BASE,{cache:'no-store'});
+
  if(!response.ok){
   throw new Error('Ana oyun dosyası alınamadı. HTTP '+response.status);
  }
@@ -371,6 +383,7 @@ async function loadBasePlatform(){
  setProgress(20);
 
  const doc=new DOMParser().parseFromString(html,'text/html');
+
  if(!doc.body){
   throw new Error('Ana oyun sayfasının içeriği okunamadı.');
  }
@@ -390,6 +403,7 @@ async function loadBasePlatform(){
 
  for(let i=0;i<scripts.length;i++){
   const oldScript=scripts[i];
+
   setStatus('Ana oyun motoru hazırlanıyor...');
 
   if(oldScript.src){
@@ -429,6 +443,7 @@ async function loadLocalModules(){
 
  for(let i=0;i<modules.length;i++){
   const file=modules[i];
+
   setStatus('Modül yükleniyor: '+file);
 
   try{
@@ -459,6 +474,7 @@ function arrangeConquestButton(){
 
  if(actions){
   actions.classList.add('ka-start-wrap');
+
   if(map&&map.parentNode){
    map.insertAdjacentElement('afterend',actions);
   }
@@ -491,6 +507,7 @@ function connectSound(){
 
   if(original){
    original.click();
+
    button.textContent=
     original.getAttribute('aria-pressed')==='true'
     ?'🔊 Ses'
