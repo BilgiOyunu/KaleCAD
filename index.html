@@ -7,241 +7,581 @@
 <meta name="theme-color" content="#102844">
 <meta name="description" content="KALECAD - Mimarlık, iç mimarlık ve inşaat teknolojileri eğitim platformu">
 <title>KALECAD | Eğitim Platformu</title>
-
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#102844;color:#fff}
-body{padding:0}
-#ka-loader{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.ka-loading{width:min(420px,100%);padding:28px;border:1px solid #31516d;border-radius:18px;background:#153653;text-align:center}
-.ka-loading h1{margin:0 0 12px;font-size:28px;letter-spacing:1px}
-.ka-loading p{color:#d1deea;line-height:1.5}
-.ka-progress{height:7px;background:#294761;border-radius:20px;overflow:hidden;margin-top:20px}
-.ka-progress span{display:block;width:35%;height:100%;background:#65bde8;border-radius:20px;animation:ka-progress 1.2s infinite ease-in-out alternate}
-@keyframes ka-progress{from{transform:translateX(-20%)}to{transform:translateX(210%)}}
-#ka-error{display:none;color:#ffd3d3;line-height:1.5;margin-top:16px}
-#ka-controls{position:fixed;z-index:99999;top:10px;right:12px;display:flex;gap:8px;align-items:center}
-#ka-controls button{font:inherit;font-weight:750;color:#fff;border:1px solid #46637c;border-radius:12px;padding:11px 15px;background:#ffffff0b;cursor:pointer;min-height:42px}
-#ka-controls button:active{transform:scale(.98)}
 @media(max-width:760px){
- #ka-controls{top:8px;right:8px;gap:6px}
- #ka-controls button{padding:9px 11px;font-size:12px;min-height:38px}
+html,body{width:100%;min-height:100%;margin:0;padding:0;overflow-x:hidden}
+body{display:block;min-height:100vh;min-height:100dvh;padding:0}
+.app{width:100%;max-width:none;min-height:100vh;min-height:100dvh;margin:0;border-radius:0;border:0;overflow:hidden}
+.header{position:sticky;top:0;z-index:50;padding:10px 14px;gap:8px}
+.brand{gap:8px;font-size:14px;letter-spacing:.08em}
+.brand img{width:40px;height:40px}
+.sub{font-size:9px}
+.header .btn{padding:9px 10px;font-size:12px;min-height:40px}
+.screen{padding:18px 13px;width:100%;min-width:0}
+.hero{padding:8px 4px 12px}
+.hero img{width:120px;max-height:110px}
+h1{font-size:clamp(23px,6vw,32px);line-height:1.2}
+.hero p,.summary{font-size:14px;line-height:1.5}
+.settings{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
+.setting-card{width:100%;min-width:0;padding:13px;border-radius:14px}
+.setting-title{flex-wrap:wrap;font-size:14px}
+.setting-caption{font-size:11px}
+.option{min-height:46px;padding:11px;font-size:13px}
+.inline-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.category-options{grid-template-columns:repeat(3,minmax(0,1fr))}
+.category-options .option{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;text-align:center;padding:10px 4px;overflow-wrap:anywhere}
+.category-options .option small{white-space:normal;font-size:10px}
+.actions{display:grid;grid-template-columns:1fr;gap:9px;margin:16px 0}
+.actions button,.primary,.btn{width:100%;min-width:0;min-height:48px;padding:12px;font-size:15px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:10px;font-size:13px}
+.timer{grid-column:1/-1;justify-content:center}
+.question{min-height:0;margin:20px 0 15px;font-size:21px;line-height:1.4;overflow-wrap:anywhere}
+.answers{display:grid;grid-template-columns:1fr;gap:9px}
+.answer{width:100%;min-height:58px;padding:13px;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.feedback{font-size:14px;line-height:1.5}
+.result-card{width:100%;padding:16px;margin:10px auto}
+.result h2{font-size:24px}
+.result-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:12px}
+.result-stats strong{font-size:21px}
+#conquestMap{width:100%;max-width:100%;overflow:hidden}
+#territoryMap{display:block;width:100%;height:auto;max-height:none}
+#campusPicker{width:100%;min-width:0}
+#campusPicker .inline-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+#campusPicker .option{min-height:48px}
+#kaModal{padding:0!important;overflow-x:hidden!important}
+#kaModal .kaWindow{width:100%;max-width:100%;min-height:100dvh;margin:0;border-radius:0;padding:12px}
+#kaModal .kaGrid{grid-template-columns:1fr}
+#kaModal button{min-height:46px;max-width:100%}
+#kaModal .kaCard{min-width:0;overflow-wrap:anywhere}
+#soundToggle{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;padding:0!important;flex:0 0 40px!important}
+#soundToggle svg{width:19px;height:19px}
+}
+@media(max-width:380px){
+.header{padding:8px 10px}
+.brand{font-size:12px}
+.brand img{width:34px;height:34px}
+.screen{padding:14px 10px}
+.category-options{grid-template-columns:1fr}
+.category-options .option{flex-direction:row;justify-content:space-between;text-align:left;padding:11px}
+.result-stats{grid-template-columns:1fr}
+#soundToggle{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;flex-basis:34px!important}
+#soundToggle svg{width:17px;height:17px}
+}
+@media(hover:none){
+button,.option,.answer{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:hover,.option:hover,.primary:hover{transform:none}
 }
 </style>
 </head>
-
 <body>
-<div id="ka-loader">
- <div class="ka-loading">
-  <h1>KALECAD</h1>
-  <p>Eğitim platformu yükleniyor...</p>
-  <div class="ka-progress"><span></span></div>
-  <div id="ka-error"></div>
- </div>
-</div>
-
-<div id="ka-controls">
- <button id="ka-sound" type="button">Ses</button>
- <button id="ka-about" type="button">Hakkımızda</button>
-</div>
+<p style="font-family:Arial;text-align:center;padding:2rem;color:#102844">KALECAD yükleniyor...</p>
 
 <script>
-(function(){
+(async function(){
 'use strict';
 
-const BASE='https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html';
+try{
 
-const loader=document.getElementById('ka-loader');
-const error=document.getElementById('ka-error');
+const response=await fetch(
+'https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html',
+{cache:'no-store'}
+);
 
-function showError(message){
- error.style.display='block';
- error.textContent=message;
+if(!response.ok)throw new Error('Ana sayfa yüklenemedi: '+response.status);
+
+let html=await response.text();
+
+/* GİRİŞ EKRANI */
+html=html.replaceAll('CAD BİLGİ YARIŞMASI','MİMARLIK VE TASARIM EĞİTİM PLATFORMU');
+html=html.replace('<h1>CAD bilgini test et!</h1>','<h1>Tasarım ve Yapı Teknolojilerini Keşfet</h1>');
+html=html.replace('<p>AutoCAD ve SketchUp sorularıyla her tur yeni bir meydan okuma.</p>','<p>Teknik çizim, üç boyutlu modelleme ve mesleki öğrenme tek platformda.</p>');
+html=html.replace('>Oyuna geç</button>','>Platforma Gir</button>');
+html=html.replace('>Oyuna başla</button>','>Platforma Başla</button>');
+
+/* SES İKONU */
+const soundOn='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const soundOff='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m17 9 5 6"/><path d="m22 9-5 6"/></svg>';
+
+html=html.replace(
+/<button id="soundToggle"[^>]*>[\s\S]*?<\/button>/i,
+'<button id="soundToggle" class="btn" type="button" aria-label="Sesi kapat" aria-pressed="true">'+soundOn+'</button>'
+);
+
+html=html.replace(
+"$('soundToggle').onclick=()=>{soundOn=!soundOn;$('soundToggle').textContent=soundOn?'🔊 Ses açık':'🔇 Ses kapalı';$('soundToggle').setAttribute('aria-pressed',String(soundOn));if(soundOn)playTone(660,.12)};",
+"$('soundToggle').onclick=()=>{soundOn=!soundOn;$('soundToggle').innerHTML=soundOn?"+JSON.stringify(soundOn)+":"+JSON.stringify(soundOff)+";$('soundToggle').setAttribute('aria-label',soundOn?'Sesi kapat':'Sesi aç');$('soundToggle').setAttribute('aria-pressed',String(soundOn));if(soundOn)playTone(660,.12)};"
+);
+
+/* MOBİL CSS VE GİRİŞ DÜĞMESİ */
+const extraCss=document.querySelector('style').textContent+`
+#soundToggle{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;display:grid!important;place-items:center!important;font-size:0!important}
+#soundToggle svg{width:22px;height:22px}
+.splash-inner{position:relative;z-index:2}
+#launchBtn{position:relative!important;z-index:10!important;pointer-events:auto!important;opacity:1!important;touch-action:manipulation}
+#start{display:none!important}
+#kalecad-module-status{font:12px Arial,sans-serif;color:#9db7d2;text-align:center;padding:8px}
+`;
+
+html=html.replace('</head>','<style>'+extraCss+'</style></head>');
+
+/* MODÜLLER VE ANA SAYFA */
+const loader=`
+(function(){
+'use strict';
+if(window.KALECAD_LOADER_V10)return;
+window.KALECAD_LOADER_V10=true;
+
+const files=[
+'./campus-selection.js?v=20261120b',
+'./conquest-map.js?v=20261120b',
+'./autocad-atolye.js?v=20261120b',
+'./oyun-merkezi.js?v=20261120b',
+'./mesleki-sozluk.js?v=20261120b',
+'./kitaplik.js?v=20261120b'
+];
+
+let started=false;
+let finished=false;
+
+function loadScript(src){
+return new Promise(function(resolve,reject){
+const s=document.createElement('script');
+s.src=src;
+s.onload=resolve;
+s.onerror=function(){reject(new Error('Modül yüklenemedi: '+src));};
+document.body.appendChild(s);
+});
 }
 
-function removeQuestionCounts(){
- const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
- const matches=[];
- let node;
-
- while((node=walker.nextNode())){
-  if(/\b\d+\s+(?:yeni\s+)?soru\b/i.test(node.nodeValue||'')){
-   const parent=node.parentElement;
-   if(!parent)continue;
-   if(parent.closest('#ka-loader,#ka-controls,#ka-about-panel'))continue;
-   matches.push({node,parent});
-  }
- }
-
- matches.forEach(function(item){
-  const parent=item.parent;
-  if(!parent.isConnected)return;
-  if(parent.children.length===0 && parent.textContent.trim().length<160){
-   parent.remove();
-  }else{
-   item.node.nodeValue=item.node.nodeValue.replace(
-    /\b\d+\s+(?:yeni\s+)?soru(?:\s+mevcut)?/gi,''
-   );
-  }
- });
+function waitFor(selector,timeout){
+return new Promise(function(resolve,reject){
+const start=Date.now();
+const timer=setInterval(function(){
+const el=document.querySelector(selector);
+if(el){
+clearInterval(timer);
+resolve(el);
+}else if(Date.now()-start>timeout){
+clearInterval(timer);
+reject(new Error(selector+' alanı bulunamadı.'));
+}
+},100);
+});
 }
 
-function installCleaner(){
- removeQuestionCounts();
- if(window.kaQuestionObserver)return;
-
- window.kaQuestionObserver=new MutationObserver(function(){
-  removeQuestionCounts();
- });
-
- window.kaQuestionObserver.observe(document.body,{
-  childList:true,
-  subtree:true,
-  characterData:true
- });
+/* ORTAK STİLLER */
+function addStyles(){
+const style=document.createElement('style');
+style.textContent=\`
+#kale-cad-card,#ksBtn,#kaleKitapBtn{display:none!important}
+#start{display:none!important}
+#ka-home-panel,#ka-news-panel{width:100%;box-sizing:border-box;font-family:Arial,sans-serif}
+#ka-home-panel * ,#ka-news-panel *{box-sizing:border-box}
+#ka-home-panel{margin:22px 0 26px;padding:22px 14px;border-radius:24px;color:#fff;overflow:hidden;background:radial-gradient(ellipse at 50% 100%,#174c7d 0%,transparent 60%),linear-gradient(160deg,#06152e,#0b2850 65%,#10365e);border:1px solid #245582;box-shadow:0 12px 30px #0005}
+#ka-home-panel .ka-banner{text-align:center;padding:4px 4px 18px}
+#ka-home-panel .ka-overline{font-size:10px;font-weight:800;letter-spacing:2.5px;color:#65caff;margin-bottom:13px}
+#ka-home-panel h2{font-size:clamp(21px,5vw,30px);line-height:1.2;margin:4px 0 7px;color:#f4f8ff;font-weight:1000;letter-spacing:1px}
+#ka-home-panel .ka-intro{font-size:13px;line-height:1.6;color:#a9d5ff;margin:0 auto 18px;max-width:490px}
+#ka-home-panel .ka-heading{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;margin:0 0 17px;border:1px solid #3c8ebd;border-radius:15px;background:linear-gradient(110deg,#123d61,#0b2745);color:#d8efff;font-size:13px;font-weight:800}
+#ka-home-panel .ka-heading span{color:#65d2ff;font-size:11px}
+#ka-home-panel .ka-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#ka-home-panel .ka-item{min-width:0;min-height:116px;padding:14px 10px;border:1px solid #285b89;border-radius:19px;background:linear-gradient(160deg,#102f53,#071b35);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;cursor:pointer;box-shadow:0 6px 15px #0005}
+#ka-home-panel .ka-item:active{transform:scale(.98);border-color:#26c5ff}
+#ka-home-panel .ka-num{font-size:11px;font-weight:900;letter-spacing:1.5px;color:#55caff}
+#ka-home-panel .ka-name{display:block;font-size:14px;line-height:1.3;font-weight:1000;color:#f4f8ff}
+#ka-home-panel .ka-desc{display:block;margin-top:5px;font-size:11px;line-height:1.4;color:#a9c9e5}
+#kaleGamesBtn{position:relative!important;right:auto!important;bottom:auto!important;left:auto!important;top:auto!important;z-index:5!important;width:min(100%,360px)!important;height:52px!important;min-height:52px!important;margin:20px auto 22px!important;padding:0 18px!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;border:1px solid #f7b35b!important;border-radius:14px!important;background:linear-gradient(120deg,#f0a12e,#d97821)!important;color:#102844!important;font-size:15px!important;font-weight:900!important;letter-spacing:.3px!important;box-shadow:0 7px 20px #0004!important}
+#campusPicker .campus-title .setting-title{font-size:clamp(21px,5vw,28px)!important;font-weight:1000!important;letter-spacing:1px!important}
+#ka-news-panel{margin:24px 0 10px;padding:20px 14px;border:1px solid #245582;border-radius:23px;background:radial-gradient(ellipse at 50% 0%,#174c7d 0%,transparent 65%),linear-gradient(160deg,#06152e,#0b2850 65%,#10365e);color:#fff;box-shadow:0 12px 30px #0005}
+#ka-news-panel .news-top{text-align:center;margin-bottom:18px}
+#ka-news-panel .news-overline{font-size:10px;letter-spacing:2px;color:#65caff;font-weight:800;margin-bottom:9px}
+#ka-news-panel h2{font-size:clamp(20px,5vw,27px);margin:4px 0 8px;color:#f4f8ff;line-height:1.25}
+#ka-news-panel .news-subtitle{font-size:12px;line-height:1.5;color:#a9c9e5;margin:0}
+#ka-news-panel .news-source{margin-top:20px}
+#ka-news-panel .news-source-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 13px;border:1px solid #3c8ebd;border-radius:13px;background:#123d61;color:#e5f4ff;font-size:13px;font-weight:900}
+#ka-news-panel .news-source-title small{font-size:10px;color:#65d2ff;font-weight:700}
+#ka-news-panel .news-list{display:grid;gap:9px;margin-top:10px}
+#ka-news-panel .news-item{display:block;padding:13px;border:1px solid #285b89;border-radius:13px;background:linear-gradient(145deg,#102f53,#071b35);color:#fff;text-decoration:none}
+#ka-news-panel .news-item:active{border-color:#65caff}
+#ka-news-panel .news-date{display:block;color:#65caff;font-size:10px;margin-bottom:7px}
+#ka-news-panel .news-title{display:block;color:#f4f8ff;font-size:13px;font-weight:800;line-height:1.45}
+#ka-news-panel .news-description{display:block;color:#a9c9e5;font-size:11px;line-height:1.5;margin-top:6px}
+#ka-news-panel .news-read{display:block;color:#65d2ff;font-size:11px;font-weight:800;margin-top:9px}
+#ka-news-panel .news-empty{padding:14px;border:1px dashed #47769b;border-radius:12px;color:#b7cce0;font-size:12px;line-height:1.5;text-align:center}
+#ka-news-panel .news-actions{display:flex;justify-content:center;margin-top:17px}
+#ka-news-panel .news-refresh{border:1px solid #65bde8;border-radius:11px;background:#123d61;color:#fff;padding:11px 18px;font-size:12px;font-weight:800;cursor:pointer}
+#ka-news-panel .news-refresh:disabled{opacity:.5}
+#kalecad-credit{display:block;width:100%;padding:12px 8px 18px;text-align:center;color:#b8c8d8;font-size:9px;opacity:.32;letter-spacing:.2px}
+@media(max-width:420px){
+#ka-home-panel{padding:19px 11px;border-radius:20px}
+#ka-home-panel .ka-grid{gap:9px}
+#ka-home-panel .ka-item{padding:12px 8px;min-height:108px;border-radius:16px}
+#ka-home-panel .ka-name{font-size:13px}
+#ka-home-panel .ka-desc{font-size:10px}
+#ka-home-panel h2{font-size:22px}
+#ka-news-panel{padding:17px 11px;border-radius:19px}
+#ka-news-panel .news-source-title{font-size:12px}
+}
+\`;
+document.head.appendChild(style);
 }
 
-function installAbout(){
- if(document.getElementById('ka-about-panel'))return;
+/* DİJİTAL TASARIM ATÖLYESİ */
+function buildWorkshop(map,oldCard){
 
- const panel=document.createElement('div');
- panel.id='ka-about-panel';
- panel.style.cssText=[
-  'display:none',
-  'position:fixed',
-  'inset:0',
-  'z-index:100000',
-  'background:rgba(0,0,0,.72)',
-  'align-items:center',
-  'justify-content:center',
-  'padding:18px'
- ].join(';');
+const modules=[
+['01','AutoCAD Akademi','Teknik çizim ve komutlar','auto'],
+['02','SketchUp Akademi','Üç boyutlu modelleme','sketch'],
+['03','Mesleki Sözlük','Türkçe ve İngilizce terimler','dictionary'],
+['04','Kitaplık','Mesleki kaynaklar','library'],
+['05','Bilgi Yarışması','Bilgini test et','quiz'],
+['06','Proje Görevleri','Uygulama ve tasarım','tasks'],
+['07','Çizim Masası','Dijital çizim alanı','draw'],
+['08','Dijital Araçlar','Çevrim içi tasarım araçları','digital']
+];
 
- panel.innerHTML=`
-  <section style="width:min(620px,100%);max-height:85vh;overflow:auto;background:#153653;color:#fff;border:1px solid #46637c;border-radius:18px;padding:24px;line-height:1.65">
-   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-    <h2 style="margin:0;color:#fff">KALECAD Hakkında</h2>
-    <button id="ka-about-close" type="button" style="border:1px solid #46637c;background:#ffffff0b;color:#fff;border-radius:9px;padding:8px 12px;font-weight:700">Kapat</button>
-   </div>
-   <p>KALECAD; mimarlık, iç mimarlık ve inşaat teknolojileri alanlarında mesleki öğrenmeyi desteklemek amacıyla hazırlanmış dijital bir eğitim platformudur.</p>
-   <h3>Kale Okulları</h3>
-   <p>Kale Okulları, öğrencilerin akademik gelişimlerinin yanında mesleki becerilerini, üretkenliklerini ve uygulama deneyimlerini geliştirmeyi hedefleyen eğitim yaklaşımıyla çalışmalarını sürdürür.</p>
-   <h3>Platformun amacı</h3>
-   <p>Öğrencilerin AutoCAD, SketchUp, yapı bilgisi, mimarlık ve iç mimarlık alanlarında öğrendiklerini pekiştirmelerine yardımcı olmak; dijital etkinlikler, uygulamalar ve oyunlaştırılmış öğrenme deneyimleri sunmaktır.</p>
-   <p>KALECAD geliştirme sürecinde GitHub, GitHub Copilot ve ChatGPT gibi dijital araçlardan yararlanılmıştır.</p>
-  </section>
- `;
+const panel=document.createElement('section');
+panel.id='ka-home-panel';
 
- document.body.appendChild(panel);
+panel.innerHTML=
+'<div class="ka-banner">'+
+'<div class="ka-overline">KALECAD / DIGITAL WORKSHOP</div>'+
+'<h2>DİJİTAL TASARIM ATÖLYESİ</h2>'+
+'<p class="ka-intro">Mimarlık, iç mimarlık ve inşaat teknolojileri için çizim, modelleme ve mesleki öğrenme alanı.</p>'+
+'</div>'+
+'<div class="ka-heading">ATÖLYE BÖLÜMLERİ <span>08 MODÜL</span></div>'+
+'<div class="ka-grid" id="ka-home-grid"></div>';
 
- document.getElementById('ka-about').addEventListener('click',function(){
-  panel.style.display='flex';
- });
+const grid=panel.querySelector('#ka-home-grid');
 
- document.getElementById('ka-about-close').addEventListener('click',function(){
-  panel.style.display='none';
- });
+modules.forEach(function(item){
+const button=document.createElement('button');
+button.type='button';
+button.className='ka-item';
+button.innerHTML=
+'<span class="ka-num">'+item[0]+'</span>'+
+'<span><strong class="ka-name">'+item[1]+'</strong>'+
+'<small class="ka-desc">'+item[2]+'</small></span>';
 
- panel.addEventListener('click',function(event){
-  if(event.target===panel)panel.style.display='none';
- });
+button.addEventListener('click',function(){
+
+if(item[3]==='dictionary'){
+document.getElementById('ksBtn')?.click();
+return;
 }
 
-async function start(){
- try{
-  const response=await fetch(BASE,{cache:'no-store'});
-  if(!response.ok)throw new Error('Ana platform dosyası alınamadı. HTTP '+response.status);
-
-  const html=await response.text();
-  const parser=new DOMParser();
-  const doc=parser.parseFromString(html,'text/html');
-
-  document.title=doc.title||'KALECAD | Eğitim Platformu';
-
-  const base=document.createElement('base');
-  base.href='https://bilgioyunu.github.io/KaleCAD/';
-  document.head.prepend(base);
-
-  doc.querySelectorAll('link[rel="stylesheet"]').forEach(function(oldLink){
-   const link=document.createElement('link');
-   link.rel='stylesheet';
-   link.href=oldLink.href;
-   document.head.appendChild(link);
-  });
-
-  doc.querySelectorAll('style').forEach(function(oldStyle){
-   const style=document.createElement('style');
-   style.textContent=oldStyle.textContent;
-   document.head.appendChild(style);
-  });
-
-  const root=document.createElement('div');
-  root.id='ka-platform-root';
-  root.innerHTML=doc.body.innerHTML;
-  document.body.insertBefore(root,loader);
-  loader.remove();
-
-  doc.querySelectorAll('script').forEach(function(oldScript){
-   const script=document.createElement('script');
-   if(oldScript.src){
-    script.src=oldScript.src;
-   }else{
-    script.textContent=oldScript.textContent;
-   }
-   if(oldScript.type)script.type=oldScript.type;
-   document.body.appendChild(script);
-  });
-
-  installAbout();
-  installCleaner();
-
-  const sound=document.getElementById('soundToggle');
-  const about=document.getElementById('ka-about');
-
-  if(sound){
-   const style=getComputedStyle(sound);
-   about.style.cssText=[
-    'font:'+style.font,
-    'color:'+style.color,
-    'font-weight:'+style.fontWeight,
-    'border:'+style.border,
-    'border-radius:'+style.borderRadius,
-    'padding:'+style.padding,
-    'background:'+style.background,
-    'min-height:'+style.minHeight,
-    'cursor:pointer'
-   ].join(';');
-  }
-
-  const observer=new MutationObserver(function(){
-   installCleaner();
-   const soundButton=document.getElementById('soundToggle');
-   if(soundButton){
-    const style=getComputedStyle(soundButton);
-    about.style.font=style.font;
-    about.style.color=style.color;
-    about.style.fontWeight=style.fontWeight;
-    about.style.border=style.border;
-    about.style.borderRadius=style.borderRadius;
-    about.style.padding=style.padding;
-    about.style.background=style.background;
-    about.style.minHeight=style.minHeight;
-   }
-  });
-
-  observer.observe(document.body,{childList:true,subtree:true});
-
- }catch(err){
-  showError('Platform yüklenemedi: '+err.message+' Sayfayı yenileyin veya internet bağlantınızı kontrol edin.');
- }
+if(item[3]==='library'){
+document.getElementById('kaleKitapBtn')?.click();
+return;
 }
 
-document.getElementById('ka-sound').addEventListener('click',function(){
- const original=document.getElementById('soundToggle');
- if(original)original.click();
+oldCard.click();
+
+setTimeout(function(){
+const tab=document.querySelector('#kcv2 [data-tab="'+item[3]+'"]');
+if(tab)tab.click();
+},180);
+
 });
 
-start();
+grid.appendChild(button);
+});
+
+map.insertAdjacentElement('afterend',panel);
+return panel;
+}
+
+/* HABER MERKEZİ */
+function buildNews(){
+
+if(document.getElementById('ka-news-panel'))return;
+
+const panel=document.createElement('section');
+panel.id='ka-news-panel';
+
+panel.innerHTML=
+'<div class="news-top">'+
+'<div class="news-overline">KALECAD / SEKTÖRÜ TAKİP ET</div>'+
+'<h2>MİMARLIK VE İNŞAAT HABERLERİ</h2>'+
+'<p class="news-subtitle">Mimarlık, yapı teknolojileri, malzeme ve inşaat sektöründen güncel gelişmeler.</p>'+
+'</div>'+
+'<div class="news-source">'+
+'<div class="news-source-title"><span>MİMARLIK HABERLERİ</span><small>ARKİTERA</small></div>'+
+'<div class="news-list" id="ka-architecture-news"><div class="news-empty">Haberler yükleniyor...</div></div>'+
+'</div>'+
+'<div class="news-source">'+
+'<div class="news-source-title"><span>İNŞAAT VE YAPI HABERLERİ</span><small>İNŞAAT DÜNYASI</small></div>'+
+'<div class="news-list" id="ka-construction-news"><div class="news-empty">Haberler yükleniyor...</div></div>'+
+'</div>'+
+'<div class="news-actions"><button class="news-refresh" id="ka-news-refresh" type="button">HABERLERİ YENİLE</button></div>';
+
+const credit=document.getElementById('kalecad-credit');
+if(credit)credit.insertAdjacentElement('beforebegin',panel);
+else document.querySelector('.app').appendChild(panel);
+
+const refresh=document.getElementById('ka-news-refresh');
+refresh.addEventListener('click',loadNews);
+
+loadNews();
+}
+
+function cleanText(value){
+const box=document.createElement('div');
+box.innerHTML=value||'';
+return (box.textContent||'').replace(/\s+/g,' ').trim();
+}
+
+function formatDate(value){
+if(!value)return '';
+const date=new Date(value);
+if(Number.isNaN(date.getTime()))return '';
+return date.toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'});
+}
+
+function renderNews(targetId,items,sourceUrl){
+
+const target=document.getElementById(targetId);
+target.replaceChildren();
+
+if(!items||!items.length){
+const empty=document.createElement('div');
+empty.className='news-empty';
+empty.textContent='Şu anda haber akışı alınamadı. Kaynağın güncel haberlerini kendi sitesinden inceleyebilirsin.';
+target.appendChild(empty);
+const link=document.createElement('a');
+link.className='news-item';
+link.href=sourceUrl;
+link.target='_blank';
+link.rel='noopener noreferrer';
+link.textContent='Kaynağın internet sitesini aç';
+target.appendChild(link);
+return;
+}
+
+items.slice(0,5).forEach(function(item){
+
+const link=document.createElement('a');
+link.className='news-item';
+link.href=item.link||sourceUrl;
+link.target='_blank';
+link.rel='noopener noreferrer';
+
+const date=document.createElement('span');
+date.className='news-date';
+date.textContent=formatDate(item.pubDate);
+
+const title=document.createElement('span');
+title.className='news-title';
+title.textContent=cleanText(item.title)||'Başlıksız haber';
+
+const description=document.createElement('span');
+description.className='news-description';
+description.textContent=cleanText(item.description||item.content||'').slice(0,190);
+
+const read=document.createElement('span');
+read.className='news-read';
+read.textContent='Haberi oku';
+
+link.append(date,title);
+if(description.textContent)link.appendChild(description);
+link.appendChild(read);
+target.appendChild(link);
+});
+}
+
+async function fetchFeed(feedUrl,sourceUrl,targetId){
+
+const api='https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feedUrl);
+
+try{
+const response=await fetch(api,{cache:'no-store'});
+if(!response.ok)throw new Error('Haber servisi yanıt vermedi');
+
+const data=await response.json();
+if(data.status!=='ok'||!Array.isArray(data.items))throw new Error('Haber akışı okunamadı');
+
+renderNews(targetId,data.items,sourceUrl);
+
+}catch(error){
+
+console.warn('KALECAD haber akışı:',error);
+renderNews(targetId,[],sourceUrl);
+
+}
+}
+
+async function loadNews(){
+
+const button=document.getElementById('ka-news-refresh');
+if(button){
+button.disabled=true;
+button.textContent='HABERLER ALINIYOR...';
+}
+
+await Promise.all([
+fetchFeed(
+'https://www.arkitera.com/feed/',
+'https://www.arkitera.com/',
+'ka-architecture-news'
+),
+fetchFeed(
+'https://www.insaatdunyasi.com.tr/feed/',
+'https://www.insaatdunyasi.com.tr/',
+'ka-construction-news'
+)
+]);
+
+if(button){
+button.disabled=false;
+button.textContent='HABERLERİ YENİLE';
+}
+}
+
+/* ANA SAYFA SIRALAMASI */
+async function arrangeHome(){
+
+const map=await waitFor('#kalecadHistoricMap',12000);
+const oldCard=await waitFor('#kale-cad-card',12000);
+
+const game=await waitFor('#kaleGamesBtn',12000);
+const settings=await waitFor('.settings',12000);
+
+addStyles();
+
+/* KALE BAŞLIĞI */
+const title=document.querySelector('#campusPicker .campus-title .setting-title');
+if(title)title.textContent='SAVUNULACAK KALE';
+
+/* GEREKSİZ OYUN BAŞLAT DÜĞMESİNİ GİZLE */
+const start=document.getElementById('start');
+if(start){
+start.style.display='none';
+const actions=start.closest('.actions');
+if(actions)actions.style.display='none';
+}
+
+/* OYUN AYARLARINI HARİTANIN ALTINA AL */
+if(map.nextElementSibling!==settings){
+map.insertAdjacentElement('afterend',settings);
+}
+
+/* OYUN BUTONU AYARLARIN ALTINDA */
+game.textContent='CAD Oyununa Giriş Yap';
+settings.insertAdjacentElement('afterend',game);
+
+/* ATÖLYE PANELİ */
+const workshop=buildWorkshop(map,oldCard);
+game.insertAdjacentElement('afterend',workshop);
+
+/* HABER MERKEZİ ATÖLYENİN ALTINDA */
+const news=document.createElement('div');
+news.id='ka-news-anchor';
+workshop.insertAdjacentElement('afterend',news);
+
+/* ALT BİLGİ */
+let credit=document.getElementById('kalecad-credit');
+if(!credit){
+credit=document.createElement('footer');
+credit.id='kalecad-credit';
+credit.textContent='Bu uygulama Alperen Furkan Arpaç tarafından GitHub ve ChatGPT ile geliştirilmiştir.';
+}
+news.insertAdjacentElement('afterend',credit);
+
+buildNews();
+}
+
+/* GİRİŞ SONRASI YÜKLEME */
+async function startPlatform(){
+
+if(started||finished)return;
+started=true;
+
+const status=document.getElementById('kalecad-module-status');
+if(status)status.textContent='Platform hazırlanıyor...';
+
+try{
+
+for(const file of files){
+await loadScript(file);
+}
+
+if(document.readyState==='loading'){
+await new Promise(resolve=>{
+document.addEventListener('DOMContentLoaded',resolve,{once:true});
+});
+}
+
+await arrangeHome();
+
+finished=true;
+if(status)status.textContent='';
+
+}catch(error){
+
+console.error('KALECAD yükleme hatası:',error);
+if(status)status.textContent='Bir bölüm yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.';
+started=false;
+
+}
+}
+
+/* GİRİŞ BUTONU */
+function connect(){
+
+const button=document.getElementById('launchBtn');
+if(!button)return false;
+
+if(button.dataset.kalecadConnected==='1')return true;
+button.dataset.kalecadConnected='1';
+
+button.addEventListener('click',function(){
+startPlatform();
+},{capture:true});
+
+return true;
+}
+
+if(!connect()){
+const timer=setInterval(function(){
+if(connect())clearInterval(timer);
+},100);
+
+setTimeout(function(){clearInterval(timer);},10000);
+}
+
+})();
+`;
+
+html=html.replace(
+/<\/body>/i,
+'<div id="kalecad-module-status"></div><script>'+loader+'<\/script></body>'
+);
+
+document.open();
+document.write(html);
+document.close();
+
+}catch(error){
+
+document.body.innerHTML='';
+const main=document.createElement('main');
+main.style.cssText='font-family:Arial,sans-serif;padding:2rem;text-align:center;color:#102844';
+
+const heading=document.createElement('h1');
+heading.textContent='KALECAD yüklenemedi';
+
+const message=document.createElement('p');
+message.textContent=error.message;
+
+const retry=document.createElement('button');
+retry.textContent='Tekrar dene';
+retry.style.cssText='padding:12px 22px;border:0;border-radius:10px;background:#102844;color:white;font-size:16px';
+retry.onclick=function(){location.reload();};
+
+main.append(heading,message,retry);
+document.body.appendChild(main);
+
+}
 })();
 </script>
 </body>
