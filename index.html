@@ -12,6 +12,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,sans-serif}
 body{background:#102844;color:#fff}
+
 #ka-loader{
  min-height:100vh;display:flex;align-items:center;
  justify-content:center;padding:24px
@@ -28,13 +29,9 @@ body{background:#102844;color:#fff}
  overflow:hidden;margin-top:20px
 }
 .ka-progress span{
- display:block;width:35%;height:100%;
+ display:block;width:0%;height:100%;
  background:#65bde8;border-radius:20px;
- animation:ka-progress 1.2s infinite ease-in-out alternate
-}
-@keyframes ka-progress{
- from{transform:translateX(-20%)}
- to{transform:translateX(210%)}
+ transition:width .35s ease
 }
 #ka-error{
  display:none;color:#ffd3d3;line-height:1.6;
@@ -70,8 +67,10 @@ body{background:#102844;color:#fff}
  color:#fff;border-radius:9px;padding:9px 14px;
  font-weight:700
 }
+
 /* Eski soru havuzu sayacını gösterme; oyun verisini silme. */
 #poolNote{display:none!important}
+
 /* Fetih oyunu giriş düğmesi */
 #start.ka-conquest-start{
  display:block!important;
@@ -163,8 +162,8 @@ body{background:#102844;color:#fff}
 
 /*
  KALECAD ANA YÜKLEYİCİ
- Mevcut CAD oyun motoru korunur.
- Depodaki yerel modüller ayrıca yüklenir.
+ Mevcut CAD oyun motoru ve yerel modüller korunur.
+ Yükleme çubuğu gerçek yükleme ilerlemesini gösterir.
 */
 
 const BASE =
@@ -176,6 +175,18 @@ const VERSION='20261120-v15-fix';
 const loader=document.getElementById('ka-loader');
 const errorBox=document.getElementById('ka-error');
 const loadingText=document.getElementById('ka-loading-text');
+const progressBar=document.querySelector('.ka-progress span');
+
+let currentProgress=0;
+
+function setProgress(value){
+ currentProgress=Math.max(
+  currentProgress,
+  Math.min(100,Math.round(value))
+ );
+
+ progressBar.style.width=currentProgress+'%';
+}
 
 function showError(message){
  errorBox.style.display='block';
@@ -188,7 +199,9 @@ function loadScript(src){
   script.src=src;
   script.async=false;
   script.onload=()=>resolve(src);
-  script.onerror=()=>reject(new Error('Dosya yüklenemedi: '+src));
+  script.onerror=()=>reject(
+   new Error('Dosya yüklenemedi: '+src)
+  );
   document.body.appendChild(script);
  });
 }
@@ -197,12 +210,19 @@ function executeInlineScript(oldScript){
  return new Promise((resolve,reject)=>{
   try{
    const script=document.createElement('script');
-   if(oldScript.type)script.type=oldScript.type;
+
+   if(oldScript.type){
+    script.type=oldScript.type;
+   }
+
    script.textContent=oldScript.textContent;
    document.body.appendChild(script);
    script.remove();
+
    resolve();
-  }catch(e){reject(e)}
+  }catch(e){
+   reject(e);
+  }
  });
 }
 
@@ -210,7 +230,10 @@ function copyBaseStyles(doc){
  doc.querySelectorAll('link[rel="stylesheet"]').forEach(old=>{
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href=new URL(old.getAttribute('href'),BASE).href;
+  link.href=new URL(
+   old.getAttribute('href'),BASE
+  ).href;
+
   document.head.appendChild(link);
  });
 
@@ -223,14 +246,26 @@ function copyBaseStyles(doc){
 
 async function loadBasePlatform(){
  const response=await fetch(BASE,{cache:'no-store'});
+
  if(!response.ok){
-  throw new Error('Ana oyun dosyası alınamadı. HTTP '+response.status);
+  throw new Error(
+   'Ana oyun dosyası alınamadı. HTTP '+response.status
+  );
  }
 
+ setProgress(10);
+ loadingText.textContent='Ana oyun dosyası alındı...';
+
  const html=await response.text();
- const doc=new DOMParser().parseFromString(html,'text/html');
+
+ setProgress(20);
+
+ const doc=new DOMParser().parseFromString(
+  html,'text/html'
+ );
 
  document.title='KALECAD | Eğitim Platformu';
+
  copyBaseStyles(doc);
 
  const root=document.createElement('div');
@@ -239,18 +274,34 @@ async function loadBasePlatform(){
 
  document.body.insertBefore(root,loader);
 
+ setProgress(30);
+
  const scripts=[...doc.querySelectorAll('script')];
 
- for(const oldScript of scripts){
+ for(let i=0;i<scripts.length;i++){
+  const oldScript=scripts[i];
+
   if(oldScript.src){
-   const src=new URL(oldScript.getAttribute('src'),BASE).href;
+   const src=new URL(
+    oldScript.getAttribute('src'),BASE
+   ).href;
+
    await loadScript(src);
   }else{
    await executeInlineScript(oldScript);
   }
+
+  const scriptProgress=
+   30+((i+1)/Math.max(scripts.length,1))*30;
+
+  setProgress(scriptProgress);
+
+  loadingText.textContent=
+   'Ana oyun motoru yükleniyor... %'+
+   Math.round(scriptProgress);
  }
 
- loader.remove();
+ setProgress(60);
 }
 
 async function loadLocalModules(){
@@ -268,19 +319,40 @@ async function loadLocalModules(){
 
  const failed=[];
 
- for(const file of modules){
+ for(let i=0;i<modules.length;i++){
+  const file=modules[i];
+
+  loadingText.textContent=
+   'Modüller yükleniyor: '+file;
+
   try{
-   loadingText.textContent='Modüller yükleniyor: '+file;
-   await loadScript(ROOT+file+'?v='+VERSION);
+   await loadScript(
+    ROOT+file+'?v='+VERSION
+   );
   }catch(e){
    failed.push(file);
    console.error(e);
   }
+
+  const moduleProgress=
+   60+((i+1)/modules.length)*38;
+
+  setProgress(moduleProgress);
  }
 
  if(failed.length){
-  showError('Bazı modüller yüklenemedi: '+failed.join(', '));
+  console.error(
+   'Yüklenemeyen modüller:',failed
+  );
+
+  showError(
+   'Bazı modüller yüklenemedi: '+
+   failed.join(', ')+
+   '. Platform eksik özelliklerle açılabilir.'
+  );
  }
+
+ return failed;
 }
 
 function arrangeConquestButton(){
@@ -296,6 +368,7 @@ function arrangeConquestButton(){
 
  if(actions){
   actions.classList.add('ka-start-wrap');
+
   if(map && map.parentNode){
    map.insertAdjacentElement('afterend',actions);
   }
@@ -316,7 +389,9 @@ function connectAbout(){
  });
 
  panel.addEventListener('click',event=>{
-  if(event.target===panel)panel.style.display='none';
+  if(event.target===panel){
+   panel.style.display='none';
+  }
  });
 }
 
@@ -328,12 +403,14 @@ function connectSound(){
 
   if(original){
    original.click();
+
    button.textContent=
     original.getAttribute('aria-pressed')==='true'?
     '🔇 Ses':'🔊 Ses';
   }else{
    button.textContent=
-    button.textContent.includes('Açık')?'🔇 Ses':'🔊 Ses';
+    button.textContent.includes('Açık')?
+    '🔇 Ses':'🔊 Ses';
   }
  });
 }
@@ -346,6 +423,7 @@ function finalLayout(){
 
  if(sound){
   const s=getComputedStyle(sound);
+
   about.style.background=s.background;
   about.style.color=s.color;
   about.style.border=s.border;
@@ -355,11 +433,15 @@ function finalLayout(){
 
 async function start(){
  try{
-  loadingText.textContent='KALECAD ana oyun motoru yükleniyor...';
+  setProgress(5);
+
+  loadingText.textContent=
+   'KALECAD ana oyun motoru yükleniyor...';
 
   await loadBasePlatform();
 
-  loadingText.textContent='Dijital atölyeler ve oyun modülleri yükleniyor...';
+  loadingText.textContent=
+   'Dijital atölyeler ve oyun modülleri yükleniyor...';
 
   await loadLocalModules();
 
@@ -367,19 +449,39 @@ async function start(){
   connectSound();
 
   /*
-   Modüller kendi kurulumlarını tamamladıktan sonra
-   oyun giriş düğmesini kale haritasının altına al.
-   MutationObserver kullanılmaz.
+   Fetih düğmesi kale haritasının altına yerleştirilir.
+   Mevcut oyun ve atölye içerikleri korunur.
   */
+
   finalLayout();
 
   requestAnimationFrame(finalLayout);
   setTimeout(finalLayout,500);
 
-  console.info('KALECAD yüklemesi tamamlandı.');
+  setProgress(100);
+
+  loadingText.textContent=
+   'KALECAD hazır! İyi çalışmalar.';
+
+  console.info(
+   'KALECAD yüklemesi tamamlandı.'
+  );
+
+  /*
+   Yükleme çubuğu %100 olduktan sonra
+   açılış ekranını kapat.
+  */
+
+  setTimeout(()=>{
+   loader.remove();
+  },450);
 
  }catch(err){
   console.error(err);
+
+  loadingText.textContent=
+   'Platform yüklenirken bir sorun oluştu.';
+
   showError(
    'Platform yüklenemedi: '+err.message+
    ' İnternet bağlantısını ve GitHub Pages yayınını kontrol edin.'
