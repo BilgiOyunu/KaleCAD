@@ -20,7 +20,6 @@ body{background:#102844;color:#fff}
 #ka-error{display:none;color:#ffd3d3;line-height:1.6;margin-top:15px;font-size:13px;overflow-wrap:anywhere}
 #ka-controls{position:fixed;z-index:999999;top:10px;right:12px;display:flex;gap:8px;align-items:center}
 #ka-controls button{min-width:112px;height:42px;padding:0 13px;display:inline-flex;align-items:center;justify-content:center;font:700 13px Arial,sans-serif;color:#fff;border:1px solid #46637c;border-radius:12px;background:#ffffff12;cursor:pointer}
-#ka-controls button:active{transform:scale(.98)}
 #ka-about-panel{display:none;position:fixed;inset:0;z-index:1000000;background:#000b;align-items:center;justify-content:center;padding:18px}
 #ka-about-panel .ka-about-box{width:min(620px,100%);max-height:85vh;overflow:auto;background:#153653;color:#fff;border:1px solid #46637c;border-radius:18px;padding:24px;line-height:1.7}
 #ka-about-panel h2,#ka-about-panel h3{color:#fff}
@@ -29,10 +28,22 @@ body{background:#102844;color:#fff}
 #poolNote{display:none!important}
 #ksBtn,#kaleKitapBtn,#kaleGamesBtn{display:none!important;visibility:hidden!important;pointer-events:none!important}
 
-/* Açılış ekranı kapandığında görünür ve tıklanabilir kalamaz. */
-#ka-platform-root #splash{z-index:99998!important}
-#ka-platform-root #splash.hidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
-
+/* Açılış ekranı */
+#ka-platform-root .splash{z-index:99998!important}
+#ka-platform-root .splash.hidden{
+ opacity:0!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+ display:none!important;
+}
+#ka-platform-root .splash .launch{
+ position:relative!important;
+ z-index:100000!important;
+ pointer-events:auto!important;
+ cursor:pointer!important;
+ opacity:1!important;
+ animation:none!important;
+}
 #start.ka-conquest-start{display:block!important;width:min(100%,440px)!important;min-height:52px!important;margin:14px auto!important;padding:13px 18px!important;border:1px solid #f7ce76!important;border-radius:14px!important;color:#102844!important;background:linear-gradient(120deg,#f6d77c,#e8ad35)!important;font-size:15px!important;font-weight:900!important;box-shadow:0 8px 22px #0004!important}
 #start.ka-conquest-start:disabled{opacity:.55;cursor:not-allowed}
 .ka-start-wrap{display:flex!important;justify-content:center!important;width:100%!important;margin:12px 0!important}
@@ -81,7 +92,7 @@ body{background:#102844;color:#fff}
 
 const BASE='https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html';
 const ROOT='https://bilgioyunu.github.io/KaleCAD/';
-const VERSION='20261121-v15-fix-4';
+const VERSION='20261121-v15-fix-5';
 
 const loader=document.getElementById('ka-loader');
 const errorBox=document.getElementById('ka-error');
@@ -89,14 +100,35 @@ const loadingText=document.getElementById('ka-loading-text');
 const progressBar=document.querySelector('.ka-progress span');
 
 let currentProgress=0;
-let launchFallbackInstalled=false;
 
 function setProgress(value){
  currentProgress=Math.max(currentProgress,Math.min(100,Math.round(value)));
  progressBar.style.width=currentProgress+'%';
 }
 function setStatus(message){loadingText.textContent=message}
-function showError(message){errorBox.style.display='block';errorBox.textContent=message}
+function showError(message){
+ errorBox.style.display='block';
+ errorBox.textContent=message;
+}
+
+function closeLaunchScreen(){
+ const splash=document.querySelector('#ka-platform-root .splash');
+ if(!splash)return;
+
+ splash.classList.add('hidden');
+ splash.style.setProperty('opacity','0','important');
+ splash.style.setProperty('visibility','hidden','important');
+ splash.style.setProperty('pointer-events','none','important');
+ splash.style.setProperty('display','none','important');
+}
+
+document.addEventListener('click',function(event){
+ const button=event.target.closest('#ka-platform-root #launchBtn');
+ if(button){
+  event.preventDefault();
+  closeLaunchScreen();
+ }
+},true);
 
 function loadScript(src){
  return new Promise((resolve,reject)=>{
@@ -140,37 +172,6 @@ function executeInlineScript(oldScript){
  });
 }
 
-/* Açılış ekranını kapat. Orijinal düğme işlevi de çalışmaya devam eder. */
-function closeLaunchScreen(){
- const splash=document.getElementById('splash');
- if(!splash)return;
- splash.classList.add('hidden');
- splash.style.setProperty('opacity','0','important');
- splash.style.setProperty('visibility','hidden','important');
- splash.style.setProperty('pointer-events','none','important');
- setTimeout(()=>{
-  if(splash.isConnected)splash.remove();
- },850);
-}
-
-function installLaunchFallback(){
- if(launchFallbackInstalled)return;
- launchFallbackInstalled=true;
-
- const button=document.getElementById('launchBtn');
- if(button&&!button.dataset.kaLaunchBound){
-  button.dataset.kaLaunchBound='1';
-  button.addEventListener('click',closeLaunchScreen,true);
- }
-
- document.addEventListener('click',function(event){
-  const target=event.target;
-  if(target&&typeof target.closest==='function'&&target.closest('#launchBtn')){
-   closeLaunchScreen();
-  }
- },true);
-}
-
 function copyBaseStyles(doc){
  doc.querySelectorAll('link[rel="stylesheet"]').forEach(old=>{
   const link=document.createElement('link');
@@ -193,7 +194,6 @@ async function loadBasePlatform(){
  setProgress(12);
  let html=await response.text();
 
- /* Eski yarışma kimliğini yeni platform kimliğiyle güncelle. */
  html=html
   .replaceAll('CAD BİLGİ YARIŞMASI','MİMARLIK • İÇ MİMARLIK • İNŞAAT TEKNOLOJİLERİ')
   .replaceAll('CAD Bilgi Yarışması','Eğitim Platformu')
@@ -213,7 +213,6 @@ async function loadBasePlatform(){
  root.innerHTML=doc.body.innerHTML;
  document.body.insertBefore(root,loader);
 
- installLaunchFallback();
  setProgress(30);
 
  const scripts=Array.from(doc.querySelectorAll('script'));
@@ -221,8 +220,7 @@ async function loadBasePlatform(){
   const oldScript=scripts[i];
   setStatus('Ana oyun motoru hazırlanıyor...');
   if(oldScript.src){
-   const src=new URL(oldScript.getAttribute('src'),BASE).href;
-   await loadScript(src);
+   await loadScript(new URL(oldScript.getAttribute('src'),BASE).href);
   }else{
    await executeInlineScript(oldScript);
   }
@@ -231,7 +229,6 @@ async function loadBasePlatform(){
 
  if(!document.getElementById('launchBtn'))throw new Error('Ana oyun açılış düğmesi bulunamadı.');
  if(!document.getElementById('start'))throw new Error('Ana oyun başlatma düğmesi bulunamadı.');
- setProgress(60);
 }
 
 async function loadLocalModules(){
@@ -261,7 +258,6 @@ async function loadLocalModules(){
  if(failed.length){
   showError('Yüklenemeyen modüller: '+failed.join(', ')+'. Ana oyun korunarak açılıyor.');
  }
- return failed;
 }
 
 function arrangeConquestButton(){
@@ -294,8 +290,7 @@ function connectSound(){
   const original=document.getElementById('soundToggle');
   if(original){
    original.click();
-   const isOn=original.getAttribute('aria-pressed')==='true';
-   button.textContent=isOn?'🔊 Ses':'🔇 Ses';
+   button.textContent=original.getAttribute('aria-pressed')==='true'?'🔊 Ses':'🔇 Ses';
   }else{
    button.textContent=button.textContent.includes('🔊')?'🔇 Ses':'🔊 Ses';
   }
@@ -304,6 +299,7 @@ function connectSound(){
 
 function finalLayout(){
  arrangeConquestButton();
+
  ['ksBtn','kaleKitapBtn','kaleGamesBtn'].forEach(id=>{
   const button=document.getElementById(id);
   if(button){
@@ -312,11 +308,10 @@ function finalLayout(){
    button.style.setProperty('pointer-events','none','important');
   }
  });
- const splash=document.getElementById('splash');
- if(splash)splash.style.setProperty('z-index','99998','important');
+
  const sound=document.getElementById('soundToggle');
  const about=document.getElementById('ka-about');
- if(sound){
+ if(sound&&about){
   const style=getComputedStyle(sound);
   about.style.background=style.background;
   about.style.color=style.color;
@@ -344,7 +339,6 @@ async function start(){
 
   setProgress(100);
   setStatus('KALECAD hazır! İyi çalışmalar.');
-  console.info('KALECAD yüklemesi tamamlandı.');
 
   setTimeout(()=>{
    if(loader.isConnected)loader.remove();
@@ -356,6 +350,7 @@ async function start(){
   showError(error.message+' İnternet bağlantısını ve GitHub Pages yayınını kontrol edin.');
  }
 }
+
 start();
 })();
 </script>
