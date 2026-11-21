@@ -111,11 +111,8 @@ body{background:#102844;color:#fff}
  font-weight:700;
 }
 
-/* Soru sayacını gizle, soru verisini koru. */
 #poolNote{display:none!important}
 
-/* Modüllerin sabit yüzen kısayollarını gizle.
-   Modüllerin kendisi ve ana menü içerikleri korunur. */
 #ksBtn,
 #kaleKitapBtn,
 #kaleGamesBtn{
@@ -124,7 +121,15 @@ body{background:#102844;color:#fff}
  pointer-events:none!important;
 }
 
-/* Fetih oyunu giriş düğmesi */
+/* Açılış ekranı tüm modül kısayollarının üzerinde kalır. */
+#ka-platform-root #splash{
+ z-index:99998!important;
+ pointer-events:auto!important;
+}
+#ka-platform-root #splash.hidden{
+ pointer-events:none!important;
+}
+
 #start.ka-conquest-start{
  display:block!important;
  width:min(100%,440px)!important;
@@ -185,13 +190,11 @@ body{background:#102844;color:#fff}
    <h2 style="margin:0">KALECAD Hakkında</h2>
    <button id="ka-about-close" type="button">Kapat</button>
   </div>
-
   <p>
    KALECAD; mimarlık, iç mimarlık ve inşaat teknolojileri
    alanlarında mesleki öğrenmeyi desteklemek amacıyla
    hazırlanmış dijital bir eğitim platformudur.
   </p>
-
   <h3>Kale Okulları</h3>
   <p>
    Kale Okulları, öğrencilerin akademik gelişimlerinin yanında
@@ -199,7 +202,6 @@ body{background:#102844;color:#fff}
    deneyimlerini geliştirmeyi hedefleyen eğitim yaklaşımıyla
    çalışmalarını sürdürür.
   </p>
-
   <h3>Platformun amacı</h3>
   <p>
    Öğrencilerin AutoCAD, SketchUp, yapı bilgisi, mimarlık ve
@@ -207,12 +209,10 @@ body{background:#102844;color:#fff}
    yardımcı olmak; dijital etkinlikler, uygulamalar ve
    oyunlaştırılmış öğrenme deneyimleri sunmaktır.
   </p>
-
   <p>
    KALECAD geliştirme sürecinde GitHub, GitHub Copilot ve
    ChatGPT gibi dijital araçlardan yararlanılmıştır.
   </p>
-
   <p>
    <a href="https://www.kaleokullari.com/" target="_blank" rel="noopener">
     Kale Okulları resmî web sitesi
@@ -225,13 +225,11 @@ body{background:#102844;color:#fff}
 (function(){
 'use strict';
 
-/* KALECAD ANA YÜKLEYİCİ */
-
 const BASE =
 'https://raw.githubusercontent.com/BilgiOyunu/KaleCAD/b08c22967c5b11f1f42aaca3b696873ef831d304/index.html';
 
 const ROOT='https://bilgioyunu.github.io/KaleCAD/';
-const VERSION='20261120-v15-fix-2';
+const VERSION='20261121-v15-fix-3';
 
 const loader=document.getElementById('ka-loader');
 const errorBox=document.getElementById('ka-error');
@@ -315,33 +313,40 @@ function executeInlineScript(oldScript){
  });
 }
 
-/*
- Orijinal oyunun launchBtn davranışı korunur.
- Bu yedek dinleyici, orijinal tıklama işlevinin
- yerine geçmez; yalnızca açılış ekranını kapatır.
-*/
+/* Açılış ekranı için güvenli kapatma işlevi. */
+function closeLaunchScreen(){
+ const splash=document.getElementById('splash');
+ if(!splash)return;
+
+ splash.classList.add('hidden');
+ splash.style.pointerEvents='none';
+
+ setTimeout(()=>{
+  if(splash.isConnected)splash.remove();
+ },850);
+}
 
 function installLaunchFallback(){
  if(launchFallbackInstalled)return;
  launchFallbackInstalled=true;
 
+ const button=document.getElementById('launchBtn');
+
+ if(button && !button.dataset.kaLaunchBound){
+  button.dataset.kaLaunchBound='1';
+  button.addEventListener('click',closeLaunchScreen,true);
+ }
+
  document.addEventListener('click',function(event){
-  const button=event.target.closest('#launchBtn');
+  const target=event.target;
 
-  if(!button)return;
-
-  const splash=document.getElementById('splash');
-
-  if(!splash)return;
-
-  splash.classList.add('hidden');
-
-  setTimeout(()=>{
-   if(splash.isConnected){
-    splash.remove();
-   }
-  },850);
-
+  if(
+   target &&
+   typeof target.closest==='function' &&
+   target.closest('#launchBtn')
+  ){
+   closeLaunchScreen();
+  }
  },true);
 }
 
@@ -410,9 +415,7 @@ async function loadBasePlatform(){
  for(let i=0;i<scripts.length;i++){
   const oldScript=scripts[i];
 
-  setStatus(
-   'Ana oyun motoru hazırlanıyor...'
-  );
+  setStatus('Ana oyun motoru hazırlanıyor...');
 
   if(oldScript.src){
    const src=new URL(
@@ -463,9 +466,7 @@ async function loadLocalModules(){
  for(let i=0;i<modules.length;i++){
   const file=modules[i];
 
-  setStatus(
-   'Modül yükleniyor: '+file
-  );
+  setStatus('Modül yükleniyor: '+file);
 
   try{
    await loadScript(
@@ -559,6 +560,23 @@ function connectSound(){
 function finalLayout(){
  arrangeConquestButton();
 
+ /* Modüllerin eklediği yüzen kısayolları gizle. */
+ ['ksBtn','kaleKitapBtn','kaleGamesBtn'].forEach(id=>{
+  const button=document.getElementById(id);
+
+  if(button){
+   button.style.setProperty('display','none','important');
+   button.style.setProperty('visibility','hidden','important');
+   button.style.setProperty('pointer-events','none','important');
+  }
+ });
+
+ const splash=document.getElementById('splash');
+
+ if(splash){
+  splash.style.setProperty('z-index','99998','important');
+ }
+
  const sound=document.getElementById('soundToggle');
  const about=document.getElementById('ka-about');
 
@@ -576,15 +594,11 @@ async function start(){
  try{
   setProgress(5);
 
-  setStatus(
-   'KALECAD ana oyun motoru yükleniyor...'
-  );
+  setStatus('KALECAD ana oyun motoru yükleniyor...');
 
   await loadBasePlatform();
 
-  setStatus(
-   'Dijital atölyeler ve oyun modülleri yükleniyor...'
-  );
+  setStatus('Dijital atölyeler ve oyun modülleri yükleniyor...');
 
   await loadLocalModules();
 
@@ -599,13 +613,9 @@ async function start(){
 
   setProgress(100);
 
-  setStatus(
-   'KALECAD hazır! İyi çalışmalar.'
-  );
+  setStatus('KALECAD hazır! İyi çalışmalar.');
 
-  console.info(
-   'KALECAD yüklemesi tamamlandı.'
-  );
+  console.info('KALECAD yüklemesi tamamlandı.');
 
   setTimeout(()=>{
    if(loader.isConnected){
@@ -616,9 +626,7 @@ async function start(){
  }catch(error){
   console.error('KALECAD yükleme hatası:',error);
 
-  setStatus(
-   'Platform yüklenirken bir sorun oluştu.'
-  );
+  setStatus('Platform yüklenirken bir sorun oluştu.');
 
   showError(
    error.message+
